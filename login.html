@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+    .auth-card {
+      max-width: 400px;
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      padding: 32px 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div style="margin-bottom: 24px; text-align: center;">
+      <a href="index.html" class="nav-brand" style="font-size: 26px; justify-content: center;">
+        Kolab<span class="dot">.</span>
+      </a>
+      <p style="margin: 6px 0 0; font-size: 14px; color: var(--copy);">Platform Kolaborasi Konten UGC</p>
+    </div>
+
+    <div class="auth-card">
+      <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 700; text-align: center;">Masuk ke Kolab</h2>
+
+      <form id="loginForm" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label" for="roleSelect">Masuk sebagai</label>
+          <select id="roleSelect" class="input">
+            <option value="">-- Pilih Peran --</option>
+            <option value="umkm">UMKM / Brand</option>
+            <option value="creator">Micro-Creator</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="userSelectGroup" style="display: none;">
+          <label class="form-label" for="userSelect">Pilih Akun Demo</label>
+          <select id="userSelect" class="input">
+            <option value="">-- Pilih Akun --</option>
+          </select>
+          <div class="form-hint" id="userHint"></div>
+        </div>
+
+        <div id="generalError" class="error-text" style="margin-bottom: 16px; display: none;"></div>
+
+        <button type="submit" id="btnSubmit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 8px;">
+          Masuk
+        </button>
+      </form>
+
+      <div style="margin-top: 24px; text-align: center; font-size: 13px; color: var(--copy); border-top: 1px solid var(--line); padding-top: 18px;">
+        Belum punya akun? <a href="register.html" style="color: var(--accent); font-weight: 600;">Daftar</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="kolab-db.js"></script>
+  <script>
+    const roleSelect = document.getElementById('roleSelect');
+    const userSelectGroup = document.getElementById('userSelectGroup');
+    const userSelect = document.getElementById('userSelect');
+    const userHint = document.getElementById('userHint');
+    const generalError = document.getElementById('generalError');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    roleSelect.addEventListener('change', function() {
+      generalError.style.display = 'none';
+      generalError.textContent = '';
+      const selectedRole = roleSelect.value;
+
+      if (!selectedRole) {
+        userSelectGroup.style.display = 'none';
+        userSelect.innerHTML = '<option value="">-- Pilih Akun --</option>';
+        return;
+      }
+
+      const users = KolabDB.getUsersByRole(selectedRole);
+      userSelect.innerHTML = '<option value="">-- Pilih Akun Demo --</option>';
+
+      users.forEach(function(u) {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        let extra = '';
+        if (u.city) extra = ` (${u.city})`;
+        else if (u.niche) extra = ` (${u.niche} · ${(u.followers || 0).toLocaleString('id-ID')} followers)`;
+        opt.textContent = `${u.name}${extra}`;
+        userSelect.appendChild(opt);
+      });
+
+      userSelectGroup.style.display = 'block';
+    });
+
+    userSelect.addEventListener('change', function() {
+      generalError.style.display = 'none';
+      generalError.textContent = '';
+    });
+
+    btnSubmit.addEventListener('click', function() {
+      generalError.style.display = 'none';
+      generalError.textContent = '';
+
+      const role = roleSelect.value;
+      const userId = userSelect.value;
+
+      if (!role || !userId) {
+        generalError.textContent = 'Pilih role dan akun terlebih dahulu';
+        generalError.style.display = 'block';
+        return;
+      }
+
+      const user = KolabDB.getUserById(userId);
+      if (!user) {
+        generalError.textContent = 'Akun tidak ditemukan di database';
+        generalError.style.display = 'block';
+        return;
+      }
+
+      // Validasi akun suspended jika ada
+      if (user.status === 'suspended') {
+        generalError.textContent = 'Akun ini sedang disuspend oleh administrator.';
+        generalError.style.display = 'block';
+        return;
+      }
+
+      KolabDB.setSession({
+        id: user.id,
+        role: user.role,
+        name: user.name
+      });
+
+      if (user.role === 'umkm') {
+        window.location.href = 'dashboard-umkm.html';
+      } else if (user.role === 'creator') {
+        window.location.href = 'dashboard-creator.html';
+      } else if (user.role === 'admin') {
+        window.location.href = 'dashboard-admin.html';
+      } else {
+        window.location.href = 'index.html';
+      }
+    });
+  </script>
+</body>
+</html>

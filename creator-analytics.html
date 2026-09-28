@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analitik Media Sosial - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .chart-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      height: 180px;
+      padding: 16px 0 8px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 8px;
+    }
+    .chart-bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+    }
+    .chart-bar {
+      width: 100%;
+      max-width: 44px;
+      background: var(--accent);
+      border-radius: 6px 6px 2px 2px;
+      transition: height 0.4s ease;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 4px;
+    }
+    .chart-val-label {
+      font-size: 10px;
+      color: #fff;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .chart-month-label {
+      font-size: 11px;
+      color: var(--copy);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="margin-bottom: 24px;">
+      <a href="dashboard-creator.html" style="font-size: 13px; color: var(--copy); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+        ← Kembali ke Dashboard
+      </a>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Analitik Media Sosial Kreator</h1>
+          <p style="margin: 0; color: var(--copy); font-size: 14px;">
+            Statistik keterlibatan (engagement), pertumbuhan audiens, dan verifikasi tingkatan influencer.
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;" id="headerTierSummary">
+          <!-- Diisi via JS: tier badge besar + total followers -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Cards Container -->
+    <div id="platformCardsContainer" style="display: flex; flex-direction: column; gap: 24px;">
+      <!-- Instagram & TikTok Cards -->
+    </div>
+  </main>
+
+  <script src="kolab-db.js"></script>
+  <script src="kolab-ui.js"></script>
+  <script>
+    const session = KolabDB.requireRole(['creator']);
+
+    if (session) {
+      KolabUI.renderNavbar('dashboard-creator');
+
+      function formatNumber(n) {
+        n = Number(n) || 0;
+        if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
+        if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'K';
+        return n.toLocaleString('id-ID');
+      }
+
+      function renderAnalytics() {
+        const social = KolabDB.getSocialSummary(session.id);
+
+        // Header Tier & Followers
+        const headerSummary = document.getElementById('headerTierSummary');
+        if (headerSummary) {
+          headerSummary.innerHTML = `
+            <div style="text-align: right;">
+              <span class="badge" style="background: var(--accent); color: #fff; font-size: 13px; padding: 6px 14px; font-weight: 600;">
+                Tier: ${social.tier}
+              </span>
+              <div style="font-size: 13px; color: var(--copy); margin-top: 4px;">
+                Total Pengikut: <strong class="tabular-nums" style="color: var(--ink); font-size: 15px;">${formatNumber(social.totalFollowers)}</strong>
+              </div>
+            </div>
+          `;
+        }
+
+        const container = document.getElementById('platformCardsContainer');
+        if (!container) return;
+
+        const platforms = ['instagram', 'tiktok'];
+        let html = '';
+
+        platforms.forEach(function(plat) {
+          const platName = plat === 'instagram' ? 'Instagram' : 'TikTok';
+          const icon = plat === 'instagram' ? '📸' : '🎵';
+          const acc = social.accounts ? social.accounts[plat] : null;
+          const isConnected = acc && acc.connected;
+
+          if (!isConnected) {
+            html += `
+              <div class="card" style="border: 2px dashed var(--line); text-align: center; padding: 40px 24px;">
+                <div style="font-size: 36px; margin-bottom: 10px;">${icon}</div>
+                <h3 style="margin: 0 0 6px; font-size: 18px; font-weight: 600;">${platName} Belum Terhubung</h3>
+                <p style="margin: 0 0 20px; font-size: 14px; color: var(--copy); max-width: 440px; margin-left: auto; margin-right: auto;">
+                  Hubungkan akun ${platName} untuk memverifikasi jumlah followers, engagement rate, dan grafik pertumbuhan Anda kepada UMKM.
+                </p>
+                <button type="button" class="btn-primary btn-sm" onclick="handleConnect('${plat}')">
+                  Hubungkan Akun ${platName}
+                </button>
+              </div>
+            `;
+          } else {
+            // Platform Connected: render detail stats + 6 months bar chart
+            const growth = acc.growthHistory || [];
+            let maxFollowers = 1;
+            growth.forEach(function(g) { if (g.followers > maxFollowers) maxFollowers = g.followers; });
+
+            let chartBarsHtml = '';
+            growth.forEach(function(g, idx) {
+              // height_px = 20 + (followers / max_followers_in_series) * 120
+              const heightPx = Math.round(20 + (g.followers / maxFollowers) * 120);
+              // Opacity scale: older months lighter, latest full opacity
+              const opacity = (0.45 + (idx / (growth.length - 1)) * 0.55).toFixed(2);
+              const labelFollowers = formatNumber(g.followers);
+
+              chartBarsHtml += `
+                <div class="chart-bar-col">
+                  <div class="chart-bar" style="height: ${heightPx}px; opacity: ${opacity};" title="${g.month}: ${g.followers.toLocaleString('id-ID')} pengikut">
+                    <span class="chart-val-label">${labelFollowers}</span>
+                  </div>
+                  <div class="chart-month-label">${g.month}</div>
+                </div>
+              `;
+            });
+
+            html += `
+              <div class="card">
+                <div class="card-header" style="align-items: flex-start;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                      ${icon}
+                    </div>
+                    <div>
+                      <h2 class="card-title" style="margin: 0; font-size: 18px;">${platName} <span style="font-weight: 400; color: var(--copy); font-size: 14px;">(${acc.handle})</span></h2>
+                      <span class="badge badge-active" style="font-size: 11px; margin-top: 2px;">Terverifikasi Terhubung</span>
+                    </div>
+                  </div>
+                  <div>
+                    <button type="button" class="btn-outline btn-danger btn-sm" style="font-size: 12px; padding: 5px 12px;" onclick="handleDisconnect('${plat}')">
+                      Putuskan Koneksi
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 4 Metrik Ringkas -->
+                <div class="grid-2" style="grid-template-columns: repeat(4, 1fr) !important; gap: 14px; margin-bottom: 24px;">
+                  <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                    <div class="stat-label">Pengikut</div>
+                    <div class="stat-value tabular-nums" style="font-size: 22px;">${acc.followers.toLocaleString('id-ID')}</div>
+                  </div>
+                  <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                    <div class="stat-label">Engagement Rate</div>
+                    <div class="stat-value tabular-nums" style="font-size: 22px; color: var(--text-success);">${acc.engagementRate}%</div>
+                  </div>
+                  <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                    <div class="stat-label">Rata-rata Likes</div>
+                    <div class="stat-value tabular-nums" style="font-size: 22px;">${acc.avgLikes.toLocaleString('id-ID')}</div>
+                  </div>
+                  <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                    <div class="stat-label">Rata-rata Komentar</div>
+                    <div class="stat-value tabular-nums" style="font-size: 22px;">${acc.avgComments.toLocaleString('id-ID')}</div>
+                  </div>
+                </div>
+
+                <!-- Grafik Pertumbuhan 6 Bulan -->
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="font-size: 14px; color: var(--ink);">Tren Pertumbuhan Pengikut (6 Bulan Terakhir)</strong>
+                    <span style="font-size: 12px; color: var(--copy);">Organik & Terverifikasi</span>
+                  </div>
+                  
+                  <div class="chart-container">
+                    ${chartBarsHtml}
+                  </div>
+                  <div style="font-size: 11px; color: var(--copy); text-align: right;">
+                    Tinggi batang proporsional terhadap volume pengikut per bulan.
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        });
+
+        container.innerHTML = html;
+      }
+
+      window.handleConnect = function(plat) {
+        KolabDB.connectSocialAccount(session.id, plat);
+        KolabUI.showToast(`Akun ${plat === 'instagram' ? 'Instagram' : 'TikTok'} berhasil dihubungkan!`);
+        renderAnalytics();
+      };
+
+      window.handleDisconnect = function(plat) {
+        if (confirm(`Yakin ingin memutuskan koneksi akun ${plat === 'instagram' ? 'Instagram' : 'TikTok'}?`)) {
+          KolabDB.disconnectSocialAccount(session.id, plat);
+          KolabUI.showToast(`Koneksi akun ${plat} diputuskan.`);
+          renderAnalytics();
+        }
+      };
+
+      renderAnalytics();
+    }
+  </script>
+</body>
+</html>

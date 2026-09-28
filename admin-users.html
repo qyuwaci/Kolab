@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Pengguna - Admin Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="margin-bottom: 24px;">
+      <a href="dashboard-admin.html" style="font-size: 13px; color: var(--copy); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+        ← Kembali ke Dashboard Admin
+      </a>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Manajemen Pengguna</h1>
+          <p style="margin: 0; color: var(--copy); font-size: 14px;">
+            Daftar seluruh akun UMKM, micro-creator, dan administrator pada platform Kolab.
+          </p>
+        </div>
+        <div>
+          <input type="text" id="userSearchInput" class="input" placeholder="Cari nama atau email..." style="max-width: 280px;" oninput="renderUsersTable()">
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div id="usersTableContainer">
+        <!-- Render table or empty state -->
+      </div>
+    </div>
+  </main>
+
+  <script src="kolab-db.js"></script>
+  <script src="kolab-ui.js"></script>
+  <script>
+    const session = KolabDB.requireRole(['admin']);
+
+    if (session) {
+      KolabUI.renderNavbar('admin-users');
+
+      function renderUsersTable() {
+        const query = (document.getElementById('userSearchInput').value || '').trim().toLowerCase();
+        const db = KolabDB.load();
+        let users = db.users || [];
+
+        if (query) {
+          users = users.filter(function(u) {
+            const name = (u.name || '').toLowerCase();
+            const email = (u.email || '').toLowerCase();
+            const role = (u.role || '').toLowerCase();
+            return name.includes(query) || email.includes(query) || role.includes(query);
+          });
+        }
+
+        const container = document.getElementById('usersTableContainer');
+
+        if (!users || users.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="border: none; border-radius: 0;">
+              Belum ada data pengguna yang sesuai dengan pencarian.
+            </div>
+          `;
+          return;
+        }
+
+        let rows = '';
+        users.forEach(function(u) {
+          let roleBadge = '<span class="badge badge-neutral">UMKM</span>';
+          if (u.role === 'creator') roleBadge = '<span class="badge badge-neutral" style="background: #e0f2fe; color: #0369a1;">CREATOR</span>';
+          else if (u.role === 'admin') roleBadge = '<span class="badge badge-neutral" style="background: #f3e8ff; color: #7e22ce;">ADMIN</span>';
+
+          let statusBadge = '<span class="badge badge-active">Aktif</span>';
+          if (u.status === 'suspended') statusBadge = '<span class="badge badge-suspended">Suspended</span>';
+          else if (u.status === 'pending_verification') statusBadge = '<span class="badge badge-pending">Menunggu Verifikasi</span>';
+
+          let actionBtn = '-';
+          if (u.id === session.id) {
+            actionBtn = '<span style="font-size: 12px; color: var(--copy); font-style: italic;">Akun Anda</span>';
+          } else if (u.status === 'pending_verification') {
+            actionBtn = `<button type="button" class="btn-primary btn-sm" onclick="handleVerify('${u.id}')">Verifikasi</button>`;
+          } else if (u.status === 'active') {
+            actionBtn = `<button type="button" class="btn-outline btn-danger btn-sm" onclick="handleSuspend('${u.id}')">Suspend</button>`;
+          } else if (u.status === 'suspended') {
+            actionBtn = `<button type="button" class="btn-outline btn-sm" onclick="handleVerify('${u.id}')">Aktifkan Kembali</button>`;
+          }
+
+          let extraInfo = '';
+          if (u.role === 'umkm') extraInfo = `${u.category || 'Bisnis'} · ${u.city || 'Indonesia'}`;
+          else if (u.role === 'creator') extraInfo = `Niche: ${u.niche || 'Umum'} · ${(u.followers || 0).toLocaleString('id-ID')} followers`;
+          else extraInfo = 'Sistem Administrator';
+
+          rows += `
+            <tr>
+              <td>
+                <div style="font-weight: 600; color: var(--ink);">${u.name}</div>
+                <div style="font-size: 12px; color: var(--copy);">${u.email || '-'} · ${extraInfo}</div>
+              </td>
+              <td>${roleBadge}</td>
+              <td>${statusBadge}</td>
+              <td>${actionBtn}</td>
+            </tr>
+          `;
+        });
+
+        container.innerHTML = `
+          <div class="table-container" style="border: none; border-radius: 0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Pengguna</th>
+                  <th>Peran</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      window.handleVerify = function(userId) {
+        const res = KolabDB.verifyUser(userId);
+        if (res.ok) {
+          KolabUI.showToast(`Pengguna ${res.user.name} berhasil diaktifkan/diverifikasi!`);
+          renderUsersTable();
+        } else {
+          alert(res.message || 'Gagal mengubah status');
+        }
+      };
+
+      window.handleSuspend = function(userId) {
+        const res = KolabDB.suspendUser(userId);
+        if (res.ok) {
+          KolabUI.showToast(`Pengguna ${res.user.name} telah disuspend!`);
+          renderUsersTable();
+        } else {
+          alert(res.message || 'Gagal mensuspend');
+        }
+      };
+
+      renderUsersTable();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil UMKM - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container" id="profileContainer" style="max-width: 840px;">
+    <!-- Diisi via JS -->
+  </main>
+
+  <script src="kolab-db.js"></script>
+  <script src="kolab-ui.js"></script>
+  <script>
+    const session = KolabDB.getSession();
+    if (!session) {
+      window.location.href = 'login.html';
+    } else {
+      KolabUI.renderNavbar('');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const umkmId = urlParams.get('id');
+      const container = document.getElementById('profileContainer');
+
+      const user = umkmId ? KolabDB.getUserById(umkmId) : null;
+
+      if (!user || user.role !== 'umkm') {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 48px 24px; margin-top: 40px;">
+            <div style="font-size: 36px; margin-bottom: 12px;">🏪</div>
+            <h2 style="margin: 0 0 8px; font-size: 20px; font-weight: 700;">Profil UMKM Tidak Ditemukan</h2>
+            <p style="color: var(--copy); font-size: 14px; margin: 0 0 24px;">Akun bisnis/brand tidak tersedia atau ID tidak valid.</p>
+            <button type="button" class="btn-primary" onclick="history.back()">Kembali</button>
+          </div>
+        `;
+      } else {
+        renderUmkmProfile(user);
+      }
+
+      function renderUmkmProfile(umkm) {
+        const reviewsData = KolabDB.getReviewsForUser(umkm.id);
+        const allCampaigns = KolabDB.getCampaignsByUmkm(umkm.id);
+        const completedCount = allCampaigns.filter(function(c) { return c.status === 'completed'; }).length;
+
+        let reviewsHtml = '';
+        if (!reviewsData.count || reviewsData.count === 0) {
+          reviewsHtml = `
+            <div class="empty-state">
+              Belum ada ulasan untuk pelaku usaha ini.
+            </div>
+          `;
+        } else {
+          reviewsData.list.forEach(function(r) {
+            const reviewer = KolabDB.getUserById(r.reviewerId);
+            const reviewerName = reviewer ? reviewer.name : 'Pengguna';
+            const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+            const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString('id-ID', {
+              day: 'numeric', month: 'short', year: 'numeric'
+            }) : '';
+
+            reviewsHtml += `
+              <div style="padding: 16px 0; border-bottom: 1px solid var(--line);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <div>
+                    <strong style="font-size: 14px; color: var(--ink);">${reviewerName}</strong>
+                    ${reviewer && reviewer.niche ? `<span style="font-size: 12px; color: var(--copy);"> · Kreator ${reviewer.niche}</span>` : ''}
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #f59e0b; font-size: 14px;">${stars}</span>
+                    <span style="font-size: 12px; color: var(--copy);">${dateStr}</span>
+                  </div>
+                </div>
+                <p style="margin: 0; font-size: 14px; color: var(--copy); line-height: 1.5;">
+                  ${r.comment || 'Ulasan tanpa komentar tambahan.'}
+                </p>
+              </div>
+            `;
+          });
+        }
+
+        const ratingDisplay = reviewsData.average !== null
+          ? `<span style="font-size: 20px; font-weight: 700; color: #f59e0b;">${reviewsData.average} ★</span> <span style="font-size: 13px; color: var(--copy);">(${reviewsData.count} ulasan)</span>`
+          : '<span style="font-size: 14px; color: var(--copy);">Belum ada ulasan</span>';
+
+        container.innerHTML = `
+          <div style="margin-bottom: 16px;">
+            <button type="button" class="btn-outline btn-sm" onclick="history.back()">← Kembali</button>
+          </div>
+
+          <!-- Profile Card -->
+          <div class="card" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                  <h1 style="margin: 0; font-size: 26px; font-weight: 700;">${umkm.name}</h1>
+                  <span class="badge badge-active" style="font-size: 11px;">UMKM Terverifikasi</span>
+                </div>
+                <div style="font-size: 14px; color: var(--copy);">
+                  Kategori: <strong>${umkm.category || 'Usaha Lokal'}</strong> · Kota: <strong>${umkm.city || 'Indonesia'}</strong>
+                </div>
+              </div>
+
+              <div>
+                ${ratingDisplay}
+              </div>
+            </div>
+
+            <!-- Stats 3 Kolom -->
+            <div class="grid-3" style="margin-bottom: 10px;">
+              <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                <div class="stat-label">Kampanye Selesai</div>
+                <div class="stat-value tabular-nums" style="font-size: 24px; color: var(--text-success);">${completedCount}</div>
+                <div class="stat-sub">Kolaborasi sukses</div>
+              </div>
+              <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                <div class="stat-label">Total Kampanye Dibuat</div>
+                <div class="stat-value tabular-nums" style="font-size: 24px;">${allCampaigns.length}</div>
+                <div class="stat-sub">Riwayat proyek terbuka & selesai</div>
+              </div>
+              <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                <div class="stat-label">Garansi Escrow</div>
+                <div class="stat-value" style="font-size: 18px; color: var(--accent); font-weight: 600;">100% Aman</div>
+                <div class="stat-sub">Pembayaran tepat waktu</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews Section -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Ulasan dari Micro-Creator</h2>
+              <span class="badge badge-neutral" style="font-size: 11px;">Reputasi Pembayaran & Brief</span>
+            </div>
+
+            <div>
+              ${reviewsHtml}
+            </div>
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>

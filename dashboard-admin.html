@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Ringkasan Sistem Administrator</h1>
+        <p style="margin: 0; color: var(--copy); font-size: 14px;">
+          Pantau seluruh aktivitas ekosistem marketplace UGC, escrow, dan verifikasi anggota.
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <a href="admin-users.html" class="btn-outline">Kelola Pengguna</a>
+        <a href="admin-transactions.html" class="btn-primary">Lihat Transaksi & Escrow</a>
+      </div>
+    </div>
+
+    <!-- 3 Kartu Ringkasan -->
+    <div class="grid-3" style="margin-bottom: 28px;">
+      <!-- Card 1 -->
+      <div class="stat-card">
+        <div class="stat-label">Total Pengguna Terdaftar</div>
+        <div class="stat-value tabular-nums" id="statUsersCount">0</div>
+        <div class="stat-sub">UMKM, micro-creator, & admin</div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="stat-card">
+        <div class="stat-label">Kampanye Aktif Berjalan</div>
+        <div class="stat-value tabular-nums" style="color: var(--text-success);" id="statActiveCampaigns">0</div>
+        <div class="stat-sub">Kampanye yang belum selesai/closed</div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="stat-card">
+        <div class="stat-label">Total Dana Ditahan (Escrow)</div>
+        <div class="stat-value tabular-nums" style="color: var(--accent);" id="statEscrowBalance">Rp0</div>
+        <div class="stat-sub">Saldo aman dalam penjaminan sistem</div>
+      </div>
+    </div>
+
+    <!-- Layout 2 Kolom: Perlu Ditinjau & Aktivitas Terkini -->
+    <div class="grid-2">
+      <!-- Card Perlu Ditinjau -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Perlu Ditinjau</h2>
+          <span class="badge badge-neutral" style="font-size: 11px;">Verifikasi User</span>
+        </div>
+
+        <div id="pendingReviewContainer">
+          <!-- Render list user pending_verification or empty state -->
+        </div>
+      </div>
+
+      <!-- Card Akses Cepat Navigasi Admin -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Navigasi Operasional</h2>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <a href="admin-users.html" style="display: flex; justify-content: space-between; align-items: center; padding: 14px; background: var(--paper); border-radius: var(--radius-sm); text-decoration: none;">
+            <div>
+              <strong style="display: block; font-size: 15px; color: var(--ink);">Manajemen Pengguna</strong>
+              <span style="font-size: 13px; color: var(--copy);">Verifikasi akun baru, pantau status, atau suspend akun.</span>
+            </div>
+            <span style="font-size: 18px; color: var(--copy);">→</span>
+          </a>
+
+          <a href="admin-transactions.html" style="display: flex; justify-content: space-between; align-items: center; padding: 14px; background: var(--paper); border-radius: var(--radius-sm); text-decoration: none;">
+            <div>
+              <strong style="display: block; font-size: 15px; color: var(--ink);">Arus Kas Escrow & Transaksi</strong>
+              <span style="font-size: 13px; color: var(--copy);">Audit pendapatan platform (take rate 15%) dan aliran pembayaran.</span>
+            </div>
+            <span style="font-size: 18px; color: var(--copy);">→</span>
+          </a>
+        </div>
+
+        <div style="margin-top: 24px; padding: 14px; border: 1px dashed var(--line); border-radius: var(--radius-sm); font-size: 13px; color: var(--copy); line-height: 1.5;">
+          ℹ️ <strong>Catatan Sistem:</strong> Seluruh data disimpan dan disinkronkan secara terpusat melalui modul <code>KolabDB</code> di localStorage browser.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="kolab-db.js"></script>
+  <script src="kolab-ui.js"></script>
+  <script>
+    const session = KolabDB.requireRole(['admin']);
+
+    if (session) {
+      KolabUI.renderNavbar('dashboard-admin');
+
+      function renderDashboard() {
+        const db = KolabDB.load();
+
+        // 3 Kartu Ringkasan
+        const usersCount = db.users ? db.users.length : 0;
+        const activeCampaigns = db.campaigns ? db.campaigns.filter(function(c) { return c.status !== 'completed'; }).length : 0;
+        const escrowSummary = KolabDB.getEscrowSummary();
+
+        document.getElementById('statUsersCount').textContent = usersCount;
+        document.getElementById('statActiveCampaigns').textContent = activeCampaigns;
+        document.getElementById('statEscrowBalance').textContent = KolabDB.formatRupiah(escrowSummary.totalEscrow);
+
+        // Card Perlu Ditinjau
+        const pendingUsers = db.users ? db.users.filter(function(u) { return u.status === 'pending_verification'; }) : [];
+        const pendingContainer = document.getElementById('pendingReviewContainer');
+
+        if (!pendingUsers || pendingUsers.length === 0) {
+          pendingContainer.innerHTML = `
+            <div class="empty-state">
+              Tidak ada yang perlu ditinjau saat ini.
+            </div>
+          `;
+        } else {
+          let html = '';
+          pendingUsers.forEach(function(u) {
+            html += `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line);">
+                <div>
+                  <strong style="font-size: 14px;">${u.name}</strong>
+                  <div style="font-size: 12px; color: var(--copy);">${u.email} · Role: ${u.role}</div>
+                </div>
+                <div>
+                  <button type="button" class="btn-primary btn-sm" onclick="handleVerifyUser('${u.id}')">Verifikasi</button>
+                </div>
+              </div>
+            `;
+          });
+          pendingContainer.innerHTML = html;
+        }
+      }
+
+      window.handleVerifyUser = function(userId) {
+        const res = KolabDB.verifyUser(userId);
+        if (res.ok) {
+          KolabUI.showToast(`Pengguna ${res.user.name} berhasil diverifikasi!`);
+          renderDashboard();
+        } else {
+          alert(res.message || 'Gagal memverifikasi');
+        }
+      };
+
+      renderDashboard();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Transaksi & Escrow - Admin Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="margin-bottom: 24px;">
+      <a href="dashboard-admin.html" style="font-size: 13px; color: var(--copy); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+        ← Kembali ke Dashboard Admin
+      </a>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Laporan Transaksi & Arus Escrow</h1>
+          <p style="margin: 0; color: var(--copy); font-size: 14px;">
+            Audit lengkap seluruh pergerakan dana top up, penahanan escrow, pelepasan, dan take-rate platform.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Kartu Ringkasan Keuangan -->
+    <div class="grid-3" style="margin-bottom: 28px;">
+      <div class="stat-card">
+        <div class="stat-label">Total Dana Ditahan (Escrow Aktif)</div>
+        <div class="stat-value tabular-nums" style="color: var(--accent);" id="summaryEscrow">Rp0</div>
+        <div class="stat-sub">Dana kampanye yang sedang dalam penjaminan</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Total Payout ke Kreator</div>
+        <div class="stat-value tabular-nums" style="color: var(--text-success);" id="summaryPayout">Rp0</div>
+        <div class="stat-sub">Dana yang telah ditarik ke rekening kreator</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Pendapatan Platform (15% Take Rate)</div>
+        <div class="stat-value tabular-nums" style="color: var(--ink);" id="summaryFee">Rp0</div>
+        <div class="stat-sub">Total komisi resmi yang dihasilkan platform</div>
+      </div>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="card" style="margin-bottom: 20px; padding: 16px 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <label style="font-size: 13px; font-weight: 600; color: var(--ink);">Filter Tipe:</label>
+          <select id="typeFilter" class="input" style="width: auto; padding: 6px 12px; font-size: 13px;" onchange="renderTransactionsTable()">
+            <option value="all">Semua Tipe Transaksi</option>
+            <option value="topup">Top Up (UMKM)</option>
+            <option value="escrow_hold">Penahanan Escrow (Hold)</option>
+            <option value="escrow_release">Pelepasan Escrow (Release)</option>
+            <option value="platform_fee">Komisi Platform (Fee)</option>
+            <option value="payout">Pencairan Dana (Payout)</option>
+          </select>
+        </div>
+        <div>
+          <input type="text" id="txSearchInput" class="input" placeholder="Cari ID transaksi / user..." style="max-width: 260px; padding: 6px 12px; font-size: 13px;" oninput="renderTransactionsTable()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabel Transaksi -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div id="txTableContainer">
+        <!-- Render table or empty state -->
+      </div>
+    </div>
+  </main>
+
+  <script src="kolab-db.js"></script>
+  <script src="kolab-ui.js"></script>
+  <script>
+    const session = KolabDB.requireRole(['admin']);
+
+    if (session) {
+      KolabUI.renderNavbar('admin-transactions');
+
+      function formatTypeBadge(type) {
+        if (type === 'topup') return '<span class="badge badge-active">Top Up</span>';
+        if (type === 'escrow_hold') return '<span class="badge badge-pending">Escrow Hold</span>';
+        if (type === 'escrow_release') return '<span class="badge badge-success">Escrow Release</span>';
+        if (type === 'platform_fee') return '<span class="badge badge-neutral" style="background:#fef3c7; color:#92400e;">Platform Fee</span>';
+        if (type === 'payout') return '<span class="badge badge-revision">Payout</span>';
+        return `<span class="badge badge-neutral">${type}</span>`;
+      }
+
+      function renderTransactionsTable() {
+        const escrowSummary = KolabDB.getEscrowSummary();
+        document.getElementById('summaryEscrow').textContent = KolabDB.formatRupiah(escrowSummary.totalEscrow);
+        document.getElementById('summaryPayout').textContent = KolabDB.formatRupiah(escrowSummary.totalPayout);
+        document.getElementById('summaryFee').textContent = KolabDB.formatRupiah(escrowSummary.totalFee);
+
+        let txList = KolabDB.getAllTransactions() || [];
+        const typeFilter = document.getElementById('typeFilter').value;
+        const query = (document.getElementById('txSearchInput').value || '').trim().toLowerCase();
+
+        if (typeFilter !== 'all') {
+          txList = txList.filter(function(t) { return t.type === typeFilter; });
+        }
+
+        if (query) {
+          txList = txList.filter(function(t) {
+            const idMatch = (t.id || '').toLowerCase().includes(query);
+            const fromUser = t.fromUserId ? (KolabDB.getUserById(t.fromUserId)?.name || '').toLowerCase() : '';
+            const toUser = t.toUserId ? (KolabDB.getUserById(t.toUserId)?.name || '').toLowerCase() : '';
+            return idMatch || fromUser.includes(query) || toUser.includes(query);
+          });
+        }
+
+        const container = document.getElementById('txTableContainer');
+
+        if (!txList || txList.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="border: none; border-radius: 0;">
+              Belum ada data transaksi yang sesuai filter.
+            </div>
+          `;
+          return;
+        }
+
+        // Tampilkan dari yang paling baru
+        const sortedTx = txList.slice().reverse();
+
+        let rows = '';
+        sortedTx.forEach(function(t) {
+          let userDesc = '-';
+          if (t.fromUserId && t.toUserId) {
+            const f = KolabDB.getUserById(t.fromUserId);
+            const to = KolabDB.getUserById(t.toUserId);
+            userDesc = `${f ? f.name : t.fromUserId} → ${to ? to.name : t.toUserId}`;
+          } else if (t.fromUserId) {
+            const f = KolabDB.getUserById(t.fromUserId);
+            userDesc = `Dari: ${f ? f.name : t.fromUserId}`;
+          } else if (t.toUserId) {
+            const to = KolabDB.getUserById(t.toUserId);
+            userDesc = `Ke: ${to ? to.name : t.toUserId}`;
+          } else if (t.campaignId) {
+            userDesc = `Sistem (Kampanye)`;
+          }
+
+          let campaignDesc = '-';
+          if (t.campaignId) {
+            const c = KolabDB.getCampaignById(t.campaignId);
+            campaignDesc = c ? c.title : t.campaignId;
+          }
+
+          const dateStr = t.createdAt ? new Date(t.createdAt).toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+          }) : '-';
+
+          rows += `
+            <tr>
+              <td style="font-family: monospace; font-size: 12px; color: var(--copy);">${t.id}</td>
+              <td>${formatTypeBadge(t.type)}</td>
+              <td style="font-size: 13px;">${userDesc}</td>
+              <td style="font-size: 13px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${campaignDesc}">
+                ${campaignDesc}
+              </td>
+              <td class="tabular-nums" style="font-weight: 600;">${KolabDB.formatRupiah(t.amount)}</td>
+              <td><span class="badge badge-success">Sukses</span></td>
+              <td style="font-size: 12px; color: var(--copy);">${dateStr}</td>
+            </tr>
+          `;
+        });
+
+        container.innerHTML = `
+          <div class="table-container" style="border: none; border-radius: 0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tipe</th>
+                  <th>Entitas</th>
+                  <th>Kampanye Terkait</th>
+                  <th>Nominal</th>
+                  <th>Status</th>
+                  <th>Waktu</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      window.renderTransactionsTable = renderTransactionsTable;
+      renderTransactionsTable();
+    }
+  </script>
+</body>
+</html>

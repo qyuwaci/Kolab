@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jelajahi Kampanye - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .campaign-browse-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .campaign-browse-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Jelajahi Kampanye Terbuka</h1>
+        <p style="margin: 0; color: var(--copy); font-size: 14px;">
+          Pilih kampanye UGC dari brand UMKM yang sesuai dengan karakter audiens Anda.
+        </p>
+      </div>
+      <div>
+        <input type="text" id="searchInput" class="input" placeholder="Cari judul atau brand..." style="max-width: 260px;" oninput="renderCampaigns()">
+      </div>
+    </div>
+
+    <!-- Container Grid Kampanye -->
+    <div id="campaignsGrid" class="grid-2">
+      <!-- Diisi dinamis lewat JS -->
+    </div>
+  </main>
+
+  <script src="kolab-db.js"></script>
+  <script src="kolab-ui.js"></script>
+  <script>
+    const session = KolabDB.requireRole(['creator']);
+
+    if (session) {
+      KolabUI.renderNavbar('campaign-browse');
+
+      function renderCampaigns() {
+        const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+        let openCampaigns = KolabDB.getOpenCampaigns();
+        const myApps = KolabDB.getApplicationsByCreator(session.id);
+        const grid = document.getElementById('campaignsGrid');
+
+        if (query) {
+          openCampaigns = openCampaigns.filter(function(c) {
+            const umkm = KolabDB.getUserById(c.umkmId);
+            const umkmName = umkm ? umkm.name.toLowerCase() : '';
+            const title = (c.title || '').toLowerCase();
+            const brief = (c.brief || '').toLowerCase();
+            return title.includes(query) || umkmName.includes(query) || brief.includes(query);
+          });
+        }
+
+        if (!openCampaigns || openCampaigns.length === 0) {
+          grid.className = '';
+          grid.innerHTML = `
+            <div class="empty-state card" style="width: 100%;">
+              Belum ada kampanye terbuka saat ini.
+            </div>
+          `;
+          return;
+        }
+
+        grid.className = 'grid-2';
+        let html = '';
+
+        openCampaigns.forEach(function(c) {
+          const umkm = KolabDB.getUserById(c.umkmId) || { name: 'UMKM Brand', city: '' };
+          const platforms = Array.isArray(c.platform) ? c.platform.join(', ') : (c.platform || 'Semua Platform');
+          const existingApp = myApps.find(function(a) { return a.campaignId === c.id; });
+
+          // Rating UMKM
+          const umkmReviews = KolabDB.getReviewsForUser(c.umkmId);
+          const ratingBadgeText = umkmReviews.average !== null ? `${umkmReviews.average} ★` : 'Baru';
+
+          let btnHtml = '';
+          if (existingApp) {
+            let label = 'Menunggu Persetujuan';
+            if (existingApp.status === 'accepted') label = 'Sudah Diterima';
+            else if (existingApp.status === 'rejected') label = 'Pengajuan Ditolak';
+
+            btnHtml = `
+              <button type="button" class="btn-outline btn-sm" disabled style="opacity: 0.7; cursor: not-allowed; width: 100%; justify-content: center;">
+                ✓ ${label}
+              </button>
+            `;
+          } else {
+            btnHtml = `
+              <button type="button" class="btn-primary btn-sm" id="btnApply_${c.id}" onclick="handleApply('${c.id}')" style="width: 100%; justify-content: center;">
+                Ajukan Diri
+              </button>
+            `;
+          }
+
+          html += `
+            <div class="campaign-browse-card">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                      <a href="umkm-profile.html?id=${encodeURIComponent(c.umkmId)}" style="font-size: 12px; color: var(--accent); font-weight: 600; text-transform: uppercase; text-decoration: underline;" title="Lihat profil UMKM">
+                        ${umkm.name} ↗
+                      </a>
+                      <span class="badge badge-neutral" style="font-size: 11px; padding: 2px 8px; color: #b45309; background: #fef3c7;">
+                        ⭐ ${ratingBadgeText}
+                      </span>
+                      ${umkm.city ? `<span style="font-size: 12px; color: var(--copy);">· ${umkm.city}</span>` : ''}
+                    </div>
+                    <h3 style="margin: 6px 0 0; font-size: 18px; font-weight: 700; color: var(--ink);">${c.title}</h3>
+                  </div>
+                  <span class="badge badge-open">Terbuka</span>
+                </div>
+
+                <p style="font-size: 14px; color: var(--copy); line-height: 1.5; margin: 10px 0 16px; min-height: 42px;">
+                  ${c.brief ? (c.brief.length > 120 ? c.brief.substring(0, 120) + '...' : c.brief) : 'Tidak ada brief khusus.'}
+                </p>
+
+                <div style="background: var(--paper); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 18px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--copy);">Platform:</span>
+                    <strong>${platforms}</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--copy);">Format:</span>
+                    <strong>${c.contentType || 'Video Review'}</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--copy);">Target Niche:</span>
+                    <strong style="text-transform: capitalize;">${c.targetNiche || 'Umum'}</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--copy);">Slot Terisi:</span>
+                    <span class="tabular-nums"><strong>${c.slotsFilled || 0}</strong> dari ${c.slots} slot</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
+                  <span style="font-size: 12px; color: var(--copy);">Bayaran per Konten:</span>
+                  <span class="stat-value tabular-nums" style="font-size: 20px; color: var(--accent);">${KolabDB.formatRupiah(c.budgetPerSlot)}</span>
+                </div>
+
+                <div id="btnContainer_${c.id}">
+                  ${btnHtml}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        grid.innerHTML = html;
+      }
+
+      window.handleApply = function(campaignId) {
+        const btnContainer = document.getElementById(`btnContainer_${campaignId}`);
+        const res = KolabDB.applyToCampaign(campaignId, session.id);
+
+        if (res.ok) {
+          KolabUI.showToast('Pengajuan berhasil dikirim ke pemilik UMKM!');
+          if (btnContainer) {
+            btnContainer.innerHTML = `
+              <button type="button" class="btn-outline btn-sm" disabled style="opacity: 0.7; cursor: not-allowed; width: 100%; justify-content: center;">
+                ✓ Menunggu Persetujuan
+              </button>
+            `;
+          }
+          renderCampaigns();
+        } else {
+          alert(res.message || 'Gagal mengajukan diri');
+        }
+      };
+
+      renderCampaigns();
+    }
+  </script>
+</body>
+</html>

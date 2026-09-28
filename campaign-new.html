@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buat Kampanye Baru - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container" style="max-width: 780px;">
+    <div style="margin-bottom: 24px;">
+      <a href="dashboard-umkm.html" style="font-size: 13px; color: var(--copy); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+        ← Kembali ke Dashboard
+      </a>
+      <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Buat Kampanye Baru</h1>
+      <p style="margin: 0; color: var(--copy); font-size: 14px;">
+        Buka slot kolaborasi untuk micro-creator lokal dan amankan dana di sistem escrow.
+      </p>
+    </div>
+
+    <!-- Saldo Info Banner -->
+    <div class="card" style="padding: 16px 20px; background: #fff; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <span style="font-size: 13px; color: var(--copy);">Saldo Tersedia Saat Ini:</span>
+        <strong style="font-size: 16px; margin-left: 6px;" class="tabular-nums" id="currentBalanceDisplay">Rp0</strong>
+      </div>
+      <div>
+        <a href="dashboard-umkm.html" class="btn-outline btn-sm">+ Top Up Saldo</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="newCampaignForm" onsubmit="return false;">
+        <!-- Title -->
+        <div class="form-group">
+          <label class="form-label" for="title">Judul Kampanye <span style="color: var(--accent);">*</span></label>
+          <input type="text" id="title" class="input" placeholder="Contoh: Review Menu Kopi Susu Gula Aren & Suasana Kedai">
+          <div id="titleError" class="error-text" style="display: none;">Judul kampanye wajib diisi</div>
+        </div>
+
+        <!-- Brief -->
+        <div class="form-group">
+          <label class="form-label" for="brief">Brief & Arahan Konten</label>
+          <textarea id="brief" rows="4" class="input" placeholder="Jelaskan poin utama yang perlu disorot kreator (misal: rasa kopi, tempat cozy, promo khusus)..."></textarea>
+          <div class="form-hint">Berikan arahan yang jelas agar kreator dapat membuat konten yang sesuai ekspektasi.</div>
+        </div>
+
+        <!-- Platform (checkbox multi) -->
+        <div class="form-group">
+          <label class="form-label">Platform Target</label>
+          <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
+              <input type="checkbox" name="platform" value="TikTok" checked> TikTok
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
+              <input type="checkbox" name="platform" value="Instagram Reels" checked> Instagram Reels
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
+              <input type="checkbox" name="platform" value="YouTube Shorts"> YouTube Shorts
+            </label>
+          </div>
+        </div>
+
+        <!-- Content Type -->
+        <div class="form-group">
+          <label class="form-label" for="contentType">Tipe Konten</label>
+          <select id="contentType" class="input">
+            <option value="Video Review">Video Review (30-60 detik)</option>
+            <option value="Unboxing & Try-On">Unboxing & Try-On</option>
+            <option value="Tutorial / Edukasi">Tutorial & Cara Pakai</option>
+            <option value="Story & Daily Life">Vlog Kunjungan / Daily Life</option>
+          </select>
+        </div>
+
+        <!-- Target Niche -->
+        <div class="form-group">
+          <label class="form-label" for="targetNiche">Target Niche Kreator</label>
+          <select id="targetNiche" class="input">
+            <option value="food">Kuliner / Food & Beverage</option>
+            <option value="lifestyle">Lifestyle & Daily Vlog</option>
+            <option value="beauty">Beauty & Skincare</option>
+            <option value="fashion">Fashion & Pakaian</option>
+            <option value="lainnya">Lainnya / Umum</option>
+          </select>
+          <div class="form-hint">Membantu sistem Kolab mencocokkan rekomendasi micro-creator yang paling relevan.</div>
+        </div>
+
+        <!-- Grid Slots & Budget -->
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label" for="slots">Jumlah Slot Kreator <span style="color: var(--accent);">*</span></label>
+            <input type="number" id="slots" class="input" min="1" value="2" oninput="updateLivePreview()">
+            <div id="slotsError" class="error-text" style="display: none;">Jumlah slot harus minimal 1</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="budgetPerSlot">Budget per Slot (Rp) <span style="color: var(--accent);">*</span></label>
+            <input type="number" id="budgetPerSlot" class="input" min="10000" step="50000" value="250000" oninput="updateLivePreview()">
+            <div id="budgetError" class="error-text" style="display: none;">Budget per slot harus lebih dari 0</div>
+          </div>
+        </div>
+
+        <!-- Payment Model -->
+        <div class="form-group">
+          <label class="form-label">Model Pembayaran</label>
+          <div style="display: flex; gap: 24px; margin-top: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
+              <input type="radio" name="paymentModel" value="fixed" checked> Fixed Budget (Rekomendasi)
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
+              <input type="radio" name="paymentModel" value="performance"> Berbasis Performa
+            </label>
+          </div>
+        </div>
+
+        <!-- Deadline -->
+        <div class="form-group">
+          <label class="form-label" for="deadline">Batas Waktu Pengiriman Konten (Deadline)</label>
+          <input type="date" id="deadline" class="input">
+        </div>
+
+        <!-- Live Preview Total Escrow -->
+        <div style="background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 18px 20px; margin: 24px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 15px; font-weight: 600; color: var(--ink);">Total dana ditahan:</span>
+            <span id="liveTotalEscrow" class="stat-value tabular-nums" style="font-size: 22px; color: var(--accent);">Rp500.000</span>
+          </div>
+          <div style="font-size: 12px; color: var(--copy); margin-top: 6px;">
+            Dana ini akan otomatis dipindahkan dari Saldo Tersedia ke Saldo Ditahan (Escrow) setelah kampanye dibuat.
+          </div>
+        </div>
+
+        <!-- Error Message Container (TEPAT DI ATAS TOMBOL SUBMIT) -->
+        <div id="submitGeneralError" class="error-text" style="display: none; margin-bottom: 16px; padding: 12px 14px; background: var(--bg-danger); border-radius: 8px;"></div>
+
+        <!-- Success Toast Div -->
+        <div id="submitSuccessNotice" style="display: none; margin-bottom: 16px; padding: 12px 14px; background: var(--bg-success); color: var(--text-success); border-radius: 8px; font-size: 14px; font-weight: 500;">
+          ✓ Kampanye berhasil dibuat! Mengalihkan ke dashboard...
+        </div>
+
+        <!-- Submit Buttons -->
+        <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
+          <a href="dashboard-umkm.html" class="btn-outline">Batal</a>
+          <button type="button" id="btnSubmitCampaign" class="btn-primary" onclick="handleSubmitCampaign()">
+            Terbitkan Kampanye & Tahan Escrow
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="kolab-db.js"></script>
+  <script src="kolab-ui.js"></script>
+  <script>
+    const session = KolabDB.requireRole(['umkm']);
+
+    if (session) {
+      KolabUI.renderNavbar('campaign-new');
+
+      // Tampilkan saldo saat ini
+      const wallet = KolabDB.getWallet(session.id);
+      document.getElementById('currentBalanceDisplay').textContent = KolabDB.formatRupiah(wallet.balance);
+
+      // Default deadline = 30 hari ke depan
+      const d = new Date();
+      d.setDate(d.getDate() + 30);
+      document.getElementById('deadline').value = d.toISOString().split('T')[0];
+
+      function updateLivePreview() {
+        const slots = Number(document.getElementById('slots').value) || 0;
+        const budget = Number(document.getElementById('budgetPerSlot').value) || 0;
+        const total = Math.max(0, slots * budget);
+        document.getElementById('liveTotalEscrow').textContent = KolabDB.formatRupiah(total);
+      }
+
+      // Expose to window
+      window.updateLivePreview = updateLivePreview;
+      updateLivePreview();
+
+      window.handleSubmitCampaign = function() {
+        const titleEl = document.getElementById('title');
+        const briefEl = document.getElementById('brief');
+        const slotsEl = document.getElementById('slots');
+        const budgetEl = document.getElementById('budgetPerSlot');
+        const contentTypeEl = document.getElementById('contentType');
+        const deadlineEl = document.getElementById('deadline');
+        const generalError = document.getElementById('submitGeneralError');
+        const successNotice = document.getElementById('submitSuccessNotice');
+
+        // Reset errors
+        document.getElementById('titleError').style.display = 'none';
+        document.getElementById('slotsError').style.display = 'none';
+        document.getElementById('budgetError').style.display = 'none';
+        generalError.style.display = 'none';
+        generalError.textContent = '';
+        successNotice.style.display = 'none';
+
+        const titleVal = titleEl.value.trim();
+        const slotsVal = Number(slotsEl.value);
+        const budgetVal = Number(budgetEl.value);
+
+        let hasError = false;
+
+        if (!titleVal) {
+          document.getElementById('titleError').style.display = 'block';
+          hasError = true;
+        }
+        if (!slotsVal || slotsVal <= 0) {
+          document.getElementById('slotsError').style.display = 'block';
+          hasError = true;
+        }
+        if (!budgetVal || budgetVal <= 0) {
+          document.getElementById('budgetError').style.display = 'block';
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        // Platforms checkbox
+        const platformCheckboxes = document.querySelectorAll('input[name="platform"]:checked');
+        const platforms = [];
+        platformCheckboxes.forEach(function(cb) { platforms.push(cb.value); });
+
+        // Payment model
+        const paymentRadio = document.querySelector('input[name="paymentModel"]:checked');
+        const paymentModel = paymentRadio ? paymentRadio.value : 'fixed';
+
+        const targetNicheEl = document.getElementById('targetNiche');
+
+        const formData = {
+          title: titleVal,
+          brief: briefEl.value.trim(),
+          platform: platforms.length > 0 ? platforms : ['TikTok'],
+          contentType: contentTypeEl.value,
+          targetNiche: targetNicheEl ? targetNicheEl.value : null,
+          slots: slotsVal,
+          budgetPerSlot: budgetVal,
+          paymentModel: paymentModel,
+          deadline: deadlineEl.value
+        };
+
+        const res = KolabDB.createCampaign(session.id, formData);
+
+        if (!res.ok) {
+          // Tampilkan pesan error tepat di atas tombol submit, JANGAN redirect
+          generalError.textContent = res.message || 'Gagal membuat kampanye';
+          generalError.style.display = 'block';
+          return;
+        }
+
+        // Sukses: tampilkan pesan sukses sebentar lalu redirect setelah 1 detik
+        successNotice.style.display = 'block';
+        document.getElementById('btnSubmitCampaign').disabled = true;
+
+        setTimeout(function() {
+          window.location.href = 'dashboard-umkm.html';
+        }, 1000);
+      };
+    }
+  </script>
+</body>
+</html>

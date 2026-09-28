@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet Kreator - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="margin-bottom: 24px;">
+      <a href="dashboard-creator.html" style="font-size: 13px; color: var(--copy); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+        ← Kembali ke Dashboard
+      </a>
+      <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Dompet & Penghasilan Kreator</h1>
+      <p style="margin: 0; color: var(--copy); font-size: 14px;">
+        Pantau saldo hasil persetujuan konten UGC dan ajukan pencairan dana kapan saja.
+      </p>
+    </div>
+
+    <!-- Layout: Main Content + Sidebar Form -->
+    <div class="grid-main-side">
+      <!-- Left: Riwayat Transaksi & Saldo Card -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- Saldo Banner Card -->
+        <div class="card" style="background: #fff;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <div class="stat-label">Saldo Penghasilan Bersih</div>
+              <div class="stat-value tabular-nums" style="font-size: 34px; color: var(--accent);" id="balanceDisplay">Rp0</div>
+              <div class="stat-sub">Sudah dipotong komisi platform (15%) saat disetujui UMKM.</div>
+            </div>
+            <div style="background: var(--bg-success); padding: 10px 16px; border-radius: var(--radius-sm); border: 1px solid rgba(36, 104, 48, 0.2);">
+              <span style="font-size: 13px; color: var(--text-success); font-weight: 600;">Status Dompet: Aktif</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Riwayat Pencairan Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Riwayat Pencairan Dana</h2>
+            <span class="badge badge-neutral" style="font-size: 11px;">Penarikan Selesai</span>
+          </div>
+
+          <div id="payoutHistoryContainer">
+            <!-- Table or empty state -->
+          </div>
+        </div>
+
+        <!-- Riwayat Penghasilan Konten Masuk -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Riwayat Dana Masuk (Konten Disetujui)</h2>
+          </div>
+
+          <div id="incomeHistoryContainer">
+            <!-- Income list -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Form Permintaan Pencairan -->
+      <div>
+        <div class="card" style="position: sticky; top: 90px;">
+          <h2 class="card-title" style="margin-bottom: 8px;">Pencairan Dana (Payout)</h2>
+          <p style="font-size: 13px; color: var(--copy); margin: 0 0 20px;">
+            Tarik saldo ke rekening bank atau dompet digital Anda secara instan.
+          </p>
+
+          <form id="payoutForm" onsubmit="return false;">
+            <div class="form-group">
+              <label class="form-label" for="payoutAmount">Nominal Penarikan (Rp)</label>
+              <input type="number" id="payoutAmount" class="input" placeholder="Contoh: 100000" min="10000" step="10000">
+              <div id="payoutAmountError" class="error-text" style="display: none;"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="payoutMethod">Metode Pencairan</label>
+              <select id="payoutMethod" class="input">
+                <option value="bca">Bank BCA</option>
+                <option value="mandiri">Bank Mandiri</option>
+                <option value="bri">Bank BRI</option>
+                <option value="bni">Bank BNI</option>
+                <option value="gopay">GoPay</option>
+                <option value="ovo">OVO</option>
+                <option value="dana">DANA</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="accountNumber">Nomor Rekening / No. HP E-Wallet</label>
+              <input type="text" id="accountNumber" class="input" placeholder="Contoh: 1234567890">
+              <div id="accountNumberError" class="error-text" style="display: none;">Nomor rekening / e-wallet wajib diisi</div>
+            </div>
+
+            <div style="margin-top: 24px;">
+              <button type="button" id="btnSubmitPayout" class="btn-primary" style="width: 100%; justify-content: center;" onclick="handleRequestPayout()">
+                Tarik Dana Sekarang
+              </button>
+            </div>
+          </form>
+
+          <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--copy); line-height: 1.5;">
+            🔒 Penarikan diproses otomatis ke rekening tujuan Anda tanpa biaya admin tambahan.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="kolab-db.js"></script>
+  <script src="kolab-ui.js"></script>
+  <script>
+    const session = KolabDB.requireRole(['creator']);
+
+    if (session) {
+      KolabUI.renderNavbar('wallet-creator');
+
+      function renderWallet() {
+        const wallet = KolabDB.getWallet(session.id);
+        document.getElementById('balanceDisplay').textContent = KolabDB.formatRupiah(wallet.balance);
+      }
+
+      function renderPayoutHistory() {
+        const allTransactions = KolabDB.getAllTransactions();
+        // Riwayat: filter KolabDB.getAllTransactions() where type==='payout' && fromUserId===session.id
+        const payouts = allTransactions.filter(function(t) {
+          return t.type === 'payout' && t.fromUserId === session.id;
+        });
+
+        const container = document.getElementById('payoutHistoryContainer');
+
+        if (!payouts || payouts.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              Belum ada riwayat pencairan.
+            </div>
+          `;
+          return;
+        }
+
+        let rows = '';
+        payouts.forEach(function(p) {
+          const dateStr = p.createdAt ? new Date(p.createdAt).toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+          }) : '-';
+
+          rows += `
+            <tr>
+              <td style="font-family: monospace; font-size: 12px; color: var(--copy);">${p.id}</td>
+              <td>Pencairan Rekening</td>
+              <td class="tabular-nums" style="font-weight: 600; color: var(--text-danger);">- ${KolabDB.formatRupiah(p.amount)}</td>
+              <td><span class="badge badge-success">Selesai</span></td>
+              <td style="font-size: 13px; color: var(--copy);">${dateStr}</td>
+            </tr>
+          `;
+        });
+
+        container.innerHTML = `
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID Transaksi</th>
+                  <th>Deskripsi</th>
+                  <th>Nominal</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function renderIncomeHistory() {
+        const allTransactions = KolabDB.getAllTransactions();
+        const incomes = allTransactions.filter(function(t) {
+          return t.type === 'escrow_release' && t.toUserId === session.id;
+        });
+
+        const container = document.getElementById('incomeHistoryContainer');
+
+        if (!incomes || incomes.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              Belum ada pencairan masuk dari kampanye UGC.
+            </div>
+          `;
+          return;
+        }
+
+        let rows = '';
+        incomes.forEach(function(inc) {
+          const c = KolabDB.getCampaignById(inc.campaignId);
+          const campaignTitle = c ? c.title : 'Kampanye #' + inc.campaignId;
+          const dateStr = inc.createdAt ? new Date(inc.createdAt).toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+          }) : '-';
+
+          rows += `
+            <tr>
+              <td style="font-family: monospace; font-size: 12px; color: var(--copy);">${inc.id}</td>
+              <td><strong>${campaignTitle}</strong></td>
+              <td class="tabular-nums" style="font-weight: 600; color: var(--text-success);">+ ${KolabDB.formatRupiah(inc.amount)}</td>
+              <td><span class="badge badge-success">Diterima</span></td>
+              <td style="font-size: 13px; color: var(--copy);">${dateStr}</td>
+            </tr>
+          `;
+        });
+
+        container.innerHTML = `
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID Transaksi</th>
+                  <th>Nama Kampanye</th>
+                  <th>Penghasilan Bersih</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      renderWallet();
+      renderPayoutHistory();
+      renderIncomeHistory();
+
+      window.handleRequestPayout = function() {
+        const amountInput = document.getElementById('payoutAmount');
+        const amountError = document.getElementById('payoutAmountError');
+        const accountInput = document.getElementById('accountNumber');
+        const accountError = document.getElementById('accountNumberError');
+
+        amountError.style.display = 'none';
+        amountError.textContent = '';
+        accountError.style.display = 'none';
+
+        const amount = Number(amountInput.value);
+        const wallet = KolabDB.getWallet(session.id);
+
+        let hasError = false;
+
+        if (!amount || isNaN(amount) || amount <= 0) {
+          amountError.textContent = 'Nominal harus angka dan lebih dari 0';
+          amountError.style.display = 'block';
+          hasError = true;
+        } else if (amount > wallet.balance) {
+          amountError.textContent = `Saldo tidak cukup (Saldo tersedia: ${KolabDB.formatRupiah(wallet.balance)})`;
+          amountError.style.display = 'block';
+          hasError = true;
+        }
+
+        if (!accountInput.value.trim()) {
+          accountError.style.display = 'block';
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        const res = KolabDB.requestPayout(session.id, amount);
+        if (res.ok) {
+          amountInput.value = '';
+          KolabUI.showToast(`Permintaan pencairan ${KolabDB.formatRupiah(amount)} berhasil diproses!`);
+          renderWallet();
+          renderPayoutHistory();
+        } else {
+          amountError.textContent = res.message || 'Gagal memproses penarikan';
+          amountError.style.display = 'block';
+        }
+      };
+    }
+  </script>
+</body>
+</html>
