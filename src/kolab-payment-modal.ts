@@ -151,7 +151,7 @@ export function openPaymentGatewayModal(opts: OpenPaymentOptions): void {
 
     const providerBanner = isSandbox
       ? `<div style="background: var(--bg-warning); color: var(--text-warning); padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 14px;">
-           <strong>Mode Sandbox Gateway:</strong> Untuk transaksi bank live, tambahkan <code>MIDTRANS_SERVER_KEY</code> atau <code>XENDIT_SECRET_KEY</code> di Secrets.
+           <strong>Mode uji:</strong> pembayaran ini tidak sungguhan dan tidak memotong uang apa pun.
          </div>`
       : `<div style="background: var(--bg-success); color: var(--text-success); padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 14px;">
            Terhubung ke Payment Gateway: <strong>${String(activeOrder.provider).toUpperCase()}</strong>
@@ -214,7 +214,7 @@ export function openPaymentGatewayModal(opts: OpenPaymentOptions): void {
 
         <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
           <button type="button" id="gwCheckStatusBtn" class="btn-outline btn-sm">Cek Status Sekarang</button>
-          ${isSandbox ? `<button type="button" id="gwSimSettleBtn" class="btn-primary btn-sm">✓ Simulasi Bayar Berhasil (Sandbox)</button>` : ''}
+          ${isSandbox ? `<button type="button" id="gwSimSettleBtn" class="btn-primary btn-sm">Simulasikan pembayaran berhasil (mode uji)</button>` : ''}
         </div>
       </div>
     `;
@@ -299,7 +299,7 @@ export function openPaymentGatewayModal(opts: OpenPaymentOptions): void {
     } catch {
       if (btn) {
         btn.disabled = false;
-        btn.textContent = '✓ Simulasi Bayar Berhasil (Sandbox)';
+        btn.textContent = 'Simulasikan pembayaran berhasil (mode uji)';
       }
     }
   }

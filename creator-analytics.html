@@ -208,19 +208,16 @@
               `;
             } else {
               const configured = platCfg?.configuredServerOAuth;
-              actionHtml = `
-                <button type="button" class="btn-primary btn-sm" onclick="handleConnectOAuth('${p.id}')">
-                  Hubungkan Akun ${p.name} (OAuth)
-                </button>
-                ${
-                  !configured && platCfg?.callbackUrl
-                    ? `<div class="oauth-setup-note" style="max-width: 560px; margin: 14px auto 0;">
-                        <strong>Konfigurasi OAuth ${p.name}:</strong> Untuk mengaktifkan login OAuth ${p.name}, tambahkan Callback URL berikut di developer portal ${p.name} dan isi Secrets environment:<br>
-                        <code style="word-break: break-all;">${platCfg.callbackUrl}</code>
-                      </div>`
-                    : ''
-                }
-              `;
+              actionHtml = configured
+                ? `<button type="button" class="btn-primary btn-sm" onclick="handleConnectOAuth('${p.id}')">
+                    Sambungkan akun ${p.name}
+                  </button>`
+                : `<button type="button" class="btn-outline btn-sm" disabled aria-disabled="true" style="opacity: 0.6; cursor: not-allowed;">
+                    Segera hadir
+                  </button>
+                  <p style="margin: 10px auto 0; font-size: 13px; color: var(--copy); max-width: 420px;">
+                    Penyambungan akun ${p.name} sedang kami siapkan. Sementara itu, kamu bisa menyambungkan YouTube.
+                  </p>`;
             }
 
             return `
