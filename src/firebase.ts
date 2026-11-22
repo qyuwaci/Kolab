@@ -34,6 +34,26 @@ const firebaseConfig: FirebaseAppletConfig = {
     '(default)',
 };
 
+// Tanpa konfigurasi Firebase, login tidak bisa jalan. Tampilkan pesan yang jelas
+// alih-alih membiarkan halaman tertahan di "Memeriksa sesi masuk...".
+export const firebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId);
+if (!firebaseConfigured && typeof document !== 'undefined') {
+  const showNotice = () => {
+    if (document.getElementById('kolab-config-notice')) return;
+    const box = document.createElement('div');
+    box.id = 'kolab-config-notice';
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;z-index:10000;max-width:640px;margin:0 auto;padding:16px 18px;border-radius:14px;background:#140B07;color:#fff;font:15px/1.5 Inter,system-ui,sans-serif;box-shadow:0 16px 40px rgba(0,0,0,.3)';
+    box.textContent = 'Kolab belum tersambung ke Firebase, jadi login belum bisa dipakai. Pemilik website perlu mengisi variabel VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_APP_ID, dan VITE_FIREBASE_AUTH_DOMAIN, lalu build ulang.';
+    document.body.appendChild(box);
+    const loading = document.getElementById('loadingBox');
+    if (loading) loading.textContent = 'Login belum tersedia.';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showNotice);
+  else showNotice();
+  console.error('Konfigurasi Firebase kosong: isi VITE_FIREBASE_* atau firebase-applet-config.json.');
+}
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
