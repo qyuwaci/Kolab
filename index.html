@@ -1,602 +1,531 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kolab - Marketplace UGC & Lisensi Konten UMKM</title>
-  <meta name="description" content="Marketplace konten UGC yang menghubungkan UMKM lokal dengan micro-creator untuk video review autentik, garansi escrow, langganan fleksibel, dan jual-beli lisensi konten siap pakai.">
-  <meta property="og:title" content="Kolab - Marketplace UGC & Lisensi Konten UMKM">
-  <meta property="og:description" content="Platform UGC terdepan di Indonesia: sistem pembayaran aman, kreator langsung diterima, langganan bulanan/tahunan, dan pasar lisensi konten.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .hero-section {
-      padding: 72px 24px 48px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: radial-gradient(circle at 50% 10%, rgba(211, 84, 47, 0.08) 0%, transparent 60%);
-    }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      margin-bottom: 20px;
-    }
-    .hero-title {
-      font-size: clamp(34px, 5.5vw, 62px);
-      font-weight: 800;
-      letter-spacing: -0.035em;
-      line-height: 1.1;
-      margin: 0 0 20px;
-      max-width: 860px;
-    }
-    .hero-title span.accent {
-      color: var(--accent);
-    }
-    .hero-sub {
-      font-size: 18px;
-      color: var(--copy);
-      max-width: 660px;
-      line-height: 1.6;
-      margin: 0 0 32px;
-    }
-    .metrics-bar {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px 32px;
-      margin-top: 36px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-      max-width: 1000px;
-      width: 100%;
-    }
-    .step-num {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--ink);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .pricing-toggle-box {
-      display: inline-flex;
-      background: #e5e5e4;
-      padding: 4px;
-      border-radius: 999px;
-      margin-bottom: 32px;
-      gap: 4px;
-    }
-    .p-toggle-btn {
-      border: none;
-      background: transparent;
-      padding: 8px 18px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--copy);
-      cursor: pointer;
-    }
-    .p-toggle-btn.active {
-      background: #fff;
-      color: var(--ink);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-    footer {
-      border-top: 1px solid var(--line);
-      padding: 32px;
-      background: #fff;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      color: var(--copy);
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .hero-cta-row {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 12px;
-    }
-    .footer-links {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-    @media (max-width: 767px) {
-      .hero-section {
-        padding: 36px 16px 28px;
-      }
-      .hero-badge {
-        font-size: 11px;
-        padding: 5px 12px;
-        text-align: center;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .hero-title {
-        font-size: 30px;
-        margin-bottom: 14px;
-      }
-      .hero-sub {
-        font-size: 15px;
-        margin-bottom: 24px;
-      }
-      .hero-cta-row {
-        width: 100%;
-      }
-      .hero-cta-row > a {
-        width: 100%;
-      }
-      .metrics-bar {
-        padding: 16px;
-        margin-top: 24px;
-      }
-      .home-band-section {
-        padding: 36px 16px !important;
-      }
-      .home-card-padded {
-        padding: 20px 16px !important;
-      }
-      footer {
-        padding: 24px 16px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kolab – Video promosi dari kreator lokal</title>
+<meta name="description" content="Kolab mempertemukan UMKM dengan kreator TikTok, Instagram, dan YouTube. Uangmu ditahan aman sampai kamu setuju dengan videonya.">
+<meta property="og:title" content="Kolab – Video promosi dari kreator lokal">
+<meta property="og:description" content="Bayar kalau videonya sesuai. Revisi sampai 5 kali, uang kembali kalau video telat.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+@keyframes k-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes k-ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes k-rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.k-shimmer{background:linear-gradient(90deg,#FF8A4C 0%,#FFFFFF 40%,#FFFFFF 60%,#FFC24B 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:k-shimmer 7s linear infinite}
+.k-track{animation:k-ticker 40s linear infinite}
+.k-feed{animation:k-ticker 60s linear infinite}
+.k-feed:hover{animation-play-state:paused}
+.k-rise{opacity:0;animation:k-rise .9s cubic-bezier(.23,1,.32,1) forwards}
+.k-d1{animation-delay:.15s}.k-d2{animation-delay:.3s}.k-d3{animation-delay:.45s}.k-d4{animation-delay:.6s}
+.k-lift{transition:transform .6s cubic-bezier(.23,1,.32,1),box-shadow .6s cubic-bezier(.23,1,.32,1)}
+.k-lift:hover{transform:translateY(-8px);box-shadow:0 20px 40px -20px rgba(242,84,27,.5)}
+.k-btn{transition:transform .4s cubic-bezier(.23,1,.32,1),background-color .4s}
+.k-btn:hover{transform:translateY(-2px)}
+@media (prefers-reduced-motion: reduce){.k-shimmer,.k-track,.k-feed{animation:none}.k-rise{opacity:1;animation:none}.k-lift,.k-lift:hover,.k-btn,.k-btn:hover{transition:none;transform:none}}
+</style>
 </head>
 <body>
-  <!-- Header / Navbar -->
-  <div id="navbar">
-    <header class="navbar">
-      <a href="index.html" class="nav-brand">
-        Kolab<span class="dot">.</span>
-      </a>
-      <div class="nav-links" id="staticNavLinks">
-        <a href="#cara-kerja" class="nav-link">Cara Kerja</a>
-        <a href="content-library.html" class="nav-link">Pasar Konten</a>
-        <a href="pricing.html" class="nav-link">Paket Langganan</a>
-        <a href="#kreator" class="nav-link">Kreator Pilihan</a>
-        <a href="login.html" class="nav-link">Masuk Google</a>
-      </div>
-      <div class="nav-actions">
-        <a href="login.html" class="btn-outline btn-sm nav-btn-secondary-hide-xs">Masuk Google</a>
-        <a href="register.html" class="btn-primary btn-sm">Daftar Gratis</a>
-        <button type="button" class="nav-toggle-btn" id="staticNavToggleBtn" aria-label="Buka menu navigasi" aria-expanded="false">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </button>
-      </div>
-    </header>
-  </div>
+<div style="width: 100%; font-family: 'Inter', system-ui, sans-serif; color: #170D08; background: #FFFFFF; line-height: 1.5; padding: 12px; box-sizing: border-box">
 
-  <main>
-    <!-- HERO SECTION -->
-    <section class="hero-section">
-      <div class="hero-badge">
-        <span>✨</span> <strong>Kolab Platform</strong> — Google Auth, Analitik Sosial Media &amp; Pembayaran QRIS/VA
-      </div>
+<!-- HERO -->
+<section id="top" style="position: relative; overflow: hidden; border-radius: 28px; background: #140B07; color: #FFFFFF">
+<div aria-hidden="true" style="position: absolute; left: 50%; top: -340px; margin-left: -460px; width: 920px; height: 560px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(242, 84, 27, 0.32) 0%, rgba(242, 84, 27, 0) 66%)"></div>
 
-      <h1 class="hero-title">
-        UGC Autentik untuk UMKM, <br>
-        <span class="accent">Hasil Cepat &amp; Cuan Tanpa Drama.</span>
-      </h1>
+<div style="position: relative; max-width: 1200px; margin: 0 auto; padding: 20px clamp(16px, 4vw, 48px) 0">
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.08)">
+<a href="#top" style="display: flex; align-items: baseline; gap: 2px; text-decoration: none; color: #FFFFFF">
+<span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 30px; line-height: 1">Kolab</span><span style="width: 8px; height: 8px; border-radius: 2px; background: #F2541B; display: inline-block"></span>
+</a>
+<nav aria-label="Menu utama" style="display: flex; gap: clamp(16px, 2.6vw, 30px); flex-wrap: wrap; font-size: 15px">
+<a href="#cara-kerja" style="color: #D6CBC5; text-decoration: none">Cara kerja</a>
+<a href="#contoh" style="color: #D6CBC5; text-decoration: none">Contoh video</a>
+<a href="#kreator" style="color: #D6CBC5; text-decoration: none">Untuk kreator</a>
+<a href="#harga" style="color: #D6CBC5; text-decoration: none">Harga</a>
+</nav>
+<div style="display: flex; gap: 6px; align-items: center">
+<a href="login.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #FFFFFF; text-decoration: none; font-size: 15px">Masuk</a>
+<a href="register.html" class="k-btn" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #F2541B; color: #170D08; text-decoration: none; font-weight: 600; font-size: 15px">Mulai gratis</a>
+</div>
+</header>
 
-      <p class="hero-sub">
-        Hubungkan brand lokal Anda dengan micro-creator terverifikasi. Pembayaran terlindungi sistem escrow via QRIS &amp; Virtual Account, statistik YouTube/IG/TikTok live, dan pasar lisensi konten siap pakai.
-      </p>
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 22px; padding: clamp(56px, 8vw, 96px) 0 48px">
+<h1 class="k-rise" style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(52px, 8vw, 116px); line-height: 0.92; letter-spacing: -0.03em; max-width: 1000px">Video promosi dari kreator lokal. Bayar kalau videonya <span class="k-shimmer" style="font-style: italic; padding-right: 0.06em">sesuai.</span></h1>
+<p class="k-rise k-d1" style="margin: 0; font-size: clamp(16px, 1.5vw, 19px); font-weight: 300; color: #D6CBC5; max-width: 580px">Kolab mempertemukan usahamu dengan kreator TikTok, Instagram, dan YouTube. Uangmu kami tahan dulu sampai kamu setuju dengan videonya.</p>
+<div class="k-rise k-d2" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px; margin-top: 4px">
+<a href="register.html?role=umkm" class="k-btn" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 30px; border-radius: 999px; background: #F2541B; color: #170D08; text-decoration: none; font-weight: 600; font-size: 16px">Buat kampanye gratis <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></a>
+<a href="#kreator" style="display: inline-flex; align-items: center; min-height: 48px; color: #FFFFFF; text-decoration: none; font-weight: 500; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.35)">Aku kreator</a>
+</div>
+</div>
 
-      <div class="hero-cta-row">
-        <a href="register.html" class="btn-primary" style="padding: 14px 28px; font-size: 15px;">Mulai dengan Google</a>
-        <a href="campaign-browse.html" class="btn-outline" style="padding: 14px 28px; font-size: 15px;">Jelajahi Peluang Kreator ↗</a>
-      </div>
+<!-- KOMPOSISI: STRUK, VIDEO, CHAT -->
+<div role="img" aria-label="Contoh Kolab: struk uang ditahan, video kreator, dan obrolan revisi" class="k-rise k-d3" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 22px; padding-bottom: 56px">
 
-      <!-- LIVE METRICS BAR (dari KolabDB) -->
-      <div class="metrics-bar">
-        <div class="grid-4" style="text-align: left;">
-          <div>
-            <div class="stat-label">Dana Disalurkan (GMV)</div>
-            <div class="stat-value tabular-nums" style="font-size: 24px; color: var(--accent);" id="metricGMV">Rp0</div>
-            <div class="stat-sub">Dibayarkan aman via escrow</div>
-          </div>
-          <div>
-            <div class="stat-label">Micro-Creator Aktif</div>
-            <div class="stat-value tabular-nums" style="font-size: 24px;" id="metricCreators">0</div>
-            <div class="stat-sub">Nano, Mikro & Makro</div>
-          </div>
-          <div>
-            <div class="stat-label">UMKM Bergabung</div>
-            <div class="stat-value tabular-nums" style="font-size: 24px;" id="metricUmkm">0</div>
-            <div class="stat-sub">Brand lokal Indonesia</div>
-          </div>
-          <div>
-            <div class="stat-label">Lisensi Konten Terjual</div>
-            <div class="stat-value tabular-nums" style="font-size: 24px; color: var(--text-success);" id="metricLicenses">0</div>
-            <div class="stat-sub">Siap untuk Meta/TikTok Ads</div>
-          </div>
-        </div>
-      </div>
-    </section>
+<div style="flex: 0 1 270px; margin-bottom: 36px; transform: rotate(-2deg)">
+<div style="background: #FFFDF8; color: #2A211C; padding: 22px 22px 28px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; box-shadow: 0 16px 30px rgba(0,0,0,0.35); background-image: radial-gradient(circle at 8px 100%, #140B07 6px, transparent 6.5px); background-size: 16px 10px; background-repeat: repeat-x; background-position: bottom left">
+<div style="text-align: center; font-weight: 500; letter-spacing: 0.18em">STRUK KOLAB</div>
+<div style="text-align: center; color: #7A6E68">Review Bakso Urat Mas Ari</div>
+<div style="border-top: 1px dashed #B8ADA6; margin: 10px 0"></div>
+<div style="display: flex; justify-content: space-between"><span>Honor kreator</span><span>3 × 250.000</span></div>
+<div style="display: flex; justify-content: space-between"><span>Biaya UMKM</span><span>0</span></div>
+<div style="border-top: 1px dashed #B8ADA6; margin: 10px 0"></div>
+<div style="display: flex; justify-content: space-between; font-weight: 500; font-size: 13px"><span>TOTAL</span><span>Rp750.000</span></div>
+<div style="margin-top: 12px; text-align: center; padding: 6px; border: 1.5px solid #C2410C; color: #C2410C; font-weight: 500; letter-spacing: 0.12em">DITAHAN AMAN</div>
+<div style="margin-top: 8px; text-align: center; color: #7A6E68; font-size: 11px">Cair ke kreator setelah kamu setuju</div>
+</div>
+</div>
 
-    <!-- SECTION: PASAR LISENSI KONTEN SHOWCASE -->
-    <section class="container" style="padding-top: 40px; padding-bottom: 50px;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
-        <div>
-          <span class="badge" style="background: var(--bg-success); color: var(--text-success); font-size: 11px; margin-bottom: 6px;">FITUR BARU 2.0</span>
-          <h2 style="font-size: 26px; font-weight: 800; margin: 0 0 6px;">Pasar Lisensi Konten UGC Siap Pakai</h2>
-          <p style="margin: 0; color: var(--copy); font-size: 14px;">Beli hak guna iklan (Ads 6 bulan) atau hak milik penuh dari video-video creator terbaik.</p>
-        </div>
-        <a href="content-library.html" class="btn-primary btn-sm">Buka Seluruh Pasar Konten ↗</a>
-      </div>
+<div style="flex: none; width: 236px; height: 470px; border-radius: 36px; background: #000000; padding: 8px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.12)">
+<div style="position: relative; width: 100%; height: 100%; border-radius: 29px; overflow: hidden; background: #F6C79A">
+<svg aria-hidden="true" viewBox="0 0 220 260" style="position: absolute; left: 0; top: 70px; width: 100%">
+<ellipse cx="110" cy="150" rx="92" ry="22" fill="#C8642B"></ellipse>
+<path d="M18 150 Q110 270 202 150 Z" fill="#FFFFFF"></path>
+<path d="M30 160 Q110 250 190 160" fill="none" stroke="#E04E3A" stroke-width="5"></path>
+<ellipse cx="110" cy="150" rx="86" ry="17" fill="#B9541F"></ellipse>
+<circle cx="80" cy="140" r="20" fill="#8A5A3C"></circle><circle cx="118" cy="134" r="22" fill="#9A6646"></circle><circle cx="150" cy="144" r="18" fill="#7E5236"></circle>
+<path d="M60 152 q20 -8 40 0 q20 8 50 -2" fill="none" stroke="#F1D27A" stroke-width="5" stroke-linecap="round"></path>
+<circle cx="95" cy="128" r="4" fill="#4E9E3F"></circle><circle cx="138" cy="130" r="4" fill="#4E9E3F"></circle>
+</svg>
+<div style="position: absolute; right: 10px; bottom: 120px; display: flex; flex-direction: column; align-items: center; gap: 14px; color: #FFFFFF; font-size: 11px; font-weight: 600">
+<span style="display: flex; flex-direction: column; align-items: center; gap: 2px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M12 21s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.6-9.5 9-9.5 9z"></path></svg>1,2 rb</span>
+<span style="display: flex; flex-direction: column; align-items: center; gap: 2px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M4 5h16v11H8l-4 4z"></path></svg>86</span>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 54px 18px 14px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 40%); color: #FFFFFF">
+<div style="font-size: 13px; font-weight: 700">@dapurnisa</div>
+<div style="font-size: 12px; line-height: 1.35">Bakso urat 15 ribu, kuahnya bikin nambah. Lokasi di bio ya!</div>
+</div>
+<span style="position: absolute; left: 12px; top: 14px; padding: 3px 9px; border-radius: 999px; background: rgba(0,0,0,0.45); color: #FFFFFF; font-size: 11px; font-weight: 600">Video contoh</span>
+</div>
+</div>
 
-      <div class="grid-3" id="homeLibraryPreview">
-        <!-- Rendered via JS -->
-      </div>
-    </section>
+<div style="flex: 0 1 290px; margin-bottom: 36px; background: #EFE7DD; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 8px; color: #1F1A17">
+<div style="display: flex; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.08)">
+<span style="flex: none; display: inline-flex; width: 34px; height: 34px; border-radius: 999px; background: #F6C79A; color: #7A3A12; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">NA</span>
+<div style="line-height: 1.2"><div style="font-weight: 600; font-size: 14px">Nisa Amalia</div><div style="font-size: 12px; color: #6E625C">Revisi 1 dari 5</div></div>
+</div>
+<div style="align-self: flex-end; max-width: 85%; background: #DCF8C6; padding: 8px 10px; border-radius: 12px 12px 2px 12px; font-size: 13px">Kak, tolong sebut promo Jumat di detik awal ya<span style="display: block; text-align: right; font-size: 10px; color: #6E7D66">10.12</span></div>
+<div style="align-self: flex-start; max-width: 85%; background: #FFFFFF; padding: 8px 10px; border-radius: 12px 12px 12px 2px; font-size: 13px">Siap, sudah aku revisi. Cek lagi ya, Kak<span style="display: block; text-align: right; font-size: 10px; color: #8F827B">11.40</span></div>
+<div style="display: flex; gap: 8px; margin-top: 6px">
+<span style="flex: 1; display: inline-flex; justify-content: center; align-items: center; min-height: 40px; border-radius: 999px; border: 1px solid #1F1A17; font-weight: 600; font-size: 13px">Minta revisi</span>
+<span style="flex: 1; display: inline-flex; justify-content: center; align-items: center; min-height: 40px; border-radius: 999px; background: #F2541B; color: #170D08; font-weight: 600; font-size: 13px">Setujui</span>
+</div>
+</div>
+</div>
+</div>
 
-    <!-- SECTION: CARA KERJA (Dual Path) -->
-    <section id="cara-kerja" class="home-band-section" style="background: #fafaf9; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 60px 24px;">
-      <div class="container" style="padding: 0;">
-        <div style="text-align: center; max-width: 600px; margin: 0 auto 40px;">
-          <h2 style="font-size: 28px; font-weight: 800; margin: 0 0 10px;">Proses Cepat & Terjamin</h2>
-          <p style="color: var(--copy); font-size: 15px; margin: 0;">Kolab menyederhanakan alur kerja sama: kreator langsung diterima, dana aman di escrow hingga hasil video disetujui.</p>
-        </div>
+<!-- TICKER -->
+<div aria-label="Jenis usaha, platform, dan jaminan Kolab" style="position: relative; overflow: hidden; border-top: 1px solid rgba(255,255,255,0.08)">
+<div class="k-track" style="display: flex; width: max-content; align-items: center; gap: 40px; padding: 18px 20px">
 
-        <div class="grid-2" style="gap: 24px;">
-          <!-- Jalur UMKM -->
-          <div class="card home-card-padded" style="background: #fff; padding: 32px;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
-              <span class="badge" style="background: var(--ink); color: #fff; font-size: 11px;">UMKM & BRAND</span>
-              <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Untuk Pemilik Usaha</h3>
-            </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">KULINER</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">Bakso, kopi, kue</span>
+</span>
 
-            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
-              <div class="step-num">1</div>
-              <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Buat Kampanye & Top Up</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Tentukan brief, platform (TikTok/IG), jumlah slot, dan budget per kreator. Dana tersimpan aman di penjaminan escrow.</p>
-              </div>
-            </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">REVISI</span>
+<span style="font-size: 15px; font-weight: 500; color: #FF8A4C">Sampai 5 kali</span>
+</span>
 
-            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
-              <div class="step-num">2</div>
-              <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Kreator Bergabung Otomatis</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Kreator langsung diterima saat mendaftar, atau undang kandidat pilihan dari algoritma rekomendasi cerdas.</p>
-              </div>
-            </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">FASHION</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">Batik, outfit harian</span>
+</span>
 
-            <div style="display: flex; gap: 16px; margin-bottom: 28px;">
-              <div class="step-num">3</div>
-              <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Tinjau Konten & Rilis Pembayaran</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Tinjau hasil video, minta revisi jika perlu, lalu setujui untuk otomatis mencairkan dana dan beli lisensi iklan.</p>
-              </div>
-            </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">UANG KEMBALI</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFC24B">100% kalau telat</span>
+</span>
 
-            <a href="register.html" class="btn-primary" style="width: 100%; justify-content: center;">Buka Kampanye Pertama</a>
-          </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">KECANTIKAN</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">Skincare lokal</span>
+</span>
 
-          <!-- Jalur Kreator -->
-          <div class="card home-card-padded" style="background: #fff; padding: 32px;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
-              <span class="badge" style="background: var(--accent); color: #fff; font-size: 11px;">MICRO-CREATOR</span>
-              <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Untuk Kreator Konten</h3>
-            </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">PERSETUJUAN OTOMATIS</span>
+<span style="font-size: 15px; font-weight: 500; color: #FF8A4C">3×24 jam</span>
+</span>
 
-            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
-              <div class="step-num" style="background: var(--accent);">1</div>
-              <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Pilih & Daftar 1-Klik</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Jelajahi kampanye sesuai niche Anda (kuliner, fashion, beauty, lifestyle). Klik gabung dan langsung diterima.</p>
-              </div>
-            </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">PLATFORM</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">TikTok · Instagram · YouTube</span>
+</span>
 
-            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
-              <div class="step-num" style="background: var(--accent);">2</div>
-              <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Produksi Video Autentik</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Buat konten kreatif sesuai brief, kirimkan link karya lewat dashboard Anda tanpa ribet.</p>
-              </div>
-            </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">BIAYA KREATOR</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFC24B">Mulai 7%</span>
+</span>
 
-            <div style="display: flex; gap: 16px; margin-bottom: 28px;">
-              <div class="step-num" style="background: var(--accent);">3</div>
-              <div>
-                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Terima Honor + Passive Income</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Begitu video disetujui, dana langsung cair ke wallet. Jual kembali lisensi video Anda di pasar untuk pemasukan ekstra!</p>
-              </div>
-            </div>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">OLEH-OLEH</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">Toko &amp; kelontong</span>
+</span>
 
-            <a href="campaign-browse.html" class="btn-outline" style="width: 100%; justify-content: center;">Jelajahi Kampanye Terbuka</a>
-          </div>
-        </div>
-      </div>
-    </section>
+<span style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">BAYAR</span>
+<span style="font-size: 15px; font-weight: 500; color: #FF8A4C">QRIS &amp; transfer bank</span>
+</span>
 
-    <!-- SECTION: SHOWCASE KREATOR PILIHAN -->
-    <section id="kreator" class="container" style="padding-top: 50px; padding-bottom: 50px;">
-      <div style="text-align: center; max-width: 600px; margin: 0 auto 36px;">
-        <h2 style="font-size: 26px; font-weight: 800; margin: 0 0 8px;">Kreator Siap Kolaborasi</h2>
-        <p style="color: var(--copy); font-size: 14px; margin: 0;">Micro-creator terverifikasi dengan engagement audiens organik di berbagai kategori industri.</p>
-      </div>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">KULINER</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">Bakso, kopi, kue</span>
+</span>
 
-      <div class="grid-3" id="homeCreatorsGrid">
-        <!-- Rendered via JS -->
-      </div>
-    </section>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">REVISI</span>
+<span style="font-size: 15px; font-weight: 500; color: #FF8A4C">Sampai 5 kali</span>
+</span>
 
-    <!-- SECTION: PAKET LANGGANAN TEASER -->
-    <section class="home-band-section" style="background: #fafaf9; border-top: 1px solid var(--line); padding: 60px 24px;">
-      <div class="container" style="padding: 0; text-align: center;">
-        <span class="badge" style="background: var(--bg-warning); color: var(--text-warning); margin-bottom: 10px; font-size: 12px;">PAKET & LANGGANAN</span>
-        <h2 style="font-size: 28px; font-weight: 800; margin: 0 0 10px;">Skala Bisnis Anda dengan Paket Kolab</h2>
-        <p style="color: var(--copy); font-size: 14px; max-width: 580px; margin: 0 auto 24px;">Pilih paket bulanan atau hemat 17% dengan paket tahunan. Nikmati diskon lisensi konten dan pemotongan fee rendah.</p>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">FASHION</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">Batik, outfit harian</span>
+</span>
 
-        <div class="card home-card-padded" style="max-width: 720px; margin: 0 auto; text-align: left; padding: 28px;">
-          <div class="grid-2" style="gap: 20px;">
-            <div style="background: var(--paper); padding: 18px; border-radius: var(--radius-sm);">
-              <span class="badge badge-neutral" style="font-size: 11px; margin-bottom: 6px;">UNTUK UMKM</span>
-              <h4 style="margin: 0 0 6px; font-size: 16px; font-weight: 700;">Paket Pro & Business</h4>
-              <p style="margin: 0 0 12px; font-size: 13px; color: var(--copy);">Mulai Rp149.000/bln. Buka hingga 10 kampanye aktif, diskon 10-20% pembelian lisensi konten, dan rekomendasi kreator prioritas.</p>
-              <a href="pricing.html" class="btn-primary btn-sm">Lihat Paket UMKM ↗</a>
-            </div>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">UANG KEMBALI</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFC24B">100% kalau telat</span>
+</span>
 
-            <div style="background: var(--paper); padding: 18px; border-radius: var(--radius-sm);">
-              <span class="badge badge-neutral" style="font-size: 11px; margin-bottom: 6px;">UNTUK KREATOR</span>
-              <h4 style="margin: 0 0 6px; font-size: 16px; font-weight: 700;">Paket Plus & Pro</h4>
-              <p style="margin: 0 0 12px; font-size: 13px; color: var(--copy);">Mulai Rp39.000/bln. Potong fee platform hingga hanya 7%, kuota listing video di pasar konten tanpa batas, dan boost rekomendasi.</p>
-              <a href="pricing.html" class="btn-outline btn-sm">Lihat Paket Kreator ↗</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">KECANTIKAN</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">Skincare lokal</span>
+</span>
 
-    <!-- SECTION: ULASAN & TESTIMONI DARI DATABASE -->
-    <section class="container" style="padding-top: 50px; padding-bottom: 60px;">
-      <div style="text-align: center; max-width: 600px; margin: 0 auto 36px;">
-        <h2 style="font-size: 26px; font-weight: 800; margin: 0 0 8px;">Ulasan Nyata Komunitas Kolab</h2>
-        <p style="color: var(--copy); font-size: 14px; margin: 0;">Pengalaman kolaborasi autentik dari pemilik usaha dan kreator yang telah saling memberi rating.</p>
-      </div>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">PERSETUJUAN OTOMATIS</span>
+<span style="font-size: 15px; font-weight: 500; color: #FF8A4C">3×24 jam</span>
+</span>
 
-      <div class="grid-3" id="homeReviewsGrid">
-        <!-- Rendered via JS -->
-      </div>
-    </section>
-  </main>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">PLATFORM</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">TikTok · Instagram · YouTube</span>
+</span>
 
-  <!-- Footer -->
-  <footer>
-    <div>© 2026 Kolab. Platform Marketplace UGC &amp; Lisensi Konten Indonesia.</div>
-    <div class="footer-links">
-      <a href="content-library.html">Pasar Konten</a>
-      <a href="pricing.html">Paket Langganan</a>
-      <a href="login.html">Masuk Google</a>
-      <a href="register.html">Daftar</a>
-    </div>
-  </footer>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">BIAYA KREATOR</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFC24B">Mulai 7%</span>
+</span>
 
-  <script>
-    (function() {
-      var btn = document.getElementById('staticNavToggleBtn');
-      var links = document.getElementById('staticNavLinks');
-      if (btn && links) {
-        btn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          var open = links.classList.toggle('open');
-          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
-        links.querySelectorAll('a').forEach(function(a) {
-          a.addEventListener('click', function() {
-            links.classList.remove('open');
-            btn.setAttribute('aria-expanded', 'false');
-          });
-        });
-        document.addEventListener('click', function(e) {
-          if (!links.contains(e.target) && e.target !== btn) {
-            links.classList.remove('open');
-            btn.setAttribute('aria-expanded', 'false');
-          }
-        });
-      }
-    })();
-  </script>
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">OLEH-OLEH</span>
+<span style="font-size: 15px; font-weight: 500; color: #FFFFFF">Toko &amp; kelontong</span>
+</span>
 
-  <script type="module" src="/src/kolab-cloud.ts"></script>
-  <script type="module" src="/src/kolab-ui.ts"></script>
-  <script type="module">
-    const KolabDB = window.KolabDB;
-    const KolabUI = window.KolabUI;
+<span aria-hidden="true" style="display: inline-flex; align-items: center; gap: 10px; white-space: nowrap">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8F827B">BAYAR</span>
+<span style="font-size: 15px; font-weight: 500; color: #FF8A4C">QRIS &amp; transfer bank</span>
+</span>
+
+</div>
+</div>
+</section>
+
+<!-- DULU VS KOLAB -->
+<section style="max-width: 1200px; margin: 0 auto; padding: clamp(64px, 8vw, 104px) clamp(16px, 4vw, 48px) 0; display: flex; flex-wrap: wrap; gap: 40px">
+<div style="flex: 1 1 340px; min-width: 0">
+<h2 style="margin: 0 0 16px; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 4.6vw, 60px); line-height: 1; letter-spacing: -0.02em">Cari kreator lewat DM itu melelahkan</h2>
+<p style="margin: 0; font-size: 17px; color: #5A4E48">Banyak pemilik usaha sudah pernah mencoba bayar kreator sendiri: chat satu-satu, transfer di depan, lalu berharap videonya jadi. Kolab mengganti semua itu dengan satu alur yang jelas.</p>
+</div>
+<div style="flex: 1.4 1 480px; min-width: 0; border: 1px solid #EEE7E3; border-radius: 24px; overflow: hidden">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #FAF7F5; font-size: 13px; font-weight: 600; color: #5A4E48">
+<div style="padding: 14px 18px"></div><div style="padding: 14px 18px">Lewat DM</div><div style="padding: 14px 18px; color: #C2410C">Lewat Kolab</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #EEE7E3; font-size: 15px"><div style="padding: 16px 18px; font-weight: 600">Cari kreator</div><div style="padding: 16px 18px; color: #6E625C">Chat satu-satu</div><div style="padding: 16px 18px">Kreator melamar, kamu pilih</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #EEE7E3; font-size: 15px"><div style="padding: 16px 18px; font-weight: 600">Bayar</div><div style="padding: 16px 18px; color: #6E625C">Transfer di depan</div><div style="padding: 16px 18px">Ditahan sampai kamu setuju</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #EEE7E3; font-size: 15px"><div style="padding: 16px 18px; font-weight: 600">Revisi</div><div style="padding: 16px 18px; color: #6E625C">Tergantung kreatornya</div><div style="padding: 16px 18px">Sampai 5 kali</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #EEE7E3; font-size: 15px"><div style="padding: 16px 18px; font-weight: 600">Video telat</div><div style="padding: 16px 18px; color: #6E625C">Uang hilang</div><div style="padding: 16px 18px">Uang kembali otomatis</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #EEE7E3; font-size: 15px"><div style="padding: 16px 18px; font-weight: 600">Pakai untuk iklan</div><div style="padding: 16px 18px; color: #6E625C">Tidak jelas</div><div style="padding: 16px 18px">Tertulis sesuai paket</div></div>
+</div>
+</section>
+
+<!-- CONTOH VIDEO: FEED BERJALAN -->
+<section id="contoh" style="padding: clamp(64px, 8vw, 104px) 0 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px) 32px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px 40px">
+<h2 style="margin: 0; flex: 1 1 420px; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 4.6vw, 60px); line-height: 1; letter-spacing: -0.02em">Video yang terasa seperti rekomendasi teman</h2>
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start">
+<p style="margin: 0; font-size: 16px; color: #5A4E48">Kreator mencoba produkmu dan bercerita dengan gayanya sendiri. </p>
+<span style="padding: 5px 11px; border-radius: 999px; background: #FFF3D6; color: #6B4A00; font-size: 12px; font-weight: 600">Contoh ilustrasi</span>
+</div>
+</div>
+<div style="overflow: hidden">
+<div class="k-feed" style="display: flex; width: max-content; gap: 16px; padding: 4px 16px 12px">
+
+<div style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #F6C79A">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #8A4A1F; text-align: center">Bakso</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">TikTok</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@dapurnisa</div><div style="font-size: 12px; line-height: 1.35">Kuahnya bikin nambah!</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Bakso Urat Mas Ari</div><div style="font-size: 13px; color: #6E625C">Kuliner · Rp250.000</div></div>
+</div>
+
+<div style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #CFE3D2">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #2F5C3B; text-align: center">Kopi</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">Instagram</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@raka.ngopi</div><div style="font-size: 12px; line-height: 1.35">Gula aren-nya pas, nggak eneg</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Kopi Teras Senja</div><div style="font-size: 13px; color: #6E625C">Kopi · Rp200.000</div></div>
+</div>
+
+<div style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #E3D7F5">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #4B3487; text-align: center">Batik</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">TikTok</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@salsaoutfit</div><div style="font-size: 12px; line-height: 1.35">Adem buat ke kampus</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Rumah Batik Laras</div><div style="font-size: 13px; color: #6E625C">Fashion · Rp300.000</div></div>
+</div>
+
+<div style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #FAD4D8">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #8A2B40; text-align: center">Serum</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">Instagram</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@dewiglowup</div><div style="font-size: 12px; line-height: 1.35">Seminggu pakai, ini hasilnya</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Serum Lokal Ayu</div><div style="font-size: 13px; color: #6E625C">Kecantikan · Rp350.000</div></div>
+</div>
+
+<div style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #FCE7B2">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #7A5300; text-align: center">Keripik</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">YouTube</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@jajanbareng</div><div style="font-size: 12px; line-height: 1.35">Pedasnya nagih, wajib dibawa pulang</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Keripik Bu Tini</div><div style="font-size: 13px; color: #6E625C">Oleh-oleh · Rp150.000</div></div>
+</div>
+
+<div aria-hidden="true" style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #F6C79A">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #8A4A1F; text-align: center">Bakso</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">TikTok</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@dapurnisa</div><div style="font-size: 12px; line-height: 1.35">Kuahnya bikin nambah!</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Bakso Urat Mas Ari</div><div style="font-size: 13px; color: #6E625C">Kuliner · Rp250.000</div></div>
+</div>
+
+<div aria-hidden="true" style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #CFE3D2">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #2F5C3B; text-align: center">Kopi</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">Instagram</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@raka.ngopi</div><div style="font-size: 12px; line-height: 1.35">Gula aren-nya pas, nggak eneg</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Kopi Teras Senja</div><div style="font-size: 13px; color: #6E625C">Kopi · Rp200.000</div></div>
+</div>
+
+<div aria-hidden="true" style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #E3D7F5">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #4B3487; text-align: center">Batik</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">TikTok</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@salsaoutfit</div><div style="font-size: 12px; line-height: 1.35">Adem buat ke kampus</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Rumah Batik Laras</div><div style="font-size: 13px; color: #6E625C">Fashion · Rp300.000</div></div>
+</div>
+
+<div aria-hidden="true" style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #FAD4D8">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #8A2B40; text-align: center">Serum</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">Instagram</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@dewiglowup</div><div style="font-size: 12px; line-height: 1.35">Seminggu pakai, ini hasilnya</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Serum Lokal Ayu</div><div style="font-size: 13px; color: #6E625C">Kecantikan · Rp350.000</div></div>
+</div>
+
+<div aria-hidden="true" style="flex: none; width: 210px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #FCE7B2">
+<span style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-family: 'Instrument Serif', Georgia, serif; font-size: 46px; line-height: 1; color: #7A5300; text-align: center">Keripik</span>
+<span style="position: absolute; right: 10px; top: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600">YouTube</span>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%); color: #FFFFFF"><div style="font-size: 12px; font-weight: 700">@jajanbareng</div><div style="font-size: 12px; line-height: 1.35">Pedasnya nagih, wajib dibawa pulang</div></div>
+</div>
+<div><div style="font-weight: 600; font-size: 15px">Keripik Bu Tini</div><div style="font-size: 13px; color: #6E625C">Oleh-oleh · Rp150.000</div></div>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- CARA KERJA -->
+<section id="cara-kerja" style="max-width: 1200px; margin: 0 auto; padding: clamp(64px, 8vw, 104px) clamp(16px, 4vw, 48px) 0">
+<h2 style="margin: 0 0 40px; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 4.6vw, 60px); line-height: 1; letter-spacing: -0.02em; max-width: 720px">Tiga langkah, tanpa perlu paham marketing</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0; border-top: 1px solid #170D08">
+<div style="padding: 22px 28px 0 0; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: #C2410C">LANGKAH 1</span>
+<h3 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.05">Ceritakan usahamu</h3>
+<p style="margin: 0; font-size: 15px; color: #5A4E48">Jawab beberapa pertanyaan sederhana. AI kami menyusun arahan videonya, kamu tinggal cek dan atur honor.</p>
+</div>
+<div style="padding: 22px 28px 0 0; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: #C2410C">LANGKAH 2</span>
+<h3 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.05">Pilih kreator</h3>
+<p style="margin: 0; font-size: 15px; color: #5A4E48">Kreator melamar ke kampanyemu. Lihat portofolio dan ulasan, lalu terima yang paling pas.</p>
+</div>
+<div style="padding: 22px 28px 0 0; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: #C2410C">LANGKAH 3</span>
+<h3 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.05">Tonton, lalu setujui</h3>
+<p style="margin: 0; font-size: 15px; color: #5A4E48">Tonton videonya di Kolab, minta revisi lewat catatan. Honor baru cair setelah kamu setuju.</p>
+</div>
+</div>
+</section>
+
+<!-- KREATOR + TESTIMONI -->
+<section style="max-width: 1200px; margin: 0 auto; padding: clamp(64px, 8vw, 104px) clamp(16px, 4vw, 48px) 0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 28px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 4.6vw, 60px); line-height: 1; letter-spacing: -0.02em; max-width: 640px">Kenalan dengan kreator di sekitarmu</h2>
+<span style="padding: 5px 11px; border-radius: 999px; background: #FFF3D6; color: #6B4A00; font-size: 12px; font-weight: 600">Contoh ilustrasi</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px">
+
+<div class="k-lift" style="border: 1px solid #EEE7E3; border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; gap: 12px; align-items: center">
+<span style="flex: none; display: inline-flex; width: 52px; height: 52px; border-radius: 999px; background: #F6C79A; color: #7A3A12; align-items: center; justify-content: center; font-weight: 700; font-size: 17px">NA</span>
+<div><div style="font-weight: 600; font-size: 16px">Nisa Amalia</div><div style="font-size: 13px; color: #6E625C">Bandung · Kuliner</div></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 14px; padding-top: 12px; border-top: 1px solid #F2ECE8"><span style="color: #6E625C">TikTok</span><span style="font-weight: 600">8,4 rb pengikut</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #6E625C">Rating dari UMKM</span><span style="font-weight: 600">4,9</span></div>
+</div>
+
+<div class="k-lift" style="border: 1px solid #EEE7E3; border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; gap: 12px; align-items: center">
+<span style="flex: none; display: inline-flex; width: 52px; height: 52px; border-radius: 999px; background: #CFE3D2; color: #1E4D2B; align-items: center; justify-content: center; font-weight: 700; font-size: 17px">RP</span>
+<div><div style="font-weight: 600; font-size: 16px">Raka Pratama</div><div style="font-size: 13px; color: #6E625C">Yogyakarta · Kopi</div></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 14px; padding-top: 12px; border-top: 1px solid #F2ECE8"><span style="color: #6E625C">Instagram</span><span style="font-weight: 600">12 rb pengikut</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #6E625C">Rating dari UMKM</span><span style="font-weight: 600">4,8</span></div>
+</div>
+
+<div class="k-lift" style="border: 1px solid #EEE7E3; border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; gap: 12px; align-items: center">
+<span style="flex: none; display: inline-flex; width: 52px; height: 52px; border-radius: 999px; background: #E3D7F5; color: #3E2A75; align-items: center; justify-content: center; font-weight: 700; font-size: 17px">SN</span>
+<div><div style="font-weight: 600; font-size: 16px">Salsa Nabila</div><div style="font-size: 13px; color: #6E625C">Surabaya · Fashion</div></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 14px; padding-top: 12px; border-top: 1px solid #F2ECE8"><span style="color: #6E625C">TikTok</span><span style="font-weight: 600">21 rb pengikut</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #6E625C">Rating dari UMKM</span><span style="font-weight: 600">4,9</span></div>
+</div>
+
+<div class="k-lift" style="border: 1px solid #EEE7E3; border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; gap: 12px; align-items: center">
+<span style="flex: none; display: inline-flex; width: 52px; height: 52px; border-radius: 999px; background: #FAD4D8; color: #7A2234; align-items: center; justify-content: center; font-weight: 700; font-size: 17px">DK</span>
+<div><div style="font-weight: 600; font-size: 16px">Dewi Kartika</div><div style="font-size: 13px; color: #6E625C">Jakarta · Kecantikan</div></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 14px; padding-top: 12px; border-top: 1px solid #F2ECE8"><span style="color: #6E625C">Instagram</span><span style="font-weight: 600">5,7 rb pengikut</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #6E625C">Rating dari UMKM</span><span style="font-weight: 600">Baru</span></div>
+</div>
+
+</div>
+
+<div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 16px">
+<figure style="margin: 0; flex: 2 1 520px; min-width: 0; border-radius: 24px; background: #F2541B; color: #170D08; padding: clamp(28px, 4vw, 44px); display: flex; flex-direction: column; gap: 24px">
+<blockquote style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(28px, 3vw, 40px); line-height: 1.12">"Dulu saya transfer dulu ke kreator, videonya nggak pernah jadi. Di sini uangnya ditahan, jadi saya tenang."</blockquote>
+<figcaption style="display: flex; gap: 12px; align-items: center"><span style="display: inline-flex; width: 44px; height: 44px; border-radius: 999px; background: #FFFFFF; color: #C2410C; align-items: center; justify-content: center; font-weight: 700">AR</span><span><span style="display: block; font-weight: 600">Ari Rahman</span><span style="display: block; font-size: 13px">Pemilik Bakso Urat Mas Ari</span></span></figcaption>
+</figure>
+<div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<figure style="margin: 0; flex: 1; border-radius: 24px; border: 1px solid #EEE7E3; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<blockquote style="margin: 0; font-size: 16px; line-height: 1.5">"Arahan videonya disusun AI, saya tinggal tambah promo minggu ini."</blockquote>
+<figcaption style="font-size: 13px; color: #6E625C"><strong style="color: #170D08">Laras Sekar</strong> · Rumah Batik Laras</figcaption>
+</figure>
+<figure style="margin: 0; flex: 1; border-radius: 24px; border: 1px solid #EEE7E3; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<blockquote style="margin: 0; font-size: 16px; line-height: 1.5">"Followers aku baru 8 ribu, tapi tetap dapat job. Honornya kelihatan dari awal."</blockquote>
+<figcaption style="font-size: 13px; color: #6E625C"><strong style="color: #170D08">Nisa Amalia</strong> · Kreator kuliner, Bandung</figcaption>
+</figure>
+</div>
+</div>
+</section>
+
+<!-- UNTUK KREATOR -->
+<section id="kreator" style="max-width: 1224px; margin: 0 auto; padding: clamp(64px, 8vw, 104px) 0 0">
+<div style="border-radius: 28px; background: #140B07; color: #FFFFFF; padding: clamp(36px, 6vw, 72px) clamp(20px, 5vw, 64px); display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #FF8A4C">UNTUK KREATOR</span>
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 4.6vw, 60px); line-height: 1; letter-spacing: -0.02em">Job berbayar dari UMKM, honornya pasti cair</h2>
+<p style="margin: 0; font-size: 16px; font-weight: 300; color: #D6CBC5">Followers masih ribuan? Tidak masalah. Usaha lokal justru mencari kreator yang dekat dengan pembelinya.</p>
+<a href="register.html?role=creator" class="k-btn" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 52px; padding: 0 28px; border-radius: 999px; background: #FFFFFF; color: #170D08; text-decoration: none; font-weight: 600; font-size: 16px">Cari job pertama</a>
+</div>
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.1)"><span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 22px">Honor bersih di awal</span><span style="font-size: 14px; color: #BFB3AC; text-align: right">Kelihatan sebelum kamu melamar</span></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.1)"><span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 22px">Tidak digantung</span><span style="font-size: 14px; color: #BFB3AC; text-align: right">Otomatis disetujui setelah 3×24 jam</span></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.1)"><span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 22px">Tarik kapan saja</span><span style="font-size: 14px; color: #BFB3AC; text-align: right">BCA, Mandiri, BRI, BNI, GoPay, OVO, DANA</span></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 18px 0"><span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 22px">Biaya layanan</span><span style="font-size: 14px; color: #BFB3AC; text-align: right">Mulai 7%, tergantung paket</span></div>
+</div>
+</div>
+</section>
+
+<!-- HARGA -->
+<section id="harga" style="max-width: 1200px; margin: 0 auto; padding: clamp(64px, 8vw, 104px) clamp(16px, 4vw, 48px) 0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px 40px; margin-bottom: 36px">
+<h2 style="margin: 0; flex: 1 1 420px; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 4.6vw, 60px); line-height: 1; letter-spacing: -0.02em">Mulai gratis, upgrade kalau usahamu tumbuh</h2>
+<p style="margin: 0; flex: 1 1 300px; font-size: 16px; color: #5A4E48">Paket untuk pemilik usaha. Honor kreator kamu tentukan sendiri per kampanye.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px">
+<div class="k-lift" style="border: 1px solid #EEE7E3; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<span style="font-weight: 600; font-size: 17px">Gratis</span>
+<span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 52px; line-height: 1">Rp0</span>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: #3A302B"><li>2 kampanye berjalan bersamaan</li><li>Video boleh dibagikan ulang di akunmu</li><li>Uang ditahan aman</li></ul>
+<a href="register.html" style="margin-top: auto; display: flex; justify-content: center; align-items: center; min-height: 48px; border-radius: 999px; border: 1px solid #170D08; color: #170D08; text-decoration: none; font-weight: 600">Mulai gratis</a>
+</div>
+<div class="k-lift" style="border: 1px solid #F2541B; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; background: #FFF4EE">
+<span style="display: flex; justify-content: space-between; gap: 8px; align-items: center"><span style="font-weight: 600; font-size: 17px">Pro</span><span style="font-size: 13px; font-weight: 600; color: #C2410C">Paling pas untuk iklan</span></span>
+<span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 52px; line-height: 1">Rp149.000<span style="font-family: 'Inter', sans-serif; font-size: 16px; color: #5A4E48"> /bulan</span></span>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: #3A302B"><li>10 kampanye berjalan bersamaan</li><li>Izin pakai video untuk iklan TikTok dan Meta selama 6 bulan</li><li>Diskon 10% untuk video siap pakai</li></ul>
+<a href="register.html" class="k-btn" style="margin-top: auto; display: flex; justify-content: center; align-items: center; min-height: 48px; border-radius: 999px; background: #F2541B; color: #170D08; text-decoration: none; font-weight: 600">Pilih Pro</a>
+</div>
+<div class="k-lift" style="border: 1px solid #EEE7E3; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<span style="font-weight: 600; font-size: 17px">Business</span>
+<span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 52px; line-height: 1">Rp399.000<span style="font-family: 'Inter', sans-serif; font-size: 16px; color: #6E625C"> /bulan</span></span>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: #3A302B"><li>Kampanye tanpa batas</li><li>Video jadi milikmu sepenuhnya</li><li>Diskon 20% untuk video siap pakai</li></ul>
+<a href="register.html" style="margin-top: auto; display: flex; justify-content: center; align-items: center; min-height: 48px; border-radius: 999px; border: 1px solid #170D08; color: #170D08; text-decoration: none; font-weight: 600">Pilih Business</a>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="max-width: 1200px; margin: 0 auto; padding: clamp(64px, 8vw, 104px) clamp(16px, 4vw, 48px) 0; display: flex; flex-wrap: wrap; gap: 32px 56px">
+<h2 style="margin: 0; flex: 1 1 300px; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 4.6vw, 60px); line-height: 1; letter-spacing: -0.02em">Yang sering ditanyakan</h2>
+<div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; border-top: 1px solid #EEE7E3">
+<details style="padding: 20px 0; border-bottom: 1px solid #EEE7E3"><summary style="cursor: pointer; font-weight: 600; font-size: 18px; min-height: 28px">Kolab itu apa?</summary><p style="margin: 12px 0 0; font-size: 15px; color: #3A302B">Tempat pemilik usaha mendapatkan video promosi dari kreator lokal untuk TikTok, Instagram, atau YouTube. Istilah resminya User Generated Content (UGC).</p></details>
+<details style="padding: 20px 0; border-bottom: 1px solid #EEE7E3"><summary style="cursor: pointer; font-weight: 600; font-size: 18px; min-height: 28px">Bagaimana uangku dijamin aman?</summary><p style="margin: 12px 0 0; font-size: 15px; color: #3A302B">Uangmu kami tahan dulu. Honor baru dibayarkan setelah kamu menyetujui videonya. Kalau video tidak dikirim sampai batas waktu, uangnya kembali otomatis.</p></details>
+<details style="padding: 20px 0; border-bottom: 1px solid #EEE7E3"><summary style="cursor: pointer; font-weight: 600; font-size: 18px; min-height: 28px">Berapa kali aku bisa minta revisi?</summary><p style="margin: 12px 0 0; font-size: 15px; color: #3A302B">Sampai 5 kali, dengan catatan yang mengacu ke arahan video yang disepakati di awal.</p></details>
+<details style="padding: 20px 0; border-bottom: 1px solid #EEE7E3"><summary style="cursor: pointer; font-weight: 600; font-size: 18px; min-height: 28px">Boleh aku pakai videonya untuk iklan?</summary><p style="margin: 12px 0 0; font-size: 15px; color: #3A302B">Tergantung paketmu: Gratis untuk dibagikan ulang di akunmu, Pro termasuk izin iklan 6 bulan, Business membuat video jadi milikmu sepenuhnya.</p></details>
+<details style="padding: 20px 0; border-bottom: 1px solid #EEE7E3"><summary style="cursor: pointer; font-weight: 600; font-size: 18px; min-height: 28px">Apakah data pribadiku aman?</summary><p style="margin: 12px 0 0; font-size: 15px; color: #3A302B">[Diisi setelah audit keamanan selesai.]</p></details>
+</div>
+</section>
+
+<!-- CTA -->
+<section id="mulai-cta" style="margin-top: clamp(64px, 8vw, 104px); border-radius: 28px; background: #F2541B; color: #170D08">
+<div style="max-width: 1200px; margin: 0 auto; padding: clamp(56px, 8vw, 96px) clamp(16px, 4vw, 48px); display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-end; justify-content: space-between">
+<h2 style="margin: 0; flex: 1 1 520px; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(44px, 6vw, 84px); line-height: 0.95; letter-spacing: -0.025em">Siap punya video promosi pertamamu?</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="register.html?role=umkm" class="k-btn" style="display: inline-flex; align-items: center; min-height: 54px; padding: 0 28px; border-radius: 999px; background: #170D08; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 16px">Buat kampanye gratis</a>
+<a href="register.html?role=creator" class="k-btn" style="display: inline-flex; align-items: center; min-height: 54px; padding: 0 28px; border-radius: 999px; border: 1.5px solid #170D08; color: #170D08; text-decoration: none; font-weight: 600; font-size: 16px">Aku kreator</a>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer style="max-width: 1200px; margin: 0 auto; padding: 28px clamp(16px, 4vw, 48px) 16px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; font-size: 14px; color: #5A4E48">
+<span style="display: flex; align-items: baseline; gap: 8px"><span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 22px; color: #170D08">Kolab</span> Video promosi dari kreator lokal</span>
+<nav aria-label="Menu bawah" style="display: flex; flex-wrap: wrap; gap: 20px">
+<a href="#harga" style="color: #5A4E48">Harga</a>
+<a href="#faq" style="color: #5A4E48">Tanya jawab</a>
+<a href="login.html" style="color: #5A4E48">Masuk</a>
+<a href="register.html" style="color: #5A4E48">Daftar</a>
+</nav>
+</footer>
+
+</div>
+<script type="module" src="/src/kolab-cloud.ts"></script>
+<script type="module">
+  // Kalau pengguna sudah masuk, tombol "Masuk" diganti menjadi tautan ke dashboard-nya.
+  const KolabDB = window.KolabDB;
+  if (KolabDB) {
     await KolabDB.ready();
-
     const session = KolabDB.getSession();
     if (session) {
-      KolabUI.renderNavbar('index');
+      const target = session.role === 'umkm' ? 'dashboard-umkm.html' : session.role === 'creator' ? 'dashboard-creator.html' : 'dashboard-admin.html';
+      document.querySelectorAll('a[href="login.html"]').forEach((a) => { a.href = target; a.textContent = 'Dashboard'; });
     }
-
-    const db = KolabDB.load();
-    const revSummary = KolabDB.getRevenueSummary();
-
-    if (session) {
-      document.getElementById('metricGMV').textContent = KolabDB.formatRupiah(revSummary.campaignGMV || 0);
-      document.getElementById('metricCreators').textContent = String(revSummary.totalCreators || 0);
-      document.getElementById('metricUmkm').textContent = String(revSummary.totalUmkm || 0);
-      document.getElementById('metricLicenses').textContent = (db.licenses ? db.licenses.length : 0) + ' video';
-    } else {
-      document.getElementById('metricGMV').textContent = 'Escrow Aman';
-      document.getElementById('metricCreators').textContent = 'YT · IG · TT';
-      document.getElementById('metricUmkm').textContent = 'QRIS & VA';
-      document.getElementById('metricLicenses').textContent = 'Lisensi Ads';
-    }
-
-    function renderLibraryPreview() {
-      const listings = KolabDB.getLibraryListings();
-      const container = document.getElementById('homeLibraryPreview');
-      if (!listings || listings.length === 0) {
-        container.className = '';
-        container.innerHTML = session
-          ? `<div class="empty-state">Belum ada video yang dilisting di Pasar Konten saat ini.</div>`
-          : `<div class="card" style="padding: 24px; text-align: center;">
-               <p style="margin: 0 0 14px; font-size: 14px; color: var(--copy);">Masuk dengan akun Google Anda untuk melihat katalog konten UGC siap pakai beserta performa views &amp; harga lisensinya secara langsung.</p>
-               <a href="login.html" class="btn-primary btn-sm">Masuk dengan Google ↗</a>
-             </div>`;
-        return;
-      }
-
-      let html = '';
-      listings.slice(0, 3).forEach(function(item) {
-        const cr = item.creator || { name: 'Creator' };
-        const camp = item.campaign;
-        const pr = item.pricing || { ads: 0, buyout: 0 };
-        const perf = item.performance || { views: 0, likes: 0 };
-
-        html += `
-          <div class="card" style="padding: 18px; display: flex; flex-direction: column;">
-            <div style="background: linear-gradient(135deg, #1c1c1c, #333); height: 140px; border-radius: 8px; color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; margin-bottom: 12px;">
-              <span class="badge" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 10px; width: fit-content;">UGC VIDEO</span>
-              <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                <span>👁️ ${(perf.views || 0).toLocaleString('id-ID')} views</span>
-                <span>❤️ ${(perf.likes || 0).toLocaleString('id-ID')}</span>
-              </div>
-            </div>
-
-            <div style="flex: 1; display: flex; flex-direction: column;">
-              <strong style="font-size: 14px; margin-bottom: 4px; display: block;">${camp ? camp.title : 'Konten Kreator'}</strong>
-              <div style="font-size: 12px; color: var(--copy); margin-bottom: 10px;">
-                Oleh <strong>${cr.name}</strong> · Tier ${item.tier}
-              </div>
-
-              <div style="background: var(--paper); padding: 8px 10px; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 14px; margin-top: auto;">
-                <div style="display: flex; justify-content: space-between;">
-                  <span style="color: var(--copy);">Lisensi Iklan:</span>
-                  <strong>${KolabDB.formatRupiah(pr.ads)}</strong>
-                </div>
-              </div>
-
-              <a href="content-library.html" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">Lihat di Pasar Konten ↗</a>
-            </div>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
-    }
-
-    function renderCreatorsShowcase() {
-      const creators = KolabDB.getUsersByRole('creator');
-      const container = document.getElementById('homeCreatorsGrid');
-      if (!creators || creators.length === 0) {
-        container.className = '';
-        container.innerHTML = session
-          ? `<div class="empty-state">Belum ada kreator terdaftar saat ini.</div>`
-          : `<div class="card" style="padding: 24px; text-align: center;">
-               <p style="margin: 0 0 14px; font-size: 14px; color: var(--copy);">Jelajahi profil micro-creator yang telah menghubungkan statistik YouTube, Instagram, dan TikTok mereka.</p>
-               <a href="register.html" class="btn-outline btn-sm">Daftar atau Masuk dengan Google</a>
-             </div>`;
-        return;
-      }
-
-      let html = '';
-      creators.slice(0, 3).forEach(function(c) {
-        const social = KolabDB.getSocialSummary(c.id);
-        const reviews = KolabDB.getReviewsForUser(c.id);
-        const ratingText = reviews.average !== null ? `⭐ ${reviews.average} (${reviews.count} ulasan)` : '⭐ Kreator Baru';
-
-        html += `
-          <div class="card" style="padding: 20px; text-align: center;">
-            <div class="avatar-circle" style="width: 60px; height: 60px; margin: 0 auto 12px; font-size: 20px;">
-              ${(c.name || 'CR').substring(0, 2).toUpperCase()}
-            </div>
-            <h3 style="margin: 0 0 4px; font-size: 17px; font-weight: 700;">${c.name}</h3>
-            <div style="display: flex; justify-content: center; gap: 6px; margin-bottom: 12px;">
-              <span class="badge" style="background: var(--accent); color: #fff; font-size: 11px;">Tier ${social.tier}</span>
-              <span class="badge badge-neutral" style="font-size: 11px;">${(c.niche || 'Umum').toUpperCase()}</span>
-            </div>
-
-            <div style="background: var(--paper); padding: 10px; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 16px; display: flex; justify-content: space-around;">
-              <div>
-                <div style="color: var(--copy);">Pengikut</div>
-                <strong class="tabular-nums">${(social.totalFollowers || 0).toLocaleString('id-ID')}</strong>
-              </div>
-              <div>
-                <div style="color: var(--copy);">Engagement</div>
-                <strong>${social.avgEngagement}%</strong>
-              </div>
-            </div>
-
-            <div style="font-size: 12px; color: var(--copy); margin-bottom: 14px;">
-              ${ratingText}
-            </div>
-
-            <a href="creator-profile.html?id=${encodeURIComponent(c.id)}" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">
-              Lihat Portofolio ↗
-            </a>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
-    }
-
-    function renderReviewsShowcase() {
-      const container = document.getElementById('homeReviewsGrid');
-      const reviews = db.reviews || [];
-      if (reviews.length === 0) {
-        container.className = '';
-        container.innerHTML = session
-          ? `<div class="empty-state">Belum ada ulasan kolaborasi tercatat.</div>`
-          : `<div class="card" style="padding: 24px; text-align: center;">
-               <p style="margin: 0; font-size: 14px; color: var(--copy);">Ulasan terverifikasi antar UMKM dan kreator ditampilkan setelah Anda masuk.</p>
-             </div>`;
-        return;
-      }
-
-      let html = '';
-      reviews.slice(0, 3).forEach(function(r) {
-        const reviewer = KolabDB.getUserById(r.reviewerId) || { name: 'Mitra Kolab' };
-        const reviewee = KolabDB.getUserById(r.revieweeId) || { name: 'Kreator' };
-        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-
-        html += `
-          <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div style="color: #f59e0b; font-size: 16px; margin-bottom: 8px;">${stars}</div>
-              <p style="margin: 0 0 16px; font-size: 14px; color: var(--ink); line-height: 1.6; font-style: italic;">
-                "${r.comment || 'Kerja sama sangat lancar dan tepat waktu.'}"
-              </p>
-            </div>
-            <div style="border-top: 1px solid var(--line); padding-top: 12px; font-size: 12px;">
-              <strong style="display: block; color: var(--ink);">${reviewer.name}</strong>
-              <span style="color: var(--copy);">Ulasan untuk: <strong>${reviewee.name}</strong></span>
-            </div>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
-    }
-
-    renderLibraryPreview();
-    renderCreatorsShowcase();
-    renderReviewsShowcase();
-  </script>
+  }
+</script>
 </body>
 </html>
