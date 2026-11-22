@@ -1,0 +1,574 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Global Helpers
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 160 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isTokenAdmin() {
+      return isVerified() && request.auth.token.email == 'kikynepth@gmail.com';
+    }
+
+    function isAdmin() {
+      return isVerified() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'kikynepth@gmail.com'
+      );
+    }
+
+    // 3. Entity Validation Blueprints
+    function isValidUserPublic(data) {
+      return data.keys().hasAll(['uid', 'role', 'name', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'uid', 'role', 'name', 'businessName', 'category', 'city',
+          'niche', 'bio', 'avatarUrl', 'followers', 'tier', 'status',
+          'planId', 'planCycle', 'planStatus', 'planExpiresAt',
+          'createdAt', 'updatedAt'
+        ])
+        && isValidId(data.uid)
+        && data.role in ['umkm', 'creator']
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && (!('businessName' in data) || (data.businessName is string && data.businessName.size() <= 140))
+        && (!('category' in data) || (data.category is string && data.category.size() <= 80))
+        && (!('city' in data) || (data.city is string && data.city.size() <= 80))
+        && (!('niche' in data) || (data.niche is string && data.niche.size() <= 80))
+        && (!('bio' in data) || (data.bio is string && data.bio.size() <= 500))
+        && (!('avatarUrl' in data) || (data.avatarUrl is string && data.avatarUrl.size() <= 500))
+        && (!('followers' in data) || (data.followers is number && data.followers >= 0))
+        && (!('tier' in data) || (data.tier in ['Nano', 'Mikro', 'Makro', 'Mega']))
+        && data.status in ['active', 'suspended']
+        && (!('planId' in data) || (data.planId in ['free', 'pro', 'business', 'plus']))
+        && (!('planCycle' in data) || (data.planCycle in ['monthly', 'yearly']))
+        && (!('planStatus' in data) || (data.planStatus in ['active', 'cancelled']))
+        && (!('planExpiresAt' in data) || (data.planExpiresAt is string && data.planExpiresAt.size() <= 64))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivate(data) {
+      return data.keys().hasAll(['uid', 'email', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'phone', 'bankMethod', 'bankAccountNumber', 'updatedAt'])
+        && isValidId(data.uid)
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 40))
+        && (!('bankMethod' in data) || (data.bankMethod is string && data.bankMethod.size() <= 40))
+        && (!('bankAccountNumber' in data) || (data.bankAccountNumber is string && data.bankAccountNumber.size() <= 60))
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidWallet(data) {
+      return data.keys().hasAll(['userId', 'balance', 'held', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'balance', 'held', 'updatedAt'])
+        && isValidId(data.userId)
+        && data.balance is number && data.balance >= 0
+        && data.held is number && data.held >= 0
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidCampaign(data) {
+      return data.keys().hasAll(['id', 'umkmId', 'title', 'niche', 'brief', 'budgetPerSlot', 'slots', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'umkmId', 'title', 'niche', 'brief', 'deliverable', 'budgetPerSlot', 'slots', 'deadline', 'status', 'createdAt', 'updatedAt'])
+        && isValidId(data.id)
+        && isValidId(data.umkmId)
+        && data.title is string && data.title.size() >= 3 && data.title.size() <= 180
+        && data.niche is string && data.niche.size() >= 1 && data.niche.size() <= 80
+        && data.brief is string && data.brief.size() >= 5 && data.brief.size() <= 2000
+        && (!('deliverable' in data) || (data.deliverable is string && data.deliverable.size() <= 300))
+        && data.budgetPerSlot is number && data.budgetPerSlot >= 10000
+        && data.slots is number && data.slots >= 1 && data.slots <= 100
+        && (!('deadline' in data) || (data.deadline is string && data.deadline.size() <= 64))
+        && data.status in ['open', 'completed', 'cancelled']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidApplication(data) {
+      return data.keys().hasAll(['id', 'campaignId', 'umkmId', 'creatorId', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'campaignId', 'umkmId', 'creatorId', 'status', 'createdAt', 'updatedAt'])
+        && isValidId(data.id)
+        && isValidId(data.campaignId)
+        && isValidId(data.umkmId)
+        && isValidId(data.creatorId)
+        && data.status in ['accepted', 'completed', 'cancelled']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSubmission(data) {
+      return data.keys().hasAll(['id', 'applicationId', 'campaignId', 'umkmId', 'creatorId', 'fileUrl', 'status', 'listed', 'exclusiveSold', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'id', 'applicationId', 'campaignId', 'umkmId', 'creatorId',
+          'fileUrl', 'note', 'status', 'listed', 'exclusiveSold',
+          'adsPrice', 'buyoutPrice', 'perfViews', 'perfLikes', 'perfComments', 'perfClicks',
+          'createdAt', 'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.applicationId)
+        && isValidId(data.campaignId)
+        && isValidId(data.umkmId)
+        && isValidId(data.creatorId)
+        && data.fileUrl is string && data.fileUrl.size() >= 5 && data.fileUrl.size() <= 500
+        && (!('note' in data) || (data.note is string && data.note.size() <= 1000))
+        && data.status in ['submitted', 'revision', 'approved']
+        && data.listed is bool
+        && data.exclusiveSold is bool
+        && (!('adsPrice' in data) || (data.adsPrice is number && data.adsPrice > 0))
+        && (!('buyoutPrice' in data) || (data.buyoutPrice is number && data.buyoutPrice > 0))
+        && (!('perfViews' in data) || (data.perfViews is number && data.perfViews >= 0))
+        && (!('perfLikes' in data) || (data.perfLikes is number && data.perfLikes >= 0))
+        && (!('perfComments' in data) || (data.perfComments is number && data.perfComments >= 0))
+        && (!('perfClicks' in data) || (data.perfClicks is number && data.perfClicks >= 0))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidLicense(data) {
+      return data.keys().hasAll(['id', 'submissionId', 'buyerId', 'sellerId', 'type', 'price', 'platformFee', 'netSeller', 'createdAt'])
+        && data.keys().hasOnly(['id', 'submissionId', 'buyerId', 'sellerId', 'type', 'price', 'platformFee', 'netSeller', 'expiresAt', 'createdAt'])
+        && isValidId(data.id)
+        && isValidId(data.submissionId)
+        && isValidId(data.buyerId)
+        && isValidId(data.sellerId)
+        && data.type in ['ads', 'buyout']
+        && data.price is number && data.price > 0
+        && data.platformFee is number && data.platformFee >= 0
+        && data.netSeller is number && data.netSeller >= 0
+        && (!('expiresAt' in data) || (data.expiresAt is string && data.expiresAt.size() <= 64))
+        && data.createdAt is timestamp;
+    }
+
+    function isValidReview(data) {
+      return data.keys().hasAll(['id', 'campaignId', 'reviewerId', 'revieweeId', 'rating', 'createdAt'])
+        && data.keys().hasOnly(['id', 'campaignId', 'reviewerId', 'revieweeId', 'rating', 'comment', 'createdAt'])
+        && isValidId(data.id)
+        && isValidId(data.campaignId)
+        && isValidId(data.reviewerId)
+        && isValidId(data.revieweeId)
+        && data.rating is number && data.rating >= 1 && data.rating <= 5
+        && (!('comment' in data) || (data.comment is string && data.comment.size() <= 600))
+        && data.createdAt is timestamp;
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['id', 'type', 'amount', 'createdAt'])
+        && data.keys().hasOnly(['id', 'type', 'fromUserId', 'toUserId', 'campaignId', 'amount', 'fee', 'description', 'createdAt'])
+        && isValidId(data.id)
+        && data.type in ['topup', 'escrow_hold', 'escrow_release', 'escrow_refund', 'payout', 'subscription', 'license_purchase']
+        && (!('fromUserId' in data) || (data.fromUserId is string && data.fromUserId.size() <= 128))
+        && (!('toUserId' in data) || (data.toUserId is string && data.toUserId.size() <= 128))
+        && (!('campaignId' in data) || (data.campaignId is string && data.campaignId.size() <= 128))
+        && data.amount is number && data.amount >= 0
+        && (!('fee' in data) || (data.fee is number && data.fee >= 0))
+        && (!('description' in data) || (data.description is string && data.description.size() <= 240))
+        && data.createdAt is timestamp;
+    }
+
+    function isValidPaymentOrder(data) {
+      return data.keys().hasAll(['orderId', 'userId', 'provider', 'method', 'purpose', 'amount', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['orderId', 'userId', 'provider', 'method', 'purpose', 'amount', 'status', 'vaNumber', 'qrString', 'expiresAt', 'createdAt', 'updatedAt'])
+        && isValidId(data.orderId)
+        && isValidId(data.userId)
+        && data.provider in ['midtrans', 'xendit', 'sandbox']
+        && data.method in ['qris', 'bca_va', 'mandiri_va', 'bni_va', 'bri_va', 'permata_va']
+        && data.purpose in ['topup', 'subscription', 'campaign', 'license']
+        && data.amount is number && data.amount >= 1000
+        && data.status in ['pending', 'settled', 'expired', 'failed']
+        && (!('vaNumber' in data) || (data.vaNumber is string && data.vaNumber.size() <= 64))
+        && (!('qrString' in data) || (data.qrString is string && data.qrString.size() <= 2000))
+        && (!('expiresAt' in data) || (data.expiresAt is string && data.expiresAt.size() <= 64))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSocialAccount(data) {
+      return data.keys().hasAll(['id', 'userId', 'platform', 'handle', 'connected', 'isPublic', 'followers', 'engagementRate', 'updatedAt'])
+        && data.keys().hasOnly([
+          'id', 'userId', 'platform', 'handle', 'channelTitle', 'profileUrl',
+          'connected', 'isPublic', 'followers', 'totalViews', 'mediaCount',
+          'engagementRate', 'avgLikes', 'avgComments', 'avgViews',
+          'topContentSummary', 'lastSyncedAt', 'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.userId)
+        && data.platform in ['youtube', 'instagram', 'tiktok']
+        && data.handle is string && data.handle.size() >= 1 && data.handle.size() <= 120
+        && (!('channelTitle' in data) || (data.channelTitle is string && data.channelTitle.size() <= 160))
+        && (!('profileUrl' in data) || (data.profileUrl is string && data.profileUrl.size() <= 400))
+        && data.connected is bool
+        && data.isPublic is bool
+        && data.followers is number && data.followers >= 0
+        && (!('totalViews' in data) || (data.totalViews is number && data.totalViews >= 0))
+        && (!('mediaCount' in data) || (data.mediaCount is number && data.mediaCount >= 0))
+        && data.engagementRate is number && data.engagementRate >= 0
+        && (!('avgLikes' in data) || (data.avgLikes is number && data.avgLikes >= 0))
+        && (!('avgComments' in data) || (data.avgComments is number && data.avgComments >= 0))
+        && (!('avgViews' in data) || (data.avgViews is number && data.avgViews >= 0))
+        && (!('topContentSummary' in data) || (data.topContentSummary is string && data.topContentSummary.size() <= 2000))
+        && (!('lastSyncedAt' in data) || (data.lastSyncedAt is string && data.lastSyncedAt.size() <= 64))
+        && data.updatedAt is timestamp;
+    }
+
+    // 4. Collection Rules
+    match /admins/{adminId} {
+      allow get: if isValidId(adminId) && (isOwner(adminId) || isAdmin());
+      allow list: if isAdmin() && resource.data.uid is string;
+      allow create, update, delete: if false;
+    }
+
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin() || (isSignedIn() && existing().status == 'active'));
+      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || resource.data.status == 'active' || isTokenAdmin());
+
+      allow create: if isValidId(userId)
+        && isVerified()
+        && isOwner(userId)
+        && isValidUserPublic(incoming())
+        && incoming().uid == request.auth.uid
+        && incoming().status == 'active'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(userId)
+        && isVerified()
+        && isValidUserPublic(incoming())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            isOwner(userId)
+            && incoming().role == existing().role
+            && incoming().status == existing().status
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'name', 'businessName', 'category', 'city', 'niche', 'bio',
+              'avatarUrl', 'followers', 'tier', 'planId', 'planCycle',
+              'planStatus', 'planExpiresAt', 'updatedAt'
+            ])
+          )
+        );
+
+      allow delete: if isAdmin() && isValidId(userId);
+
+      match /private/{docId} {
+        allow get: if isValidId(userId) && isValidId(docId) && (isOwner(userId) || isAdmin());
+        allow list: if isOwner(userId) && resource.data.uid == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(docId)
+          && isVerified() && isOwner(userId)
+          && isValidUserPrivate(incoming())
+          && incoming().uid == request.auth.uid
+          && incoming().updatedAt == request.time;
+        allow update: if isValidId(userId) && isValidId(docId)
+          && isVerified() && (isOwner(userId) || isAdmin())
+          && isValidUserPrivate(incoming())
+          && incoming().uid == existing().uid
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly(['email', 'phone', 'bankMethod', 'bankAccountNumber', 'updatedAt']);
+        allow delete: if false;
+      }
+    }
+
+    match /wallets/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      allow create: if isValidId(userId)
+        && isVerified()
+        && isOwner(userId)
+        && isValidWallet(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().balance == 0
+        && incoming().held == 0
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(userId)
+        && isVerified()
+        && isValidWallet(incoming())
+        && incoming().userId == existing().userId
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'held', 'updatedAt'])) ||
+          (
+            incoming().balance > existing().balance
+            && incoming().held == existing().held
+            && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'updatedAt'])
+          )
+        );
+
+      allow delete: if false;
+    }
+
+    match /campaigns/{campaignId} {
+      allow get: if isValidId(campaignId) && isSignedIn();
+      allow list: if isSignedIn() && (resource.data.status in ['open', 'completed'] || resource.data.umkmId == request.auth.uid || isTokenAdmin());
+
+      allow create: if isValidId(campaignId)
+        && isVerified()
+        && isValidCampaign(incoming())
+        && incoming().id == campaignId
+        && incoming().umkmId == request.auth.uid
+        && incoming().status == 'open'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(campaignId)
+        && isVerified()
+        && isValidCampaign(incoming())
+        && incoming().id == existing().id
+        && incoming().umkmId == existing().umkmId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            existing().status == 'open'
+            && existing().umkmId == request.auth.uid
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt', 'title', 'brief', 'deadline'])
+          )
+        );
+
+      allow delete: if isAdmin() && isValidId(campaignId);
+    }
+
+    match /applications/{applicationId} {
+      allow get: if isValidId(applicationId) && isSignedIn() && (existing().creatorId == request.auth.uid || existing().umkmId == request.auth.uid || existing().status in ['accepted', 'completed'] || isAdmin());
+      allow list: if isSignedIn() && (resource.data.creatorId == request.auth.uid || resource.data.umkmId == request.auth.uid || resource.data.status in ['accepted', 'completed'] || isTokenAdmin());
+
+      allow create: if isValidId(applicationId)
+        && isVerified()
+        && isValidApplication(incoming())
+        && incoming().id == applicationId
+        && (incoming().creatorId == request.auth.uid || incoming().umkmId == request.auth.uid)
+        && incoming().status == 'accepted'
+        && exists(/databases/$(database)/documents/campaigns/$(incoming().campaignId))
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(applicationId)
+        && isVerified()
+        && isValidApplication(incoming())
+        && incoming().id == existing().id
+        && incoming().campaignId == existing().campaignId
+        && incoming().umkmId == existing().umkmId
+        && incoming().creatorId == existing().creatorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            existing().status == 'accepted'
+            && (existing().creatorId == request.auth.uid || existing().umkmId == request.auth.uid)
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          )
+        );
+
+      allow delete: if isAdmin() && isValidId(applicationId);
+    }
+
+    match /submissions/{submissionId} {
+      allow get: if isValidId(submissionId) && isSignedIn() && (existing().creatorId == request.auth.uid || existing().umkmId == request.auth.uid || existing().listed == true || isAdmin());
+      allow list: if isSignedIn() && (resource.data.creatorId == request.auth.uid || resource.data.umkmId == request.auth.uid || resource.data.listed == true || isTokenAdmin());
+
+      allow create: if isValidId(submissionId)
+        && isVerified()
+        && isValidSubmission(incoming())
+        && incoming().id == submissionId
+        && incoming().creatorId == request.auth.uid
+        && incoming().status == 'submitted'
+        && incoming().listed == false
+        && incoming().exclusiveSold == false
+        && exists(/databases/$(database)/documents/applications/$(incoming().applicationId))
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(submissionId)
+        && isVerified()
+        && isValidSubmission(incoming())
+        && incoming().id == existing().id
+        && incoming().applicationId == existing().applicationId
+        && incoming().campaignId == existing().campaignId
+        && incoming().umkmId == existing().umkmId
+        && incoming().creatorId == existing().creatorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            existing().creatorId == request.auth.uid
+            && existing().status != 'approved'
+            && incoming().status == 'submitted'
+            && incoming().diff(existing()).affectedKeys().hasOnly(['fileUrl', 'note', 'status', 'updatedAt'])
+          ) ||
+          (
+            existing().umkmId == request.auth.uid
+            && existing().status in ['submitted', 'revision']
+            && incoming().status in ['revision', 'approved']
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          ) ||
+          (
+            existing().umkmId == request.auth.uid
+            && existing().status == 'approved'
+            && incoming().diff(existing()).affectedKeys().hasOnly(['perfViews', 'perfLikes', 'perfComments', 'perfClicks', 'updatedAt'])
+          ) ||
+          (
+            existing().creatorId == request.auth.uid
+            && existing().status == 'approved'
+            && existing().exclusiveSold == false
+            && incoming().diff(existing()).affectedKeys().hasOnly(['listed', 'adsPrice', 'buyoutPrice', 'updatedAt'])
+          ) ||
+          (
+            existing().status == 'approved'
+            && existing().listed == true
+            && existing().exclusiveSold == false
+            && incoming().exclusiveSold == true
+            && incoming().listed == false
+            && incoming().diff(existing()).affectedKeys().hasOnly(['exclusiveSold', 'listed', 'updatedAt'])
+          )
+        );
+
+      allow delete: if isAdmin() && isValidId(submissionId);
+    }
+
+    match /licenses/{licenseId} {
+      allow get: if isValidId(licenseId) && isSignedIn() && (existing().buyerId == request.auth.uid || existing().sellerId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid || isTokenAdmin());
+
+      allow create: if isValidId(licenseId)
+        && isVerified()
+        && isValidLicense(incoming())
+        && incoming().id == licenseId
+        && incoming().buyerId == request.auth.uid
+        && exists(/databases/$(database)/documents/submissions/$(incoming().submissionId))
+        && incoming().createdAt == request.time;
+
+      allow update, delete: if isAdmin() && isValidId(licenseId);
+    }
+
+    match /reviews/{reviewId} {
+      allow get: if isValidId(reviewId) && isSignedIn();
+      allow list: if isSignedIn() && resource.data.rating >= 1;
+
+      allow create: if isValidId(reviewId)
+        && isVerified()
+        && isValidReview(incoming())
+        && incoming().id == reviewId
+        && incoming().reviewerId == request.auth.uid
+        && exists(/databases/$(database)/documents/campaigns/$(incoming().campaignId))
+        && incoming().createdAt == request.time;
+
+      allow update, delete: if isAdmin() && isValidId(reviewId);
+    }
+
+    match /transactions/{transactionId} {
+      allow get: if isValidId(transactionId) && isSignedIn() && (existing().fromUserId == request.auth.uid || existing().toUserId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.fromUserId == request.auth.uid || resource.data.toUserId == request.auth.uid || isTokenAdmin());
+
+      allow create: if isValidId(transactionId)
+        && isVerified()
+        && isValidTransaction(incoming())
+        && incoming().id == transactionId
+        && (
+          ('fromUserId' in incoming() && incoming().fromUserId == request.auth.uid) ||
+          ('toUserId' in incoming() && incoming().toUserId == request.auth.uid)
+        )
+        && incoming().createdAt == request.time;
+
+      allow update, delete: if isAdmin() && isValidId(transactionId);
+    }
+
+    match /payment_orders/{orderId} {
+      allow get: if isValidId(orderId) && isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      allow create: if isValidId(orderId)
+        && isVerified()
+        && isValidPaymentOrder(incoming())
+        && incoming().orderId == orderId
+        && incoming().userId == request.auth.uid
+        && incoming().status == 'pending'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(orderId)
+        && isVerified()
+        && isValidPaymentOrder(incoming())
+        && incoming().orderId == existing().orderId
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            existing().userId == request.auth.uid
+            && existing().status == 'pending'
+            && incoming().status in ['settled', 'expired', 'failed']
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          )
+        );
+
+      allow delete: if false;
+    }
+
+    match /social_accounts/{accountId} {
+      allow get: if isValidId(accountId) && isSignedIn() && (existing().userId == request.auth.uid || existing().isPublic == true || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.isPublic == true);
+
+      allow create: if isValidId(accountId)
+        && isVerified()
+        && isValidSocialAccount(incoming())
+        && incoming().id == accountId
+        && incoming().userId == request.auth.uid
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(accountId)
+        && isVerified()
+        && isValidSocialAccount(incoming())
+        && incoming().id == existing().id
+        && incoming().userId == existing().userId
+        && incoming().platform == existing().platform
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            existing().userId == request.auth.uid
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'handle', 'channelTitle', 'profileUrl', 'connected', 'isPublic',
+              'followers', 'totalViews', 'mediaCount', 'engagementRate',
+              'avgLikes', 'avgComments', 'avgViews', 'topContentSummary',
+              'lastSyncedAt', 'updatedAt'
+            ])
+          )
+        );
+
+      allow delete: if isValidId(accountId) && isVerified() && (existing().userId == request.auth.uid || isAdmin());
+    }
+  }
+}

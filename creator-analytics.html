@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analitik Media Sosial - Kolab</title>
+  <title>Koneksi &amp; Analitik Media Sosial - Kolab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -12,8 +12,8 @@
     .chart-container {
       display: flex;
       align-items: flex-end;
-      gap: 16px;
-      height: 180px;
+      gap: 14px;
+      height: 185px;
       padding: 16px 0 8px;
       border-bottom: 1px solid var(--line);
       margin-bottom: 8px;
@@ -25,10 +25,11 @@
       align-items: center;
       justify-content: flex-end;
       height: 100%;
+      min-width: 0;
     }
     .chart-bar {
       width: 100%;
-      max-width: 44px;
+      max-width: 52px;
       background: var(--accent);
       border-radius: 6px 6px 2px 2px;
       transition: height 0.4s ease;
@@ -48,6 +49,34 @@
       color: var(--copy);
       margin-top: 6px;
       font-weight: 500;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .oauth-setup-note {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--copy);
+      text-align: left;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+    @media (max-width: 767px) {
+      .chart-container {
+        gap: 6px;
+        height: 165px;
+      }
+      .chart-val-label {
+        font-size: 9px;
+      }
+      .chart-month-label {
+        font-size: 10px;
+      }
     }
   </style>
 </head>
@@ -61,30 +90,40 @@
       </a>
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
-          <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Analitik Media Sosial Kreator</h1>
+          <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Koneksi Sosial Media &amp; Analitik</h1>
           <p style="margin: 0; color: var(--copy); font-size: 14px;">
-            Statistik keterlibatan (engagement), pertumbuhan audiens, dan verifikasi tingkatan influencer.
+            Kaitkan akun YouTube, Instagram, atau TikTok via OAuth untuk verifikasi jumlah pengikut, engagement rate, dan performa konten nyata.
           </p>
         </div>
-        <div style="display: flex; align-items: center; gap: 12px;" id="headerTierSummary">
-          <!-- Diisi via JS: tier badge besar + total followers -->
-        </div>
+        <div style="display: flex; align-items: center; gap: 12px;" id="headerTierSummary"></div>
       </div>
     </div>
 
-    <!-- Platform Cards Container -->
-    <div id="platformCardsContainer" style="display: flex; flex-direction: column; gap: 24px;">
-      <!-- Instagram & TikTok Cards -->
-    </div>
+    <!-- Ringkasan Analitik Gabungan -->
+    <div class="grid-3" id="overallStatsRow" style="margin-bottom: 24px;"></div>
+
+    <!-- Platform Cards -->
+    <div id="platformCardsContainer" style="display: flex; flex-direction: column; gap: 24px;"></div>
   </main>
 
-  <script src="kolab-db.js"></script>
-  <script src="kolab-ui.js"></script>
-  <script>
-    const session = KolabDB.requireRole(['creator']);
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
 
+    const session = KolabDB.requireRole(['creator']);
     if (session) {
-      KolabUI.renderNavbar('dashboard-creator');
+      KolabUI.renderNavbar('creator-analytics');
+
+      let oauthConfig = null;
+      try {
+        const cfgResp = await fetch('/api/oauth/config');
+        oauthConfig = await cfgResp.json();
+      } catch {
+        oauthConfig = null;
+      }
 
       function formatNumber(n) {
         n = Number(n) || 0;
@@ -93,146 +132,273 @@
         return n.toLocaleString('id-ID');
       }
 
+      window.addEventListener('message', async (event) => {
+        const origin = event.origin;
+        if (!origin.endsWith('.run.app') && !origin.includes('localhost')) return;
+        if (event.data?.type === 'KOLAB_SOCIAL_OAUTH_SUCCESS') {
+          try {
+            await KolabDB.saveConnectedSocialProfile(session.id, event.data.platform, event.data.profile);
+            KolabUI.showToast(`Akun ${event.data.platform.toUpperCase()} berhasil dikaitkan & disinkronkan!`);
+            renderAnalytics();
+          } catch (err) {
+            KolabUI.showToast(err?.message || 'Gagal menyimpan data sosial media.');
+          }
+        } else if (event.data?.type === 'KOLAB_SOCIAL_OAUTH_ERROR') {
+          KolabUI.showToast(event.data.message || 'Otorisasi media sosial gagal.');
+        }
+      });
+
       function renderAnalytics() {
         const social = KolabDB.getSocialSummary(session.id);
 
-        // Header Tier & Followers
-        const headerSummary = document.getElementById('headerTierSummary');
-        if (headerSummary) {
-          headerSummary.innerHTML = `
-            <div style="text-align: right;">
-              <span class="badge" style="background: var(--accent); color: #fff; font-size: 13px; padding: 6px 14px; font-weight: 600;">
-                Tier: ${social.tier}
-              </span>
-              <div style="font-size: 13px; color: var(--copy); margin-top: 4px;">
-                Total Pengikut: <strong class="tabular-nums" style="color: var(--ink); font-size: 15px;">${formatNumber(social.totalFollowers)}</strong>
-              </div>
+        document.getElementById('headerTierSummary').innerHTML = `
+          <div style="text-align: left;">
+            <span class="badge" style="background: var(--accent); color: #fff; font-size: 13px; padding: 6px 14px; font-weight: 600;">
+              Tier: ${social.tier}
+            </span>
+            <div style="font-size: 13px; color: var(--copy); margin-top: 4px;">
+              Total Audiens: <strong class="tabular-nums" style="color: var(--ink); font-size: 15px;">${formatNumber(social.totalFollowers)}</strong>
             </div>
-          `;
-        }
+          </div>
+        `;
+
+        document.getElementById('overallStatsRow').innerHTML = `
+          <div class="card">
+            <div class="stat-label">Platform Terhubung</div>
+            <div class="stat-value tabular-nums">${social.connectedCount} / 3</div>
+            <div class="stat-sub">Terverifikasi via OAuth resmi</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Total Pengikut / Subscriber</div>
+            <div class="stat-value tabular-nums" style="color: var(--accent);">${social.totalFollowers.toLocaleString('id-ID')}</div>
+            <div class="stat-sub">Penentu tier Nano / Mikro / Makro</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Rata-rata Engagement Rate</div>
+            <div class="stat-value tabular-nums" style="color: var(--text-success);">${social.avgEngagementRate}%</div>
+            <div class="stat-sub">Dihitung dari likes, komentar, &amp; views</div>
+          </div>
+        `;
+
+        const platforms = [
+          { id: 'youtube', name: 'YouTube', icon: '▶️', desc: 'Kaitkan Channel YouTube Anda langsung via otorisasi Google untuk menarik subscriber, total views, dan performa video terbaru.' },
+          { id: 'instagram', name: 'Instagram', icon: '📸', desc: 'Hubungkan akun Instagram Creator/Business untuk verifikasi followers, likes, komentar, dan engagement rate.' },
+          { id: 'tiktok', name: 'TikTok', icon: '🎵', desc: 'Hubungkan akun TikTok via TikTok Login Kit untuk memverifikasi followers, views video, dan rasio keterlibatan.' }
+        ];
 
         const container = document.getElementById('platformCardsContainer');
-        if (!container) return;
-
-        const platforms = ['instagram', 'tiktok'];
-        let html = '';
-
-        platforms.forEach(function(plat) {
-          const platName = plat === 'instagram' ? 'Instagram' : 'TikTok';
-          const icon = plat === 'instagram' ? '📸' : '🎵';
-          const acc = social.accounts ? social.accounts[plat] : null;
+        container.innerHTML = platforms.map((p) => {
+          const acc = social.accounts ? social.accounts[p.id] : null;
           const isConnected = acc && acc.connected;
+          const platCfg = oauthConfig?.platforms?.[p.id];
 
           if (!isConnected) {
-            html += `
-              <div class="card" style="border: 2px dashed var(--line); text-align: center; padding: 40px 24px;">
-                <div style="font-size: 36px; margin-bottom: 10px;">${icon}</div>
-                <h3 style="margin: 0 0 6px; font-size: 18px; font-weight: 600;">${platName} Belum Terhubung</h3>
-                <p style="margin: 0 0 20px; font-size: 14px; color: var(--copy); max-width: 440px; margin-left: auto; margin-right: auto;">
-                  Hubungkan akun ${platName} untuk memverifikasi jumlah followers, engagement rate, dan grafik pertumbuhan Anda kepada UMKM.
-                </p>
-                <button type="button" class="btn-primary btn-sm" onclick="handleConnect('${plat}')">
-                  Hubungkan Akun ${platName}
-                </button>
-              </div>
-            `;
-          } else {
-            // Platform Connected: render detail stats + 6 months bar chart
-            const growth = acc.growthHistory || [];
-            let maxFollowers = 1;
-            growth.forEach(function(g) { if (g.followers > maxFollowers) maxFollowers = g.followers; });
-
-            let chartBarsHtml = '';
-            growth.forEach(function(g, idx) {
-              // height_px = 20 + (followers / max_followers_in_series) * 120
-              const heightPx = Math.round(20 + (g.followers / maxFollowers) * 120);
-              // Opacity scale: older months lighter, latest full opacity
-              const opacity = (0.45 + (idx / (growth.length - 1)) * 0.55).toFixed(2);
-              const labelFollowers = formatNumber(g.followers);
-
-              chartBarsHtml += `
-                <div class="chart-bar-col">
-                  <div class="chart-bar" style="height: ${heightPx}px; opacity: ${opacity};" title="${g.month}: ${g.followers.toLocaleString('id-ID')} pengikut">
-                    <span class="chart-val-label">${labelFollowers}</span>
-                  </div>
-                  <div class="chart-month-label">${g.month}</div>
+            let actionHtml = '';
+            if (p.id === 'youtube') {
+              actionHtml = `
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                  <button type="button" class="btn-primary btn-sm" onclick="handleConnectYouTube()">
+                    Hubungkan YouTube (Akun Google)
+                  </button>
+                </div>
+                <div class="filter-bar" style="margin-top: 14px; justify-content: center;">
+                  <input type="text" id="ytHandleInput" class="input" placeholder="Atau masukkan @handle channel (opsional)" style="max-width: 260px; padding: 8px 12px; font-size: 13px;">
+                  <button type="button" class="btn-outline btn-sm" onclick="handleSyncYouTubeByHandle()">Cek Channel via Handle</button>
                 </div>
               `;
-            });
+            } else {
+              const configured = platCfg?.configuredServerOAuth;
+              actionHtml = `
+                <button type="button" class="btn-primary btn-sm" onclick="handleConnectOAuth('${p.id}')">
+                  Hubungkan Akun ${p.name} (OAuth)
+                </button>
+                ${
+                  !configured && platCfg?.callbackUrl
+                    ? `<div class="oauth-setup-note" style="max-width: 560px; margin: 14px auto 0;">
+                        <strong>Konfigurasi OAuth ${p.name}:</strong> Untuk mengaktifkan login OAuth ${p.name}, tambahkan Callback URL berikut di developer portal ${p.name} dan isi Secrets environment:<br>
+                        <code style="word-break: break-all;">${platCfg.callbackUrl}</code>
+                      </div>`
+                    : ''
+                }
+              `;
+            }
 
-            html += `
-              <div class="card">
-                <div class="card-header" style="align-items: flex-start;">
-                  <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                      ${icon}
-                    </div>
-                    <div>
-                      <h2 class="card-title" style="margin: 0; font-size: 18px;">${platName} <span style="font-weight: 400; color: var(--copy); font-size: 14px;">(${acc.handle})</span></h2>
-                      <span class="badge badge-active" style="font-size: 11px; margin-top: 2px;">Terverifikasi Terhubung</span>
-                    </div>
-                  </div>
-                  <div>
-                    <button type="button" class="btn-outline btn-danger btn-sm" style="font-size: 12px; padding: 5px 12px;" onclick="handleDisconnect('${plat}')">
-                      Putuskan Koneksi
-                    </button>
-                  </div>
-                </div>
-
-                <!-- 4 Metrik Ringkas -->
-                <div class="grid-2" style="grid-template-columns: repeat(4, 1fr) !important; gap: 14px; margin-bottom: 24px;">
-                  <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-                    <div class="stat-label">Pengikut</div>
-                    <div class="stat-value tabular-nums" style="font-size: 22px;">${acc.followers.toLocaleString('id-ID')}</div>
-                  </div>
-                  <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-                    <div class="stat-label">Engagement Rate</div>
-                    <div class="stat-value tabular-nums" style="font-size: 22px; color: var(--text-success);">${acc.engagementRate}%</div>
-                  </div>
-                  <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-                    <div class="stat-label">Rata-rata Likes</div>
-                    <div class="stat-value tabular-nums" style="font-size: 22px;">${acc.avgLikes.toLocaleString('id-ID')}</div>
-                  </div>
-                  <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-                    <div class="stat-label">Rata-rata Komentar</div>
-                    <div class="stat-value tabular-nums" style="font-size: 22px;">${acc.avgComments.toLocaleString('id-ID')}</div>
-                  </div>
-                </div>
-
-                <!-- Grafik Pertumbuhan 6 Bulan -->
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <strong style="font-size: 14px; color: var(--ink);">Tren Pertumbuhan Pengikut (6 Bulan Terakhir)</strong>
-                    <span style="font-size: 12px; color: var(--copy);">Organik & Terverifikasi</span>
-                  </div>
-                  
-                  <div class="chart-container">
-                    ${chartBarsHtml}
-                  </div>
-                  <div style="font-size: 11px; color: var(--copy); text-align: right;">
-                    Tinggi batang proporsional terhadap volume pengikut per bulan.
-                  </div>
-                </div>
+            return `
+              <div class="card" style="border: 2px dashed var(--line); text-align: center; padding: 36px 24px;">
+                <div style="font-size: 34px; margin-bottom: 10px;">${p.icon}</div>
+                <h3 style="margin: 0 0 6px; font-size: 18px; font-weight: 600;">${p.name} Belum Terhubung</h3>
+                <p style="margin: 0 auto 20px; font-size: 14px; color: var(--copy); max-width: 480px;">${p.desc}</p>
+                ${actionHtml}
               </div>
             `;
           }
-        });
 
-        container.innerHTML = html;
+          const topVideos = Array.isArray(acc.topVideos) ? acc.topVideos : [];
+          let maxMetric = 1;
+          topVideos.forEach((v) => {
+            const m = Number(v.views || v.likes || 0);
+            if (m > maxMetric) maxMetric = m;
+          });
+
+          const chartHtml = topVideos.length > 0
+            ? topVideos.map((v, idx) => {
+                const val = Number(v.views || v.likes || 0);
+                const heightPx = Math.round(24 + (val / maxMetric) * 120);
+                const opacity = (0.55 + (idx / Math.max(1, topVideos.length - 1)) * 0.45).toFixed(2);
+                const shortTitle = String(v.title || 'Konten').slice(0, 14);
+                return `
+                  <div class="chart-bar-col">
+                    <div class="chart-bar" style="height: ${heightPx}px; opacity: ${opacity};" title="${v.title}: ${val.toLocaleString('id-ID')}">
+                      <span class="chart-val-label">${formatNumber(val)}</span>
+                    </div>
+                    <div class="chart-month-label" title="${v.title}">${shortTitle}</div>
+                  </div>
+                `;
+              }).join('')
+            : `<div style="width:100%;text-align:center;color:var(--copy);font-size:13px;padding:40px 0;">Belum ada konten video terbaru pada channel ini.</div>`;
+
+          const videoRows = topVideos.map((v) => `
+            <tr>
+              <td style="font-weight: 500;">${v.title || 'Konten'}</td>
+              <td class="tabular-nums">${Number(v.views || 0).toLocaleString('id-ID')}</td>
+              <td class="tabular-nums">${Number(v.likes || 0).toLocaleString('id-ID')}</td>
+              <td class="tabular-nums">${Number(v.comments || 0).toLocaleString('id-ID')}</td>
+              <td class="tabular-nums" style="color: var(--text-success); font-weight: 600;">${v.engagementRate || 0}%</td>
+            </tr>
+          `).join('');
+
+          return `
+            <div class="card">
+              <div class="card-header" style="align-items: flex-start;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 42px; height: 42px; border-radius: 8px; background: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                    ${p.icon}
+                  </div>
+                  <div>
+                    <h2 class="card-title" style="margin: 0; font-size: 18px;">
+                      ${p.name}
+                      <span style="font-weight: 400; color: var(--copy); font-size: 14px;">(${acc.handle})</span>
+                    </h2>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                      <span class="badge badge-active" style="font-size: 11px;">Terverifikasi OAuth</span>
+                      ${acc.profileUrl ? `<a href="${acc.profileUrl}" target="_blank" rel="noopener" style="font-size: 12px; color: var(--accent);">Lihat Profil ↗</a>` : ''}
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  ${p.id === 'youtube' ? `<button type="button" class="btn-outline btn-sm" onclick="handleConnectYouTube()">↻ Sinkronkan</button>` : ''}
+                  <button type="button" class="btn-outline btn-danger btn-sm" onclick="handleDisconnect('${p.id}')">Putuskan Koneksi</button>
+                </div>
+              </div>
+
+              <div class="grid-4" style="gap: 14px; margin-bottom: 24px;">
+                <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                  <div class="stat-label">${p.id === 'youtube' ? 'Subscriber' : 'Pengikut'}</div>
+                  <div class="stat-value tabular-nums" style="font-size: 22px;">${Number(acc.followers || 0).toLocaleString('id-ID')}</div>
+                </div>
+                <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                  <div class="stat-label">Engagement Rate</div>
+                  <div class="stat-value tabular-nums" style="font-size: 22px; color: var(--text-success);">${acc.engagementRate || 0}%</div>
+                </div>
+                <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                  <div class="stat-label">Rata-rata Likes</div>
+                  <div class="stat-value tabular-nums" style="font-size: 22px;">${Number(acc.avgLikes || 0).toLocaleString('id-ID')}</div>
+                </div>
+                <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
+                  <div class="stat-label">${acc.totalViews ? 'Total Views' : 'Rata-rata Komentar'}</div>
+                  <div class="stat-value tabular-nums" style="font-size: 22px;">${formatNumber(acc.totalViews || acc.avgComments || 0)}</div>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+                  <strong style="font-size: 14px; color: var(--ink);">Performa Konten Teratas (${topVideos.length} Konten Terbaru)</strong>
+                  <span style="font-size: 12px; color: var(--copy);">Data Real API · Terakhir sinkron: ${acc.lastSyncedAt ? new Date(acc.lastSyncedAt).toLocaleString('id-ID') : '-'}</span>
+                </div>
+                <div class="chart-container">${chartHtml}</div>
+              </div>
+
+              ${
+                topVideos.length > 0
+                  ? `<div class="table-container">
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th>Judul Konten</th>
+                            <th>Views</th>
+                            <th>Likes</th>
+                            <th>Komentar</th>
+                            <th>Engagement</th>
+                          </tr>
+                        </thead>
+                        <tbody>${videoRows}</tbody>
+                      </table>
+                    </div>`
+                  : ''
+              }
+            </div>
+          `;
+        }).join('');
       }
 
-      window.handleConnect = function(plat) {
-        KolabDB.connectSocialAccount(session.id, plat);
-        KolabUI.showToast(`Akun ${plat === 'instagram' ? 'Instagram' : 'TikTok'} berhasil dihubungkan!`);
-        renderAnalytics();
+      window.handleConnectYouTube = async function() {
+        try {
+          KolabUI.showToast('Membuka otorisasi Google YouTube...');
+          await KolabDB.connectYouTubeWithGoogle(session.id);
+          KolabUI.showToast('Channel YouTube berhasil dihubungkan & dianalisis!');
+          renderAnalytics();
+        } catch (err) {
+          KolabUI.showToast(err?.message || 'Gagal menghubungkan YouTube.');
+        }
       };
 
-      window.handleDisconnect = function(plat) {
-        if (confirm(`Yakin ingin memutuskan koneksi akun ${plat === 'instagram' ? 'Instagram' : 'TikTok'}?`)) {
-          KolabDB.disconnectSocialAccount(session.id, plat);
-          KolabUI.showToast(`Koneksi akun ${plat} diputuskan.`);
-          renderAnalytics();
+      window.handleSyncYouTubeByHandle = async function() {
+        const handleInput = document.getElementById('ytHandleInput');
+        const handle = handleInput ? handleInput.value.trim() : '';
+        if (!handle) {
+          KolabUI.showToast('Masukkan @handle channel YouTube terlebih dahulu.');
+          return;
         }
+        try {
+          const resp = await fetch('/api/social/youtube/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ handle })
+          });
+          const data = await resp.json();
+          if (!resp.ok || !data.ok) {
+            KolabUI.showToast(data.message || 'Gagal menarik data channel YouTube.');
+            return;
+          }
+          await KolabDB.saveConnectedSocialProfile(session.id, 'youtube', data.profile);
+          KolabUI.showToast('Statistik channel YouTube berhasil disimpan!');
+          renderAnalytics();
+        } catch (err) {
+          KolabUI.showToast(err?.message || 'Gagal sinkronisasi YouTube.');
+        }
+      };
+
+      window.handleConnectOAuth = async function(plat) {
+        try {
+          const resp = await fetch(`/api/oauth/${encodeURIComponent(plat)}/url?userId=${encodeURIComponent(session.id)}`);
+          const data = await resp.json();
+          if (!resp.ok || !data.ok) {
+            KolabUI.showToast(data.message || `OAuth ${plat} belum dikonfigurasi di server.`);
+            return;
+          }
+          const popup = window.open(data.url, 'oauth_popup', 'width=600,height=700');
+          if (!popup) {
+            KolabUI.showToast('Mohon izinkan popup browser untuk menghubungkan akun sosial media.');
+          }
+        } catch (err) {
+          KolabUI.showToast(err?.message || 'Gagal memulai OAuth.');
+        }
+      };
+
+      window.handleDisconnect = async function(plat) {
+        await KolabDB.disconnectSocialAccount(session.id, plat);
+        KolabUI.showToast(`Koneksi akun ${plat} diputuskan.`);
+        renderAnalytics();
       };
 
       renderAnalytics();

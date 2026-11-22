@@ -16,9 +16,13 @@
     <!-- Diisi via JS -->
   </main>
 
-  <script src="kolab-db.js"></script>
-  <script src="kolab-ui.js"></script>
-  <script>
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
     const session = KolabDB.getSession();
     if (!session) {
       window.location.href = 'login.html';
@@ -54,6 +58,7 @@
       function renderCreatorProfile(creator) {
         const social = KolabDB.getSocialSummary(creator.id);
         const reviewsData = KolabDB.getReviewsForUser(creator.id);
+        const reviewsList = reviewsData.reviews || [];
 
         let reviewsHtml = '';
         if (!reviewsData.count || reviewsData.count === 0) {
@@ -63,7 +68,7 @@
             </div>
           `;
         } else {
-          reviewsData.list.forEach(function(r) {
+          reviewsList.forEach(function(r) {
             const reviewer = KolabDB.getUserById(r.reviewerId);
             const reviewerName = reviewer ? reviewer.name : 'Pengguna';
             const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
@@ -99,7 +104,7 @@
         if (social.platforms && social.platforms.length > 0) {
           social.platforms.forEach(function(p) {
             const acc = social.accounts[p];
-            const icon = p === 'instagram' ? '📸 Instagram' : '🎵 TikTok';
+            const icon = p === 'instagram' ? '📸 Instagram' : p === 'youtube' ? '▶️ YouTube' : '🎵 TikTok';
             platformsBadgeHtml += `
               <div style="background: var(--paper); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
                 <span>${icon}:</span>

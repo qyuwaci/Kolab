@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paket & Langganan - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .pricing-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pricing-card:hover {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    .pricing-card.featured {
+      border: 2px solid var(--accent);
+      background: #fff;
+    }
+    .pricing-card.current {
+      border: 2px solid var(--text-success);
+    }
+    .cycle-toggle {
+      display: inline-flex;
+      align-items: center;
+      background: #e7e5e4;
+      padding: 4px;
+      border-radius: 999px;
+      gap: 4px;
+    }
+    .cycle-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--copy);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .cycle-btn.active {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .feature-icon {
+      color: var(--text-success);
+      font-weight: 700;
+      line-height: 1;
+      font-size: 15px;
+    }
+    @media (max-width: 767px) {
+      .pricing-card {
+        padding: 24px 18px;
+      }
+      .cycle-toggle {
+        flex-wrap: wrap;
+        justify-content: center;
+        border-radius: 16px;
+        max-width: 100%;
+      }
+      .cycle-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="text-align: center; max-width: 680px; margin: 0 auto 36px;">
+      <span class="badge" style="background: var(--bg-warning); color: var(--text-warning); margin-bottom: 12px; font-size: 12px;">PILIHAN LANGGANAN</span>
+      <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 10px;">Upgrade untuk Skala Bisnis & Cuan Maksimal</h1>
+      <p style="color: var(--copy); font-size: 15px; margin: 0 0 24px;">Pilih paket yang sesuai untuk memperluas jangkauan kampanye UMKM atau maksimalkan keuntungan kreator.</p>
+
+      <!-- Role Tabs -->
+      <div class="tabs-nav" style="justify-content: center; border-bottom: none; margin-bottom: 20px;">
+        <button type="button" class="tab-btn active" id="tabUmkm" onclick="switchRole('umkm')">Untuk UMKM & Brand</button>
+        <button type="button" class="tab-btn" id="tabCreator" onclick="switchRole('creator')">Untuk Micro-Creator</button>
+      </div>
+
+      <!-- Billing Cycle Toggle -->
+      <div class="cycle-toggle">
+        <button type="button" class="cycle-btn active" id="btnMonthly" onclick="setCycle('monthly')">Tagihan Bulanan</button>
+        <button type="button" class="cycle-btn" id="btnYearly" onclick="setCycle('yearly')">
+          Tagihan Tahunan <span style="background: var(--accent); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 999px; margin-left: 4px;">Hemat ~17%</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Subscription Banner (if logged in) -->
+    <div id="currentPlanBanner" style="display: none; margin-bottom: 28px;"></div>
+
+    <!-- Pricing Cards Grid -->
+    <div class="grid-3" id="pricingGrid">
+      <!-- Generated via JS -->
+    </div>
+
+    <!-- FAQ or Guarantees -->
+    <div class="card" style="margin-top: 48px; background: #fff;">
+      <h3 style="margin: 0 0 16px; font-size: 18px; font-weight: 700;">Keuntungan Berlangganan di Kolab</h3>
+      <div class="grid-3">
+        <div>
+          <h4 style="margin: 0 0 6px; font-size: 14px; font-weight: 600;">⚡ Pembayaran Fleksibel</h4>
+          <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Gunakan saldo dompet Kolab Anda untuk aktivasi instan tanpa kartu kredit tambahan.</p>
+        </div>
+        <div>
+          <h4 style="margin: 0 0 6px; font-size: 14px; font-weight: 600;">🔒 Tanpa Komitmen Kaku</h4>
+          <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Anda dapat membatalkan perpanjangan otomatis kapan saja langsung dari dashboard.</p>
+        </div>
+        <div>
+          <h4 style="margin: 0 0 6px; font-size: 14px; font-weight: 600;">🎯 ROI Lebih Tinggi</h4>
+          <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">UMKM mendapatkan diskon pembelian lisensi konten hingga 20%, kreator menikmati potongan fee terendah 7%.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Subscribe / Top Up Modal -->
+  <div class="modal-overlay" id="subModal" style="display: none;">
+    <div class="modal-content" style="max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700;" id="subModalTitle">Konfirmasi Langganan</h3>
+        <button type="button" class="btn-outline btn-sm" onclick="closeSubModal()">✕</button>
+      </div>
+
+      <div id="subModalBody">
+        <!-- Content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel Confirmation Modal -->
+  <div class="modal-overlay" id="cancelConfirmModal" style="display: none;">
+    <div class="modal-content" style="max-width: 420px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Batalkan Langganan?</h3>
+        <button type="button" class="btn-outline btn-sm" onclick="closeCancelModal()">✕</button>
+      </div>
+      <p id="cancelConfirmMessage" style="font-size: 14px; color: var(--copy); line-height: 1.5; margin: 0 0 20px;">
+        Fitur paket tetap aktif hingga masa berlaku berakhir.
+      </p>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="btn-outline btn-sm" onclick="closeCancelModal()">Tidak</button>
+        <button type="button" class="btn-primary btn-sm" id="btnConfirmCancel">Ya, Batalkan</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
+    const session = KolabDB.getSession();
+    KolabUI.renderNavbar('pricing');
+
+    let currentRole = (session && session.role === 'creator') ? 'creator' : 'umkm';
+    let currentCycle = 'monthly';
+
+    function switchRole(role) {
+      currentRole = role;
+      document.getElementById('tabUmkm').classList.toggle('active', role === 'umkm');
+      document.getElementById('tabCreator').classList.toggle('active', role === 'creator');
+      render();
+    }
+
+    function setCycle(cycle) {
+      currentCycle = cycle;
+      document.getElementById('btnMonthly').classList.toggle('active', cycle === 'monthly');
+      document.getElementById('btnYearly').classList.toggle('active', cycle === 'yearly');
+      render();
+    }
+
+    function renderCurrentPlanBanner() {
+      const banner = document.getElementById('currentPlanBanner');
+      if (!session || session.role === 'admin') {
+        banner.style.display = 'none';
+        return;
+      }
+
+      const userPlan = KolabDB.getUserPlan(session.id);
+      if (!userPlan) {
+        banner.style.display = 'none';
+        return;
+      }
+
+      const isSubscribed = userPlan.active && userPlan.subscription && userPlan.planId !== 'free';
+      const expiresFormatted = userPlan.expiresAt ? new Date(userPlan.expiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
+
+      banner.style.display = 'block';
+      banner.innerHTML = `
+        <div class="card" style="background: #fafaf9; border: 1.5px solid rgba(211, 84, 47, 0.35); padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+              <span style="font-size: 14px; color: var(--copy);">Paket Aktif Anda:</span>
+              <strong style="font-size: 16px; color: var(--ink);">${userPlan.plan.name}</strong>
+              <span class="badge ${userPlan.planId === 'free' ? 'badge-neutral' : 'badge-completed'}">${userPlan.plan.name.toUpperCase()}</span>
+              ${userPlan.cancelled ? '<span class="badge badge-danger">Batal Otomatis</span>' : ''}
+            </div>
+            <div style="font-size: 13px; color: var(--copy);">
+              ${isSubscribed ? `Berlaku hingga <strong>${expiresFormatted}</strong> (${userPlan.subscription.cycle === 'yearly' ? 'Tahunan' : 'Bulanan'})` : 'Paket gratis standar Kolab.'}
+            </div>
+          </div>
+          <div>
+            ${isSubscribed && !userPlan.cancelled ? `
+              <button type="button" class="btn-outline btn-sm" onclick="handleCancelSubscription()">Batalkan Perpanjangan</button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPricingCards() {
+      const grid = document.getElementById('pricingGrid');
+      const plans = KolabDB.getPlans(currentRole);
+      let userPlan = null;
+
+      if (session && session.role === currentRole) {
+        userPlan = KolabDB.getUserPlan(session.id);
+      }
+
+      let html = '';
+      plans.forEach(function(p) {
+        const isCurrent = userPlan && userPlan.planId === p.id && (p.id === 'free' || userPlan.active);
+        const price = currentCycle === 'yearly' ? p.yearly : p.monthly;
+        const priceText = p.id === 'free' ? 'Gratis' : KolabDB.formatRupiah(price);
+        const cycleText = p.id === 'free' ? 'selamanya' : (currentCycle === 'yearly' ? '/ tahun' : '/ bulan');
+        const features = KolabDB.getPlanFeatures(currentRole, p.id);
+
+        let buttonHtml = '';
+        if (!session) {
+          buttonHtml = `<a href="login.html" class="btn-outline" style="width: 100%; justify-content: center;">Masuk untuk Memilih</a>`;
+        } else if (session.role !== currentRole) {
+          buttonHtml = `<button type="button" class="btn-outline" disabled style="width: 100%; opacity: 0.6;">Akun Anda: ${session.role.toUpperCase()}</button>`;
+        } else if (isCurrent) {
+          buttonHtml = `<button type="button" class="btn-outline" disabled style="width: 100%; color: var(--text-success); border-color: var(--text-success); font-weight: 600;">✓ Paket Aktif Saat Ini</button>`;
+        } else if (p.id === 'free') {
+          buttonHtml = `<button type="button" class="btn-outline" style="width: 100%; justify-content: center;" onclick="handleFreeSwitch()">Gunakan Gratis</button>`;
+        } else {
+          const btnClass = p.featured ? 'btn-primary' : 'btn-outline';
+          buttonHtml = `<button type="button" class="${btnClass}" style="width: 100%; justify-content: center;" onclick="openSubscribeModal('${p.id}')">Pilih ${p.name}</button>`;
+        }
+
+        html += `
+          <div class="pricing-card ${p.featured ? 'featured' : ''} ${isCurrent ? 'current' : ''}">
+            ${p.featured ? '<div style="position: absolute; top: -12px; right: 20px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 999px; letter-spacing: 0.05em;">PALING POPULER</div>' : ''}
+            ${isCurrent ? '<div style="position: absolute; top: -12px; left: 20px; background: var(--text-success); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 999px;">PAKET ANDA</div>' : ''}
+
+            <h3 style="margin: 0 0 6px; font-size: 20px; font-weight: 700;">${p.name}</h3>
+            <div style="margin-bottom: 20px;">
+              <span class="tabular-nums" style="font-size: 32px; font-weight: 800; color: var(--ink);">${priceText}</span>
+              <span style="font-size: 13px; color: var(--copy);">${cycleText}</span>
+            </div>
+
+            <ul class="feature-list">
+              ${features.map(function(f) {
+                return `
+                  <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>${f}</span>
+                  </li>
+                `;
+              }).join('')}
+            </ul>
+
+            <div style="margin-top: auto; padding-top: 20px;">
+              ${buttonHtml}
+            </div>
+          </div>
+        `;
+      });
+
+      grid.innerHTML = html;
+    }
+
+    function render() {
+      document.getElementById('tabUmkm').classList.toggle('active', currentRole === 'umkm');
+      document.getElementById('tabCreator').classList.toggle('active', currentRole === 'creator');
+      renderCurrentPlanBanner();
+      renderPricingCards();
+    }
+
+    let selectedPlanId = null;
+
+    function openSubscribeModal(planId) {
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      selectedPlanId = planId;
+      const plans = KolabDB.getPlans(currentRole);
+      const plan = plans.find(function(p) { return p.id === planId; });
+      if (!plan) return;
+
+      const price = currentCycle === 'yearly' ? plan.yearly : plan.monthly;
+      const cycleLabel = currentCycle === 'yearly' ? 'Tahunan (12 bulan)' : 'Bulanan (30 hari)';
+      const wallet = KolabDB.getWallet(session.id);
+      const canPay = wallet.balance >= price;
+      const deficit = price - wallet.balance;
+
+      const body = document.getElementById('subModalBody');
+      body.innerHTML = `
+        <div style="background: var(--paper); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 14px; color: var(--copy);">Paket:</span>
+            <strong>${plan.name} (${session.role.toUpperCase()})</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 14px; color: var(--copy);">Siklus:</span>
+            <span>${cycleLabel}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 14px; color: var(--copy);">Total Tagihan:</span>
+            <strong class="tabular-nums" style="font-size: 18px; color: var(--accent);">${KolabDB.formatRupiah(price)}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px;">
+            <span style="font-size: 13px; color: var(--copy);">Saldo Dompet:</span>
+            <span class="tabular-nums" style="font-size: 14px; font-weight: 600;">${KolabDB.formatRupiah(wallet.balance)}</span>
+          </div>
+        </div>
+
+        ${!canPay ? `
+          <div class="card" style="background: var(--bg-warning); border-color: rgba(148, 104, 0, 0.2); padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 13px; color: var(--text-warning); font-weight: 600; margin-bottom: 6px;">Saldo Dompet Tidak Cukup</div>
+            <div style="font-size: 12px; color: var(--ink); margin-bottom: 10px;">
+              Kurang ${KolabDB.formatRupiah(deficit)}. Bayar langsung via QRIS atau Virtual Account untuk mengaktifkan paket.
+            </div>
+            <button type="button" class="btn-primary btn-sm" style="width: 100%; justify-content: center;" onclick="quickTopUpAndSub(${price})">
+              Bayar via QRIS / VA (${KolabDB.formatRupiah(Math.max(10000, deficit))})
+            </button>
+          </div>
+        ` : `
+          <div id="subError" class="error-text" style="display: none; margin-bottom: 12px;"></div>
+          <button type="button" class="btn-primary" style="width: 100%; justify-content: center; height: 44px; margin-bottom: 8px;" onclick="executeSubscribe()">
+            Bayar Sekarang dari Saldo Dompet
+          </button>
+          <button type="button" class="btn-outline btn-sm" style="width: 100%; justify-content: center;" onclick="quickTopUpAndSub(${price})">
+            Atau Bayar Langsung via QRIS / VA
+          </button>
+        `}
+      `;
+
+      document.getElementById('subModal').style.display = 'flex';
+    }
+
+    function closeSubModal() {
+      document.getElementById('subModal').style.display = 'none';
+      selectedPlanId = null;
+    }
+
+    function quickTopUpAndSub(targetAmount) {
+      if (!selectedPlanId || !session) return;
+      const wallet = KolabDB.getWallet(session.id);
+      const payAmt = Math.max(10000, targetAmount - wallet.balance > 0 ? targetAmount - wallet.balance : targetAmount);
+      const planToActivate = selectedPlanId;
+
+      KolabDB.openPaymentGateway({
+        userId: session.id,
+        amount: payAmt,
+        purpose: 'subscription',
+        title: `Aktivasi Paket ${planToActivate.toUpperCase()}`,
+        subtitle: 'Pembayaran via QRIS atau Virtual Account',
+        metadata: { planId: planToActivate, cycle: currentCycle },
+        onSettled: async function(order) {
+          const methodLabel = String(order.method || 'QRIS').toUpperCase().replace('_', ' ');
+          KolabDB.topUp(session.id, payAmt, methodLabel);
+          selectedPlanId = planToActivate;
+          await executeSubscribe();
+        }
+      });
+    }
+
+    async function executeSubscribe() {
+      if (!selectedPlanId || !session) return;
+      const res = KolabDB.subscribe(session.id, selectedPlanId, currentCycle);
+      if (res.ok) {
+        await KolabDB.flush();
+        closeSubModal();
+        KolabUI.showToast(`Selamat! Langganan berhasil diaktifkan.`);
+        render();
+      } else {
+        const err = document.getElementById('subError');
+        if (err) {
+          err.textContent = res.message || 'Gagal memproses langganan';
+          err.style.display = 'block';
+        } else {
+          KolabUI.showToast(res.message || 'Gagal memproses langganan');
+        }
+      }
+    }
+
+    let pendingCancelToast = '';
+
+    function closeCancelModal() {
+      document.getElementById('cancelConfirmModal').style.display = 'none';
+      pendingCancelToast = '';
+    }
+
+    function openCancelModal(message, toastText) {
+      pendingCancelToast = toastText;
+      document.getElementById('cancelConfirmMessage').textContent = message;
+      document.getElementById('cancelConfirmModal').style.display = 'flex';
+    }
+
+    document.getElementById('btnConfirmCancel').addEventListener('click', async function() {
+      if (!session) return;
+      const btn = document.getElementById('btnConfirmCancel');
+      btn.disabled = true;
+      const res = KolabDB.cancelSubscription(session.id);
+      if (res.ok) {
+        await KolabDB.flush();
+        const msg = pendingCancelToast || 'Langganan dibatalkan.';
+        closeCancelModal();
+        KolabUI.showToast(msg);
+        render();
+      } else {
+        closeCancelModal();
+        KolabUI.showToast(res.message || 'Gagal membatalkan langganan');
+      }
+      btn.disabled = false;
+    });
+
+    function handleCancelSubscription() {
+      openCancelModal(
+        'Apakah Anda yakin ingin membatalkan perpanjangan paket langganan? Fitur paket tetap aktif hingga masa berlaku berakhir.',
+        'Perpanjangan langganan berhasil dibatalkan.'
+      );
+    }
+
+    function handleFreeSwitch() {
+      openCancelModal(
+        'Apakah Anda ingin membatalkan langganan berbayar dan kembali ke paket Gratis?',
+        'Kembali ke paket gratis.'
+      );
+    }
+
+    window.switchRole = switchRole;
+    window.setCycle = setCycle;
+    window.openSubscribeModal = openSubscribeModal;
+    window.closeSubModal = closeSubModal;
+    window.closeCancelModal = closeCancelModal;
+    window.quickTopUpAndSub = quickTopUpAndSub;
+    window.executeSubscribe = executeSubscribe;
+    window.handleCancelSubscription = handleCancelSubscription;
+    window.handleFreeSwitch = handleFreeSwitch;
+
+    render();
+  </script>
+</body>
+</html>

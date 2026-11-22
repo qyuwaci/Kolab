@@ -20,7 +20,7 @@
           Pantau seluruh aktivitas ekosistem marketplace UGC, escrow, dan verifikasi anggota.
         </p>
       </div>
-      <div style="display: flex; gap: 10px;">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <a href="admin-users.html" class="btn-outline">Kelola Pengguna</a>
         <a href="admin-transactions.html" class="btn-primary">Lihat Transaksi & Escrow</a>
       </div>
@@ -89,15 +89,19 @@
         </div>
 
         <div style="margin-top: 24px; padding: 14px; border: 1px dashed var(--line); border-radius: var(--radius-sm); font-size: 13px; color: var(--copy); line-height: 1.5;">
-          ℹ️ <strong>Catatan Sistem:</strong> Seluruh data disimpan dan disinkronkan secara terpusat melalui modul <code>KolabDB</code> di localStorage browser.
+          ℹ️ <strong>Catatan Sistem:</strong> Seluruh data tersinkronisasi secara real-time melalui Firebase Authentication &amp; Cloud Firestore.
         </div>
       </div>
     </div>
   </main>
 
-  <script src="kolab-db.js"></script>
-  <script src="kolab-ui.js"></script>
-  <script>
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
     const session = KolabDB.requireRole(['admin']);
 
     if (session) {
@@ -106,7 +110,6 @@
       function renderDashboard() {
         const db = KolabDB.load();
 
-        // 3 Kartu Ringkasan
         const usersCount = db.users ? db.users.length : 0;
         const activeCampaigns = db.campaigns ? db.campaigns.filter(function(c) { return c.status !== 'completed'; }).length : 0;
         const escrowSummary = KolabDB.getEscrowSummary();
@@ -115,7 +118,6 @@
         document.getElementById('statActiveCampaigns').textContent = activeCampaigns;
         document.getElementById('statEscrowBalance').textContent = KolabDB.formatRupiah(escrowSummary.totalEscrow);
 
-        // Card Perlu Ditinjau
         const pendingUsers = db.users ? db.users.filter(function(u) { return u.status === 'pending_verification'; }) : [];
         const pendingContainer = document.getElementById('pendingReviewContainer');
 
@@ -132,7 +134,7 @@
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line);">
                 <div>
                   <strong style="font-size: 14px;">${u.name}</strong>
-                  <div style="font-size: 12px; color: var(--copy);">${u.email} · Role: ${u.role}</div>
+                  <div style="font-size: 12px; color: var(--copy);">${u.email || '-'} · Role: ${u.role}</div>
                 </div>
                 <div>
                   <button type="button" class="btn-primary btn-sm" onclick="handleVerifyUser('${u.id}')">Verifikasi</button>
@@ -144,13 +146,14 @@
         }
       }
 
-      window.handleVerifyUser = function(userId) {
+      window.handleVerifyUser = async function(userId) {
         const res = KolabDB.verifyUser(userId);
         if (res.ok) {
+          await KolabDB.flush();
           KolabUI.showToast(`Pengguna ${res.user.name} berhasil diverifikasi!`);
           renderDashboard();
         } else {
-          alert(res.message || 'Gagal memverifikasi');
+          KolabUI.showToast(res.message || 'Gagal memverifikasi');
         }
       };
 

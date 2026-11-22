@@ -13,6 +13,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
       padding: 18px 0;
       border-bottom: 1px solid var(--line);
     }
@@ -23,20 +25,45 @@
     .campaign-item:first-child {
       padding-top: 0;
     }
+    .license-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .license-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    @media (max-width: 767px) {
+      .campaign-item > div:last-child,
+      .campaign-item > div:last-child a,
+      .license-item > div:last-child,
+      .license-item > div:last-child a {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="navbar"></div>
 
   <main class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
       <div>
-        <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;" id="welcomeTitle">Dashboard UMKM</h1>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+          <h1 style="font-size: 26px; font-weight: 700; margin: 0;" id="welcomeTitle">Dashboard UMKM</h1>
+          <span id="planBadgeContainer"></span>
+        </div>
         <p style="margin: 0; color: var(--copy); font-size: 14px;" id="welcomeSub">Kelola kampanye UGC dan pantau kolaborasi kreator Anda.</p>
       </div>
       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <a href="campaign-new.html" class="btn-primary">+ Buat Kampanye Baru</a>
-        <a href="umkm-profile.html?id=" id="myUmkmProfileLink" class="btn-outline">Profil Publik Usaha ↗</a>
+        <a href="content-library.html" class="btn-outline">Pasar Konten ↗</a>
+        <a href="pricing.html" class="btn-outline">Upgrade Paket ⭐</a>
       </div>
     </div>
 
@@ -55,7 +82,7 @@
             <div style="background: var(--paper); padding: 18px; border-radius: var(--radius-sm);">
               <div class="stat-label">Saldo Tersedia (Bisa Dipakai)</div>
               <div class="stat-value tabular-nums" id="walletBalance">Rp0</div>
-              <div class="stat-sub">Dapat digunakan untuk membuka kampanye baru.</div>
+              <div class="stat-sub">Dapat digunakan untuk kampanye baru & beli lisensi.</div>
             </div>
             <div style="background: var(--paper); padding: 18px; border-radius: var(--radius-sm);">
               <div class="stat-label">Dana Ditahan di Escrow</div>
@@ -66,12 +93,12 @@
 
           <div style="border-top: 1px solid var(--line); padding-top: 20px;">
             <h4 style="margin: 0 0 10px; font-size: 14px; font-weight: 600;">Isi Ulang Saldo (Top Up)</h4>
-            <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
+            <div class="filter-bar" style="align-items: flex-start;">
               <div style="flex: 1; min-width: 200px;">
                 <input type="number" id="topUpAmount" class="input" placeholder="Masukkan nominal (contoh: 500000)" min="10000" step="10000">
                 <div id="topUpError" class="error-text" style="display: none;"></div>
               </div>
-              <button type="button" id="btnTopUp" class="btn-primary" style="height: 42px;">Top Up</button>
+              <button type="button" id="btnTopUp" class="btn-primary" style="min-height: 42px;">Top Up</button>
             </div>
           </div>
         </div>
@@ -79,7 +106,10 @@
         <!-- Card Kampanye Saya -->
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">Kampanye Saya</h2>
+            <div>
+              <h2 class="card-title">Kampanye Saya</h2>
+              <div style="font-size: 12px; color: var(--copy); margin-top: 2px;" id="campaignQuotaText">Memuat kuota paket...</div>
+            </div>
             <a href="campaign-new.html" class="btn-outline btn-sm">+ Tambah</a>
           </div>
 
@@ -88,7 +118,22 @@
           </div>
         </div>
 
-        <!-- CARD EKSTENSI #4: Performa Kampanye -->
+        <!-- Card Lisensi Konten yang Dimiliki -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Lisensi Konten yang Dibeli</h2>
+              <div style="font-size: 12px; color: var(--copy); margin-top: 2px;">Aset video UGC yang siap Anda gunakan untuk materi iklan atau branding</div>
+            </div>
+            <a href="content-library.html" class="btn-outline btn-sm">Beli Konten Lain</a>
+          </div>
+
+          <div id="licensesContainer">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Performa Kampanye -->
         <div class="card">
           <div class="card-header">
             <div>
@@ -104,12 +149,17 @@
         </div>
       </div>
 
-      <!-- Sidebar Right: Statistik -->
+      <!-- Sidebar Right: Statistik & Info Paket -->
       <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Card Paket Langganan -->
+        <div class="card" id="subscriptionSideCard">
+          <!-- Rendered via JS -->
+        </div>
+
         <div class="card">
           <h2 class="card-title" style="margin-bottom: 16px;">Statistik Kampanye</h2>
           
-          <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
             <div style="padding: 12px 14px; background: var(--paper); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 14px; color: var(--copy);">Total Kampanye</span>
               <span class="tabular-nums" style="font-size: 18px; font-weight: 700;" id="statTotalCampaigns">0</span>
@@ -146,9 +196,13 @@
     </div>
   </main>
 
-  <script src="kolab-db.js"></script>
-  <script src="kolab-ui.js"></script>
-  <script>
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
     const session = KolabDB.requireRole(['umkm']);
 
     if (session) {
@@ -157,13 +211,47 @@
       const welcomeTitle = document.getElementById('welcomeTitle');
       if (welcomeTitle) welcomeTitle.textContent = session.name || 'Dashboard UMKM';
 
-      const myProfileLink = document.getElementById('myUmkmProfileLink');
-      if (myProfileLink) myProfileLink.href = `umkm-profile.html?id=${encodeURIComponent(session.id)}`;
-
       function renderWallet() {
         const wallet = KolabDB.getWallet(session.id);
         document.getElementById('walletBalance').textContent = KolabDB.formatRupiah(wallet.balance);
         document.getElementById('walletHeld').textContent = KolabDB.formatRupiah(wallet.heldBalance);
+      }
+
+      function renderPlanInfo() {
+        const up = KolabDB.getUserPlan(session.id);
+        if (!up) return;
+
+        const badgeContainer = document.getElementById('planBadgeContainer');
+        const sideCard = document.getElementById('subscriptionSideCard');
+        const quotaText = document.getElementById('campaignQuotaText');
+
+        const badgeClass = up.planId === 'free' ? 'badge-neutral' : 'badge-completed';
+        badgeContainer.innerHTML = `<span class="badge ${badgeClass}" style="font-size: 12px; padding: 3px 8px;">PAKET ${up.plan.name.toUpperCase()}</span>`;
+
+        const campaigns = KolabDB.getCampaignsByUmkm(session.id);
+        const activeCount = campaigns.filter(function(c) { return c.status === 'open' || c.status === 'in_progress'; }).length;
+        const maxCamp = up.plan.maxActiveCampaigns >= 999 ? 'Tanpa Batas' : up.plan.maxActiveCampaigns;
+        quotaText.textContent = `${activeCount} / ${maxCamp} Kampanye Aktif Digunakan (${up.plan.name})`;
+
+        sideCard.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 class="card-title">Paket Anda</h2>
+            <span class="badge ${badgeClass}">${up.plan.name.toUpperCase()}</span>
+          </div>
+          <div style="font-size: 13px; color: var(--copy); margin-bottom: 14px; line-height: 1.5;">
+            ${up.active && up.subscription ? `
+              Status: <strong>Aktif (${up.subscription.cycle === 'yearly' ? 'Tahunan' : 'Bulanan'})</strong><br>
+              Berlaku s/d: ${new Date(up.expiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+            ` : 'Paket gratis Kolab (maks 2 kampanye aktif, 3 rekomendasi kreator).'}
+          </div>
+          <div style="background: var(--paper); padding: 10px 12px; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 14px;">
+            <div>Diskon Lisensi Konten: <strong>${Math.round((up.plan.licenseDiscount || 0) * 100)}%</strong></div>
+            <div>Rekomendasi Kreator: <strong>${up.plan.recommendLimit} per kampanye</strong></div>
+          </div>
+          <a href="pricing.html" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">
+            ${up.planId === 'free' ? 'Upgrade ke Pro / Business' : 'Kelola Langganan'}
+          </a>
+        `;
       }
 
       function renderPerformanceCard() {
@@ -184,7 +272,7 @@
         const costPerEngText = perf.avgCostPerEngagement !== null ? KolabDB.formatRupiah(perf.avgCostPerEngagement) : '-';
 
         container.innerHTML = `
-          <div class="grid-2" style="grid-template-columns: repeat(4, 1fr) !important; gap: 14px;">
+          <div class="grid-4" style="gap: 14px;">
             <div style="background: var(--paper); padding: 16px; border-radius: var(--radius-sm);">
               <div class="stat-label">Total Kampanye</div>
               <div class="stat-value tabular-nums" style="font-size: 24px;">${perf.totalCampaigns}</div>
@@ -196,14 +284,14 @@
               <div class="stat-sub">Dibayarkan ke kreator</div>
             </div>
             <div style="background: var(--paper); padding: 16px; border-radius: var(--radius-sm);">
-              <div class="stat-label">Total Views / Engagement</div>
+              <div class="stat-label">Total Views</div>
               <div class="stat-value tabular-nums" style="font-size: 22px;">${perf.totalViews.toLocaleString('id-ID')}</div>
               <div class="stat-sub">${perf.totalEngagement.toLocaleString('id-ID')} interaksi (likes & komen)</div>
             </div>
             <div style="background: var(--paper); padding: 16px; border-radius: var(--radius-sm);">
-              <div class="stat-label">Rata-rata Biaya / Engagement</div>
+              <div class="stat-label">Rata-rata Biaya / Eng</div>
               <div class="stat-value tabular-nums" style="font-size: 24px; color: var(--text-success);">${costPerEngText}</div>
-              <div class="stat-sub">Efisiensi biaya per respon audiens</div>
+              <div class="stat-sub">Efisiensi respon audiens</div>
             </div>
           </div>
         `;
@@ -213,7 +301,6 @@
         const campaigns = KolabDB.getCampaignsByUmkm(session.id);
         const container = document.getElementById('campaignListContainer');
 
-        // Statistik update
         const total = campaigns.length;
         const open = campaigns.filter(function(c) { return c.status === 'open'; }).length;
         const completed = campaigns.filter(function(c) { return c.status === 'completed'; }).length;
@@ -246,6 +333,8 @@
           let statusBadge = '<span class="badge badge-open">Terbuka</span>';
           if (c.status === 'completed') {
             statusBadge = '<span class="badge badge-completed">Selesai</span>';
+          } else if (c.status === 'in_progress') {
+            statusBadge = '<span class="badge badge-neutral">Berjalan</span>';
           }
 
           const platforms = Array.isArray(c.platform) ? c.platform.join(', ') : (c.platform || '-');
@@ -256,6 +345,7 @@
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                   <strong style="font-size: 15px; color: var(--ink);">${c.title || '(Tanpa judul)'}</strong>
                   ${statusBadge}
+                  ${c.featured ? '<span class="badge" style="background: #fef8e7; color: #946800; font-size: 10px;">⭐ UNGGULAN</span>' : ''}
                 </div>
                 <div style="font-size: 13px; color: var(--copy); display: flex; gap: 14px; flex-wrap: wrap;">
                   <span>Platform: ${platforms}</span>
@@ -267,7 +357,7 @@
                 </div>
               </div>
               <div>
-                <a href="campaign-detail.html?id=${encodeURIComponent(c.id)}" class="btn-outline btn-sm">Lihat Detail & Rekomendasi</a>
+                <a href="campaign-detail.html?id=${encodeURIComponent(c.id)}" class="btn-outline btn-sm">Lihat Detail & Konten</a>
               </div>
             </div>
           `;
@@ -276,12 +366,61 @@
         container.innerHTML = html;
       }
 
+      function renderLicenses() {
+        const container = document.getElementById('licensesContainer');
+        const licenses = KolabDB.getLicensesByBuyer(session.id);
+
+        if (!licenses || licenses.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              Anda belum memiliki lisensi konten. Jelajahi pasar konten untuk membeli video siap pakai dari kreator.
+              <div style="margin-top: 10px;">
+                <a href="content-library.html" class="btn-outline btn-sm">Jelajahi Pasar Konten</a>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '<div style="display: flex; flex-direction: column;">';
+        licenses.forEach(function(l) {
+          const isBuyout = l.type === 'buyout';
+          const typeLabel = isBuyout ? '<span class="badge badge-completed">Hak Milik Penuh</span>' : '<span class="badge badge-open">Lisensi Iklan 6 Bln</span>';
+          const expText = isBuyout ? 'Seumur Hidup (Eksklusif)' : `Berlaku s/d ${new Date(l.expiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+          html += `
+            <div class="license-item">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <strong style="font-size: 14px; color: var(--ink);">${l.campaignTitle || 'Video UGC'}</strong>
+                  ${typeLabel}
+                </div>
+                <div style="font-size: 12px; color: var(--copy); display: flex; gap: 10px; flex-wrap: wrap;">
+                  <span>Kreator: <strong>${l.creatorName}</strong></span>
+                  <span>·</span>
+                  <span>${expText}</span>
+                  <span>·</span>
+                  <span class="tabular-nums">Harga: ${KolabDB.formatRupiah(l.price)}</span>
+                </div>
+              </div>
+              <div>
+                <a href="${l.fileUrl || '#'}" target="_blank" class="btn-outline btn-sm">Unduh / Buka Video ↗</a>
+              </div>
+            </div>
+          `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+      }
+
       // Initial render
       renderWallet();
+      renderPlanInfo();
       renderCampaigns();
+      renderLicenses();
       renderPerformanceCard();
 
-      // Top Up Handler
+      // Top Up Handler via QRIS / Virtual Account Gateway
       const btnTopUp = document.getElementById('btnTopUp');
       const topUpAmountInput = document.getElementById('topUpAmount');
       const topUpError = document.getElementById('topUpError');
@@ -290,22 +429,28 @@
         topUpError.style.display = 'none';
         topUpError.textContent = '';
 
-        const val = Number(topUpAmountInput.value);
-        if (!val || isNaN(val) || val <= 0) {
-          topUpError.textContent = 'Nominal harus angka dan lebih dari 0';
+        const val = Math.round(Number(topUpAmountInput.value));
+        if (!val || isNaN(val) || val < 10000) {
+          topUpError.textContent = 'Minimal top up melalui QRIS / VA adalah Rp10.000';
           topUpError.style.display = 'block';
           return;
         }
 
-        const res = KolabDB.topUp(session.id, val);
-        if (res.ok) {
-          topUpAmountInput.value = '';
-          renderWallet();
-          KolabUI.showToast(`Berhasil top up ${KolabDB.formatRupiah(val)}!`);
-        } else {
-          topUpError.textContent = res.message || 'Gagal melakukan top up';
-          topUpError.style.display = 'block';
-        }
+        KolabDB.openPaymentGateway({
+          userId: session.id,
+          amount: val,
+          purpose: 'topup',
+          title: 'Top Up Saldo Dompet UMKM',
+          subtitle: 'Pilih pembayaran QRIS atau Virtual Account Bank',
+          onSettled: async function(order) {
+            const methodLabel = String(order.method || 'QRIS').toUpperCase().replace('_', ' ');
+            KolabDB.topUp(session.id, val, methodLabel);
+            await KolabDB.flush();
+            topUpAmountInput.value = '';
+            renderWallet();
+            KolabUI.showToast(`Pembayaran diterima! Top up ${KolabDB.formatRupiah(val)} berhasil.`);
+          }
+        });
       });
     }
   </script>

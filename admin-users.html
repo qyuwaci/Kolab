@@ -24,8 +24,8 @@
             Daftar seluruh akun UMKM, micro-creator, dan administrator pada platform Kolab.
           </p>
         </div>
-        <div>
-          <input type="text" id="userSearchInput" class="input" placeholder="Cari nama atau email..." style="max-width: 280px;" oninput="renderUsersTable()">
+        <div class="filter-bar" style="flex: 0 1 280px;">
+          <input type="text" id="userSearchInput" class="input" placeholder="Cari nama atau email..." oninput="renderUsersTable()">
         </div>
       </div>
     </div>
@@ -37,9 +37,13 @@
     </div>
   </main>
 
-  <script src="kolab-db.js"></script>
-  <script src="kolab-ui.js"></script>
-  <script>
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
     const session = KolabDB.requireRole(['admin']);
 
     if (session) {
@@ -128,23 +132,27 @@
         `;
       }
 
-      window.handleVerify = function(userId) {
+      window.renderUsersTable = renderUsersTable;
+
+      window.handleVerify = async function(userId) {
         const res = KolabDB.verifyUser(userId);
         if (res.ok) {
+          await KolabDB.flush();
           KolabUI.showToast(`Pengguna ${res.user.name} berhasil diaktifkan/diverifikasi!`);
           renderUsersTable();
         } else {
-          alert(res.message || 'Gagal mengubah status');
+          KolabUI.showToast(res.message || 'Gagal mengubah status');
         }
       };
 
-      window.handleSuspend = function(userId) {
+      window.handleSuspend = async function(userId) {
         const res = KolabDB.suspendUser(userId);
         if (res.ok) {
+          await KolabDB.flush();
           KolabUI.showToast(`Pengguna ${res.user.name} telah disuspend!`);
           renderUsersTable();
         } else {
-          alert(res.message || 'Gagal mensuspend');
+          KolabUI.showToast(res.message || 'Gagal mensuspend');
         }
       };
 

@@ -67,7 +67,7 @@
 
       <!-- Right: Form Permintaan Pencairan -->
       <div>
-        <div class="card" style="position: sticky; top: 90px;">
+        <div class="card sticky-mobile-unset" style="position: sticky; top: 90px;">
           <h2 class="card-title" style="margin-bottom: 8px;">Pencairan Dana (Payout)</h2>
           <p style="font-size: 13px; color: var(--copy); margin: 0 0 20px;">
             Tarik saldo ke rekening bank atau dompet digital Anda secara instan.
@@ -114,9 +114,13 @@
     </div>
   </main>
 
-  <script src="kolab-db.js"></script>
-  <script src="kolab-ui.js"></script>
-  <script>
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
     const session = KolabDB.requireRole(['creator']);
 
     if (session) {
@@ -129,7 +133,6 @@
 
       function renderPayoutHistory() {
         const allTransactions = KolabDB.getAllTransactions();
-        // Riwayat: filter KolabDB.getAllTransactions() where type==='payout' && fromUserId===session.id
         const payouts = allTransactions.filter(function(t) {
           return t.type === 'payout' && t.fromUserId === session.id;
         });
@@ -154,7 +157,7 @@
           rows += `
             <tr>
               <td style="font-family: monospace; font-size: 12px; color: var(--copy);">${p.id}</td>
-              <td>Pencairan Rekening</td>
+              <td>${p.description || 'Pencairan Rekening'}</td>
               <td class="tabular-nums" style="font-weight: 600; color: var(--text-danger);">- ${KolabDB.formatRupiah(p.amount)}</td>
               <td><span class="badge badge-success">Selesai</span></td>
               <td style="font-size: 13px; color: var(--copy);">${dateStr}</td>
@@ -185,7 +188,7 @@
       function renderIncomeHistory() {
         const allTransactions = KolabDB.getAllTransactions();
         const incomes = allTransactions.filter(function(t) {
-          return t.type === 'escrow_release' && t.toUserId === session.id;
+          return (t.type === 'escrow_release' || t.type === 'license_purchase') && t.toUserId === session.id;
         });
 
         const container = document.getElementById('incomeHistoryContainer');
@@ -201,8 +204,8 @@
 
         let rows = '';
         incomes.forEach(function(inc) {
-          const c = KolabDB.getCampaignById(inc.campaignId);
-          const campaignTitle = c ? c.title : 'Kampanye #' + inc.campaignId;
+          const c = inc.campaignId ? KolabDB.getCampaignById(inc.campaignId) : null;
+          const campaignTitle = c ? c.title : (inc.description || 'Kampanye #' + (inc.campaignId || inc.id));
           const dateStr = inc.createdAt ? new Date(inc.createdAt).toLocaleDateString('id-ID', {
             day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
           }) : '-';
@@ -242,9 +245,10 @@
       renderPayoutHistory();
       renderIncomeHistory();
 
-      window.handleRequestPayout = function() {
+      window.handleRequestPayout = async function() {
         const amountInput = document.getElementById('payoutAmount');
         const amountError = document.getElementById('payoutAmountError');
+        const methodInput = document.getElementById('payoutMethod');
         const accountInput = document.getElementById('accountNumber');
         const accountError = document.getElementById('accountNumberError');
 
@@ -257,8 +261,8 @@
 
         let hasError = false;
 
-        if (!amount || isNaN(amount) || amount <= 0) {
-          amountError.textContent = 'Nominal harus angka dan lebih dari 0';
+        if (!amount || isNaN(amount) || amount < KolabDB.MIN_PAYOUT) {
+          amountError.textContent = `Minimal penarikan adalah ${KolabDB.formatRupiah(KolabDB.MIN_PAYOUT)}`;
           amountError.style.display = 'block';
           hasError = true;
         } else if (amount > wallet.balance) {
@@ -274,8 +278,9 @@
 
         if (hasError) return;
 
-        const res = KolabDB.requestPayout(session.id, amount);
+        const res = KolabDB.requestPayout(session.id, amount, methodInput.value, accountInput.value.trim());
         if (res.ok) {
+          await KolabDB.flush();
           amountInput.value = '';
           KolabUI.showToast(`Permintaan pencairan ${KolabDB.formatRupiah(amount)} berhasil diproses!`);
           renderWallet();

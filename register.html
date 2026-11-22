@@ -18,7 +18,7 @@
       padding: 32px 24px;
     }
     .register-card {
-      max-width: 540px;
+      max-width: 560px;
       width: 100%;
       background: #fff;
       border: 1px solid var(--line);
@@ -57,6 +57,14 @@
       background: var(--accent);
       color: #fff;
     }
+    @media (max-width: 767px) {
+      .auth-wrapper {
+        padding: 20px 16px;
+      }
+      .register-card {
+        padding: 24px 18px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -65,28 +73,36 @@
       <a href="index.html" class="nav-brand" style="font-size: 26px; justify-content: center;">
         Kolab<span class="dot">.</span>
       </a>
-      <p style="margin: 6px 0 0; font-size: 14px; color: var(--copy);">Mulai kolaborasi konten UGC Anda sekarang</p>
+      <p style="margin: 6px 0 0; font-size: 14px; color: var(--copy);">Buat akun real Anda langsung dengan Google</p>
     </div>
 
     <div class="register-card">
       <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 700; text-align: center;">Buat Akun Kolab</h2>
-      <p style="margin: 0 0 24px; font-size: 14px; color: var(--copy); text-align: center;">
-        Pilih peran Anda untuk menyesuaikan pengalaman.
+      <p style="margin: 0 0 20px; font-size: 14px; color: var(--copy); text-align: center;">
+        Pilih peran Anda lalu selesaikan verifikasi instan menggunakan akun Google.
       </p>
+
+      <div id="googleUserBanner" style="display: none; align-items: center; gap: 12px; background: var(--bg-success); border: 1px solid rgba(36,104,48,0.2); padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+        <img id="googlePhoto" src="" alt="" referrerpolicy="no-referrer" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+        <div style="text-align: left; font-size: 13px;">
+          <div style="font-weight: 600; color: var(--text-success);" id="googleBannerName">Terhubung dengan Google</div>
+          <div style="color: var(--copy); font-size: 12px;" id="googleBannerEmail"></div>
+        </div>
+      </div>
 
       <!-- Step 1: Pilihan Peran -->
       <div style="margin-bottom: 24px;">
         <label class="form-label" style="margin-bottom: 10px; font-size: 14px;">Langkah 1: Pilih Jenis Akun</label>
         <div class="grid-2" style="gap: 16px;">
-          <div class="role-choice-card" id="choiceUmkm" onclick="selectRole('umkm')">
+          <div class="role-choice-card" id="choiceUmkm">
             <div class="role-icon">🏪</div>
-            <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">Saya UMKM</div>
-            <div style="font-size: 12px; color: var(--copy); line-height: 1.4;">Pemilik bisnis/brand lokal yang butuh video review UGC</div>
+            <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">Saya UMKM / Brand</div>
+            <div style="font-size: 12px; color: var(--copy); line-height: 1.4;">Buat kampanye UGC &amp; kelola pembayaran escrow aman</div>
           </div>
-          <div class="role-choice-card" id="choiceCreator" onclick="selectRole('creator')">
+          <div class="role-choice-card" id="choiceCreator">
             <div class="role-icon">🎬</div>
-            <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">Saya Creator</div>
-            <div style="font-size: 12px; color: var(--copy); line-height: 1.4;">Micro-creator yang ingin buat konten dan dapat penghasilan</div>
+            <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">Saya Micro-Creator</div>
+            <div style="font-size: 12px; color: var(--copy); line-height: 1.4;">Kaitkan sosial media, ikut kampanye, &amp; cairkan penghasilan</div>
           </div>
         </div>
         <div id="roleError" class="error-text" style="display: none;">Pilih salah satu peran terlebih dahulu</div>
@@ -106,9 +122,10 @@
           <label class="form-label" for="umkmCategory">Kategori Usaha</label>
           <select id="umkmCategory" class="input">
             <option value="">-- Pilih Kategori --</option>
-            <option value="Kuliner">Kuliner (Makanan & Minuman)</option>
-            <option value="Fashion">Fashion & Pakaian</option>
-            <option value="Kosmetik">Kosmetik & Skincare</option>
+            <option value="Kuliner">Kuliner (Makanan &amp; Minuman)</option>
+            <option value="Fashion">Fashion &amp; Pakaian</option>
+            <option value="Kosmetik">Kosmetik &amp; Skincare</option>
+            <option value="Teknologi">Teknologi &amp; Elektronik</option>
             <option value="Lainnya">Lainnya</option>
           </select>
           <div id="umkmCategoryError" class="error-text" style="display: none;">Pilih kategori usaha</div>
@@ -118,12 +135,6 @@
           <label class="form-label" for="umkmCity">Kota Domisili</label>
           <input type="text" id="umkmCity" class="input" placeholder="Contoh: Bandung, Jakarta Selatan">
           <div id="umkmCityError" class="error-text" style="display: none;">Kota domisili wajib diisi</div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="umkmEmail">Email Aktif</label>
-          <input type="email" id="umkmEmail" class="input" placeholder="nama@usaha.com">
-          <div id="umkmEmailError" class="error-text" style="display: none;">Email aktif wajib diisi</div>
         </div>
       </div>
 
@@ -141,30 +152,26 @@
           <label class="form-label" for="creatorNiche">Niche Utama</label>
           <select id="creatorNiche" class="input">
             <option value="">-- Pilih Niche --</option>
-            <option value="food">Kuliner & Food Review</option>
-            <option value="beauty">Beauty & Skincare</option>
-            <option value="lifestyle">Lifestyle & Daily Vlog</option>
-            <option value="lainnya">Lainnya</option>
+            <option value="food">Kuliner &amp; Food Review</option>
+            <option value="beauty">Beauty &amp; Skincare</option>
+            <option value="fashion">Fashion &amp; Lifestyle</option>
+            <option value="tech">Teknologi &amp; Gadget</option>
+            <option value="lifestyle">Daily Vlog &amp; Hiburan</option>
           </select>
           <div id="creatorNicheError" class="error-text" style="display: none;">Pilih niche utama konten Anda</div>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="creatorLink">Link Profil Instagram atau TikTok</label>
-          <input type="url" id="creatorLink" class="input" placeholder="https://instagram.com/username atau https://tiktok.com/@username">
-          <div id="creatorLinkError" class="error-text" style="display: none;">Link profil media sosial wajib diisi</div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="creatorEmail">Email Aktif</label>
-          <input type="email" id="creatorEmail" class="input" placeholder="kreator@gmail.com">
-          <div id="creatorEmailError" class="error-text" style="display: none;">Email aktif wajib diisi</div>
+          <label class="form-label" for="creatorBio">Bio Singkat</label>
+          <input type="text" id="creatorBio" class="input" placeholder="Ceritakan gaya konten Anda (bisa kaitkan YouTube/IG/TikTok setelah daftar)">
         </div>
       </div>
 
+      <div id="registerGeneralError" class="error-text" style="display: none; margin-top: 12px;"></div>
+
       <div style="margin-top: 24px;">
-        <button type="button" id="btnRegister" class="btn-primary" style="width: 100%; justify-content: center;" onclick="handleRegister()">
-          Daftar Sekarang
+        <button type="button" id="btnRegister" class="btn-primary" style="width: 100%; justify-content: center; gap: 10px;">
+          <span id="btnRegisterText">Daftar dengan Akun Google</span>
         </button>
       </div>
 
@@ -174,133 +181,91 @@
     </div>
   </div>
 
-  <script src="kolab-db.js"></script>
-  <script>
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    await KolabDB.ready();
+
+    const existingSession = KolabDB.getSession();
+    if (existingSession) {
+      window.location.href = existingSession.role === 'umkm' ? 'dashboard-umkm.html' : existingSession.role === 'creator' ? 'dashboard-creator.html' : 'dashboard-admin.html';
+    }
+
+    const fbUser = KolabDB.getCurrentGoogleUser();
+    if (fbUser) {
+      document.getElementById('googleUserBanner').style.display = 'flex';
+      document.getElementById('googleBannerName').textContent = `Google: ${fbUser.displayName || 'Terhubung'}`;
+      document.getElementById('googleBannerEmail').textContent = fbUser.email || '';
+      if (fbUser.photoURL) document.getElementById('googlePhoto').src = fbUser.photoURL;
+      document.getElementById('creatorName').value = fbUser.displayName || '';
+      document.getElementById('btnRegisterText').textContent = 'Simpan & Masuk Dashboard';
+    }
+
     let selectedRole = null;
 
     function selectRole(role) {
       selectedRole = role;
       document.getElementById('roleError').style.display = 'none';
-
-      const choiceUmkm = document.getElementById('choiceUmkm');
-      const choiceCreator = document.getElementById('choiceCreator');
-      const formUmkm = document.getElementById('formUmkmSection');
-      const formCreator = document.getElementById('formCreatorSection');
-
-      if (role === 'umkm') {
-        choiceUmkm.classList.add('selected');
-        choiceCreator.classList.remove('selected');
-        formUmkm.style.display = 'block';
-        formCreator.style.display = 'none';
-      } else {
-        choiceCreator.classList.add('selected');
-        choiceUmkm.classList.remove('selected');
-        formCreator.style.display = 'block';
-        formUmkm.style.display = 'none';
-      }
+      document.getElementById('choiceUmkm').classList.toggle('selected', role === 'umkm');
+      document.getElementById('choiceCreator').classList.toggle('selected', role === 'creator');
+      document.getElementById('formUmkmSection').style.display = role === 'umkm' ? 'block' : 'none';
+      document.getElementById('formCreatorSection').style.display = role === 'creator' ? 'block' : 'none';
     }
 
-    function clearErrors() {
-      const errors = document.querySelectorAll('.error-text');
-      errors.forEach(function(el) {
-        el.style.display = 'none';
-      });
-    }
+    document.getElementById('choiceUmkm').addEventListener('click', () => selectRole('umkm'));
+    document.getElementById('choiceCreator').addEventListener('click', () => selectRole('creator'));
 
-    function handleRegister() {
-      clearErrors();
+    document.getElementById('btnRegister').addEventListener('click', async () => {
+      document.querySelectorAll('.error-text').forEach((el) => (el.style.display = 'none'));
+      const genErr = document.getElementById('registerGeneralError');
 
       if (!selectedRole) {
         document.getElementById('roleError').style.display = 'block';
         return;
       }
 
+      let profile = {};
       let hasError = false;
 
       if (selectedRole === 'umkm') {
         const nameVal = document.getElementById('umkmName').value.trim();
         const catVal = document.getElementById('umkmCategory').value;
         const cityVal = document.getElementById('umkmCity').value.trim();
-        const emailVal = document.getElementById('umkmEmail').value.trim();
-
-        if (!nameVal) {
-          document.getElementById('umkmNameError').style.display = 'block';
-          hasError = true;
-        }
-        if (!catVal) {
-          document.getElementById('umkmCategoryError').style.display = 'block';
-          hasError = true;
-        }
-        if (!cityVal) {
-          document.getElementById('umkmCityError').style.display = 'block';
-          hasError = true;
-        }
-        if (!emailVal) {
-          document.getElementById('umkmEmailError').style.display = 'block';
-          hasError = true;
-        }
-
+        if (!nameVal) { document.getElementById('umkmNameError').style.display = 'block'; hasError = true; }
+        if (!catVal) { document.getElementById('umkmCategoryError').style.display = 'block'; hasError = true; }
+        if (!cityVal) { document.getElementById('umkmCityError').style.display = 'block'; hasError = true; }
         if (hasError) return;
-
-        const newUser = KolabDB.createUser('umkm', {
-          name: nameVal,
-          businessName: nameVal,
-          category: catVal,
-          city: cityVal,
-          email: emailVal
-        });
-
-        KolabDB.setSession({
-          id: newUser.id,
-          role: 'umkm',
-          name: newUser.name
-        });
-
-        window.location.href = 'dashboard-umkm.html';
-
-      } else if (selectedRole === 'creator') {
+        profile = { name: nameVal, businessName: nameVal, category: catVal, city: cityVal };
+      } else {
         const nameVal = document.getElementById('creatorName').value.trim();
         const nicheVal = document.getElementById('creatorNiche').value;
-        const linkVal = document.getElementById('creatorLink').value.trim();
-        const emailVal = document.getElementById('creatorEmail').value.trim();
-
-        if (!nameVal) {
-          document.getElementById('creatorNameError').style.display = 'block';
-          hasError = true;
-        }
-        if (!nicheVal) {
-          document.getElementById('creatorNicheError').style.display = 'block';
-          hasError = true;
-        }
-        if (!linkVal) {
-          document.getElementById('creatorLinkError').style.display = 'block';
-          hasError = true;
-        }
-        if (!emailVal) {
-          document.getElementById('creatorEmailError').style.display = 'block';
-          hasError = true;
-        }
-
+        const bioVal = document.getElementById('creatorBio').value.trim();
+        if (!nameVal) { document.getElementById('creatorNameError').style.display = 'block'; hasError = true; }
+        if (!nicheVal) { document.getElementById('creatorNicheError').style.display = 'block'; hasError = true; }
         if (hasError) return;
-
-        const newUser = KolabDB.createUser('creator', {
-          name: nameVal,
-          niche: nicheVal,
-          socialLink: linkVal,
-          email: emailVal,
-          followers: 5000,
-          reputation: 5.0
-        });
-
-        KolabDB.setSession({
-          id: newUser.id,
-          role: 'creator',
-          name: newUser.name
-        });
-
-        window.location.href = 'dashboard-creator.html';
+        profile = { name: nameVal, niche: nicheVal, bio: bioVal };
       }
-    }
+
+      const btn = document.getElementById('btnRegister');
+      btn.disabled = true;
+      document.getElementById('btnRegisterText').textContent = 'Membuat akun...';
+
+      try {
+        const res = KolabDB.getCurrentGoogleUser()
+          ? await KolabDB.completeGoogleOnboarding(selectedRole, profile)
+          : await KolabDB.signInWithGoogle({ role: selectedRole, profile });
+
+        const targetRole = res.role || res.user?.role || selectedRole;
+        window.location.href = targetRole === 'umkm' ? 'dashboard-umkm.html' : 'dashboard-creator.html';
+      } catch (err) {
+        genErr.textContent = err?.message || 'Gagal mendaftar dengan Google. Coba lagi.';
+        genErr.style.display = 'block';
+        btn.disabled = false;
+        document.getElementById('btnRegisterText').textContent = KolabDB.getCurrentGoogleUser()
+          ? 'Simpan & Masuk Dashboard'
+          : 'Daftar dengan Akun Google';
+      }
+    });
   </script>
 </body>
 </html>

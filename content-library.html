@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pasar Lisensi Konten UGC - Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+      gap: 20px;
+    }
+    .content-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .content-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+    .video-preview-box {
+      background: linear-gradient(135deg, #1c1c1c, #383838);
+      height: 180px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .play-btn-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .perf-strip {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .card-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span class="badge" style="background: var(--bg-success); color: var(--text-success); font-size: 11px;">MARKETPLACE UGC</span>
+          <span style="font-size: 12px; color: var(--copy);">Lisensi Konten Siap Pakai</span>
+        </div>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px;">Pasar Lisensi Konten</h1>
+        <p style="margin: 0; color: var(--copy); font-size: 14px;">Beli hak guna iklan (Ads) atau hak milik penuh (Buyout) video UGC berkualitas dari kreator terverifikasi.</p>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <a href="pricing.html" class="btn-outline btn-sm">⭐ Diskon Lisensi via Paket</a>
+      </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="card" style="margin-bottom: 28px; padding: 18px;">
+      <div class="filter-bar">
+        <div style="flex: 1; min-width: 240px;">
+          <input type="text" id="searchInput" class="input" placeholder="Cari konten, nama kreator, atau judul kampanye...">
+        </div>
+        <div style="min-width: 160px;">
+          <select id="nicheFilter" class="input">
+            <option value="">Semua Niche Kategori</option>
+            <option value="food">Kuliner (Food & Beverage)</option>
+            <option value="fashion">Fashion & OOTD</option>
+            <option value="beauty">Kecantikan & Skincare</option>
+            <option value="lifestyle">Lifestyle & Hiburan</option>
+          </select>
+        </div>
+        <div style="min-width: 150px;">
+          <select id="tierFilter" class="input">
+            <option value="">Semua Tier Kreator</option>
+            <option value="Nano">Tier Nano (<10k)</option>
+            <option value="Mikro">Tier Mikro (10k-100k)</option>
+            <option value="Makro">Tier Makro (100k-1M)</option>
+            <option value="Mega">Tier Mega (>1M)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Listings Grid -->
+    <div id="libraryContainer" class="library-grid">
+      <!-- Generated via JS -->
+    </div>
+  </main>
+
+  <!-- Purchase License Modal -->
+  <div class="modal-overlay" id="licenseModal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Beli Lisensi Konten</h3>
+        <button type="button" class="btn-outline btn-sm" onclick="closeLicenseModal()">✕</button>
+      </div>
+
+      <div id="licenseModalBody">
+        <!-- Generated via JS -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
+    const session = KolabDB.getSession();
+    KolabUI.renderNavbar('content-library');
+
+    const searchInput = document.getElementById('searchInput');
+    const nicheFilter = document.getElementById('nicheFilter');
+    const tierFilter = document.getElementById('tierFilter');
+    const container = document.getElementById('libraryContainer');
+
+    function renderListings() {
+      if (!session) {
+        container.innerHTML = `
+          <div class="card empty-state" style="grid-column: 1 / -1; padding: 48px 24px; text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 10px;">🎬</div>
+            <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 700;">Masuk dengan Google untuk Melihat Pasar Konten</h3>
+            <p style="margin: 0 auto 20px; max-width: 460px; color: var(--copy); font-size: 14px;">
+              Telusuri video UGC terverifikasi dari kreator dan beli lisensi iklan (6 bulan) atau hak milik penuh langsung melalui QRIS &amp; Virtual Account.
+            </p>
+            <a href="login.html" class="btn-primary">Masuk dengan Google</a>
+          </div>
+        `;
+        return;
+      }
+
+      const allListings = KolabDB.getLibraryListings();
+      const query = (searchInput.value || '').trim().toLowerCase();
+      const niche = nicheFilter.value;
+      const tier = tierFilter.value;
+
+      let buyerDiscount = 0;
+      if (session && session.role === 'umkm') {
+        const up = KolabDB.getUserPlan(session.id);
+        if (up && up.plan) buyerDiscount = up.plan.licenseDiscount || 0;
+      }
+
+      const filtered = allListings.filter(function(item) {
+        if (!item.submission || !item.creator) return false;
+
+        if (query) {
+          const matchTitle = (item.campaign && item.campaign.title) ? item.campaign.title.toLowerCase().includes(query) : false;
+          const matchCreator = item.creator.name ? item.creator.name.toLowerCase().includes(query) : false;
+          if (!matchTitle && !matchCreator) return false;
+        }
+
+        if (niche) {
+          const itemNiche = item.creator.niche || (item.campaign ? item.campaign.targetNiche : '');
+          if (itemNiche !== niche) return false;
+        }
+
+        if (tier) {
+          if (item.tier !== tier) return false;
+        }
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            Tidak ada konten yang sesuai dengan filter pencarian Anda.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(function(item) {
+        const sub = item.submission;
+        const cr = item.creator;
+        const camp = item.campaign;
+        const pricing = item.pricing || { ads: 0, buyout: 0 };
+        const perf = item.performance || { views: 0, likes: 0, comments: 0 };
+
+        const adsDiscounted = buyerDiscount > 0 ? Math.round(pricing.ads * (1 - buyerDiscount)) : pricing.ads;
+        const buyoutDiscounted = buyerDiscount > 0 ? Math.round(pricing.buyout * (1 - buyerDiscount)) : pricing.buyout;
+
+        const ratingVal = item.rating ? `⭐ ${item.rating}` : '⭐ Baru';
+        const tierBadge = `<span class="badge badge-neutral" style="font-size: 11px;">Tier ${item.tier || 'Mikro'}</span>`;
+
+        html += `
+          <div class="content-card">
+            <div class="video-preview-box">
+              <div class="play-btn-circle">▶</div>
+              <div class="perf-strip">
+                <span>👁️ ${(perf.views || 0).toLocaleString('id-ID')} views</span>
+                <span>❤️ ${(perf.likes || 0).toLocaleString('id-ID')}</span>
+                <span>💬 ${(perf.comments || 0).toLocaleString('id-ID')}</span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div>
+                  <strong style="font-size: 15px; color: var(--ink); display: block;">${camp ? camp.title : 'Konten Kreator'}</strong>
+                  <span style="font-size: 12px; color: var(--copy);">Niche: ${cr.niche ? cr.niche.toUpperCase() : 'UMUM'}</span>
+                </div>
+                ${tierBadge}
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0 14px; font-size: 13px;">
+                <span style="font-weight: 600; color: var(--ink);">${cr.name}</span>
+                <span>·</span>
+                <span style="color: var(--copy);">${ratingVal}</span>
+              </div>
+
+              <div style="background: var(--paper); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                  <span style="color: var(--copy);">Lisensi Iklan (6 bln):</span>
+                  <strong class="tabular-nums" style="color: var(--ink);">
+                    ${buyerDiscount > 0 ? `<s style="font-size: 11px; color: var(--copy);">${KolabDB.formatRupiah(pricing.ads)}</s> ` : ''}
+                    ${KolabDB.formatRupiah(adsDiscounted)}
+                  </strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--copy);">Hak Milik Penuh:</span>
+                  <strong class="tabular-nums" style="color: var(--accent);">
+                    ${buyerDiscount > 0 ? `<s style="font-size: 11px; color: var(--copy);">${KolabDB.formatRupiah(pricing.buyout)}</s> ` : ''}
+                    ${KolabDB.formatRupiah(buyoutDiscounted)}
+                  </strong>
+                </div>
+              </div>
+
+              <div style="margin-top: auto;">
+                <button type="button" class="btn-primary" style="width: 100%; justify-content: center;" onclick="openPurchaseModal('${sub.id}')">
+                  Beli Lisensi Konten
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    let activeSubId = null;
+
+    function openPurchaseModal(subId) {
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      if (session.role !== 'umkm') {
+        KolabUI.showToast('Hanya akun UMKM yang dapat membeli lisensi konten.');
+        return;
+      }
+
+      activeSubId = subId;
+      const opts = KolabDB.getLicenseOptions(session.id, subId);
+      if (!opts || !opts.ok) {
+        KolabUI.showToast(opts?.message || 'Lisensi tidak tersedia');
+        return;
+      }
+
+      const wallet = KolabDB.getWallet(session.id);
+      const body = document.getElementById('licenseModalBody');
+
+      let optionsHtml = '';
+      opts.options.forEach(function(opt) {
+        const discountText = opts.discount > 0 ? `<span class="badge badge-completed" style="font-size: 10px; margin-left: 6px;">Diskon ${Math.round(opts.discount * 100)}%</span>` : '';
+        const needsGateway = wallet.balance < opt.price;
+
+        optionsHtml += `
+          <div style="border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px; background: ${opt.owned ? '#fafaf9' : '#fff'};">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div>
+                <strong style="font-size: 14px;">${opt.label}</strong>
+                ${discountText}
+              </div>
+              <div class="tabular-nums" style="font-size: 16px; font-weight: 700; color: var(--ink);">
+                ${opts.discount > 0 ? `<s style="font-size: 11px; color: var(--copy);">${KolabDB.formatRupiah(opt.basePrice)}</s> ` : ''}
+                ${KolabDB.formatRupiah(opt.price)}
+              </div>
+            </div>
+
+            <div style="font-size: 12px; color: var(--copy); margin-bottom: 10px;">
+              ${opt.type === 'ads' ? 'Bebas digunakan untuk materi iklan berbayar (Meta/TikTok Ads) selama 180 hari.' : 'Hak eksklusif seumur hidup atas video ini. Video tidak akan dijual lagi ke pihak lain.'}
+            </div>
+
+            <div>
+              ${opt.owned ? `
+                <span class="badge badge-completed" style="font-size: 12px; padding: 4px 10px;">✓ Sudah Dimiliki</span>
+              ` : !opt.available ? `
+                <span class="badge badge-neutral" style="font-size: 12px;">${opt.reason || 'Tidak Tersedia'}</span>
+              ` : `
+                <button type="button" class="btn-primary btn-sm" style="width: 100%; justify-content: center;" onclick="handlePurchase('${opt.type}', ${opt.price})">
+                  ${needsGateway ? `Bayar via QRIS / VA (${KolabDB.formatRupiah(opt.price)})` : `Beli ${opt.type === 'ads' ? 'Lisensi Iklan' : 'Hak Milik'} (${KolabDB.formatRupiah(opt.price)})`}
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      });
+
+      body.innerHTML = `
+        <div style="background: var(--paper); padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; color: var(--copy);">Saldo Dompet Usaha Anda:</span>
+          <strong class="tabular-nums" style="font-size: 15px; color: var(--ink);">${KolabDB.formatRupiah(wallet.balance)}</strong>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          ${optionsHtml}
+        </div>
+
+        <div id="modalErr" class="error-text" style="display: none; margin-bottom: 12px;"></div>
+      `;
+
+      document.getElementById('licenseModal').style.display = 'flex';
+    }
+
+    function closeLicenseModal() {
+      document.getElementById('licenseModal').style.display = 'none';
+      activeSubId = null;
+    }
+
+    async function completeLicensePurchase(subId, licenseType) {
+      const res = KolabDB.purchaseLicense(session.id, subId, licenseType);
+      if (res.ok) {
+        await KolabDB.flush();
+        closeLicenseModal();
+        KolabUI.showToast('Berhasil membeli lisensi konten!');
+        renderListings();
+      } else {
+        const err = document.getElementById('modalErr');
+        if (err) {
+          err.textContent = res.message || 'Gagal membeli lisensi';
+          err.style.display = 'block';
+        }
+      }
+    }
+
+    async function handlePurchase(licenseType, price) {
+      if (!activeSubId || !session) return;
+      const subId = activeSubId;
+      const wallet = KolabDB.getWallet(session.id);
+
+      if (wallet.balance < price) {
+        const payAmt = Math.max(10000, price - wallet.balance);
+        KolabDB.openPaymentGateway({
+          userId: session.id,
+          amount: payAmt,
+          purpose: 'license',
+          title: 'Pembayaran Lisensi Konten',
+          subtitle: `Selesaikan pembayaran QRIS / Virtual Account untuk ${licenseType === 'buyout' ? 'Hak Milik Penuh' : 'Lisensi Iklan 6 Bln'}`,
+          metadata: { submissionId: subId, licenseType },
+          onSettled: async function(order) {
+            const methodLabel = String(order.method || 'QRIS').toUpperCase().replace('_', ' ');
+            KolabDB.topUp(session.id, payAmt, methodLabel);
+            await completeLicensePurchase(subId, licenseType);
+          }
+        });
+        return;
+      }
+
+      await completeLicensePurchase(subId, licenseType);
+    }
+
+    window.openPurchaseModal = openPurchaseModal;
+    window.closeLicenseModal = closeLicenseModal;
+    window.handlePurchase = handlePurchase;
+
+    searchInput.addEventListener('input', renderListings);
+    nicheFilter.addEventListener('change', renderListings);
+    tierFilter.addEventListener('change', renderListings);
+
+    renderListings();
+  </script>
+</body>
+</html>

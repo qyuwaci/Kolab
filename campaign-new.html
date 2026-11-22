@@ -108,7 +108,7 @@
         <!-- Payment Model -->
         <div class="form-group">
           <label class="form-label">Model Pembayaran</label>
-          <div style="display: flex; gap: 24px; margin-top: 8px;">
+          <div style="display: flex; gap: 12px 24px; flex-wrap: wrap; margin-top: 8px;">
             <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
               <input type="radio" name="paymentModel" value="fixed" checked> Fixed Budget (Rekomendasi)
             </label>
@@ -144,7 +144,7 @@
         </div>
 
         <!-- Submit Buttons -->
-        <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
+        <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
           <a href="dashboard-umkm.html" class="btn-outline">Batal</a>
           <button type="button" id="btnSubmitCampaign" class="btn-primary" onclick="handleSubmitCampaign()">
             Terbitkan Kampanye & Tahan Escrow
@@ -154,19 +154,24 @@
     </div>
   </main>
 
-  <script src="kolab-db.js"></script>
-  <script src="kolab-ui.js"></script>
-  <script>
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
     const session = KolabDB.requireRole(['umkm']);
 
     if (session) {
       KolabUI.renderNavbar('campaign-new');
 
-      // Tampilkan saldo saat ini
-      const wallet = KolabDB.getWallet(session.id);
-      document.getElementById('currentBalanceDisplay').textContent = KolabDB.formatRupiah(wallet.balance);
+      function refreshBalance() {
+        const wallet = KolabDB.getWallet(session.id);
+        document.getElementById('currentBalanceDisplay').textContent = KolabDB.formatRupiah(wallet.balance);
+      }
+      refreshBalance();
 
-      // Default deadline = 30 hari ke depan
       const d = new Date();
       d.setDate(d.getDate() + 30);
       document.getElementById('deadline').value = d.toISOString().split('T')[0];
@@ -178,11 +183,10 @@
         document.getElementById('liveTotalEscrow').textContent = KolabDB.formatRupiah(total);
       }
 
-      // Expose to window
       window.updateLivePreview = updateLivePreview;
       updateLivePreview();
 
-      window.handleSubmitCampaign = function() {
+      window.handleSubmitCampaign = async function() {
         const titleEl = document.getElementById('title');
         const briefEl = document.getElementById('brief');
         const slotsEl = document.getElementById('slots');
@@ -192,7 +196,6 @@
         const generalError = document.getElementById('submitGeneralError');
         const successNotice = document.getElementById('submitSuccessNotice');
 
-        // Reset errors
         document.getElementById('titleError').style.display = 'none';
         document.getElementById('slotsError').style.display = 'none';
         document.getElementById('budgetError').style.display = 'none';
@@ -206,7 +209,8 @@
 
         let hasError = false;
 
-        if (!titleVal) {
+        if (!titleVal || titleVal.length < 3) {
+          document.getElementById('titleError').textContent = 'Judul kampanye wajib diisi (minimal 3 karakter)';
           document.getElementById('titleError').style.display = 'block';
           hasError = true;
         }
@@ -214,22 +218,20 @@
           document.getElementById('slotsError').style.display = 'block';
           hasError = true;
         }
-        if (!budgetVal || budgetVal <= 0) {
+        if (!budgetVal || budgetVal < 10000) {
+          document.getElementById('budgetError').textContent = 'Budget per slot minimal Rp10.000';
           document.getElementById('budgetError').style.display = 'block';
           hasError = true;
         }
 
         if (hasError) return;
 
-        // Platforms checkbox
         const platformCheckboxes = document.querySelectorAll('input[name="platform"]:checked');
         const platforms = [];
         platformCheckboxes.forEach(function(cb) { platforms.push(cb.value); });
 
-        // Payment model
         const paymentRadio = document.querySelector('input[name="paymentModel"]:checked');
         const paymentModel = paymentRadio ? paymentRadio.value : 'fixed';
-
         const targetNicheEl = document.getElementById('targetNiche');
 
         const formData = {
@@ -237,7 +239,7 @@
           brief: briefEl.value.trim(),
           platform: platforms.length > 0 ? platforms : ['TikTok'],
           contentType: contentTypeEl.value,
-          targetNiche: targetNicheEl ? targetNicheEl.value : null,
+          targetNiche: targetNicheEl ? targetNicheEl.value : 'food',
           slots: slotsVal,
           budgetPerSlot: budgetVal,
           paymentModel: paymentModel,
@@ -247,19 +249,53 @@
         const res = KolabDB.createCampaign(session.id, formData);
 
         if (!res.ok) {
-          // Tampilkan pesan error tepat di atas tombol submit, JANGAN redirect
-          generalError.textContent = res.message || 'Gagal membuat kampanye';
+          if (res.needTopup && res.requiredAmount > 0) {
+            const payAmt = Math.max(10000, Math.round(res.requiredAmount));
+            generalError.innerHTML = `${res.message} <button type="button" id="btnPayCampaignDeficit" class="btn-primary btn-sm" style="margin-left: 10px;">Top Up & Terbitkan via QRIS / VA (${KolabDB.formatRupiah(payAmt)})</button>`;
+            generalError.style.display = 'block';
+            document.getElementById('btnPayCampaignDeficit')?.addEventListener('click', () => {
+              KolabDB.openPaymentGateway({
+                userId: session.id,
+                amount: payAmt,
+                purpose: 'campaign',
+                title: 'Top Up Escrow Kampanye',
+                subtitle: `Untuk menerbitkan kampanye: ${titleVal}`,
+                onSettled: async function(order) {
+                  const methodLabel = String(order.method || 'QRIS').toUpperCase().replace('_', ' ');
+                  KolabDB.topUp(session.id, payAmt, methodLabel);
+                  refreshBalance();
+                  const retry = KolabDB.createCampaign(session.id, formData);
+                  if (retry.ok) {
+                    await KolabDB.flush();
+                    generalError.style.display = 'none';
+                    successNotice.style.display = 'block';
+                    document.getElementById('btnSubmitCampaign').disabled = true;
+                    setTimeout(() => { window.location.href = 'dashboard-umkm.html'; }, 800);
+                  } else {
+                    await KolabDB.flush();
+                    generalError.textContent = retry.message || 'Saldo bertambah, silakan klik Terbitkan ulang.';
+                  }
+                }
+              });
+            });
+            return;
+          }
+
+          generalError.innerHTML = res.message || 'Gagal membuat kampanye';
+          if (res.needUpgrade) {
+            generalError.innerHTML += ' <a href="pricing.html" style="font-weight: 700; text-decoration: underline; margin-left: 8px; color: inherit;">Upgrade Paket ↗</a>';
+          }
           generalError.style.display = 'block';
           return;
         }
 
-        // Sukses: tampilkan pesan sukses sebentar lalu redirect setelah 1 detik
-        successNotice.style.display = 'block';
         document.getElementById('btnSubmitCampaign').disabled = true;
+        await KolabDB.flush();
+        successNotice.style.display = 'block';
 
         setTimeout(function() {
           window.location.href = 'dashboard-umkm.html';
-        }, 1000);
+        }, 800);
       };
     }
   </script>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konten & Lisensi Saya - Kreator Kolab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span class="badge badge-neutral" style="font-size: 11px;">MONETISASI TAMBAHAN</span>
+          <span style="font-size: 12px; color: var(--copy);">Pasar Konten UGC</span>
+        </div>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px;">Konten & Lisensi Saya</h1>
+        <p style="margin: 0; color: var(--copy); font-size: 14px;">Daftarkan video yang telah disetujui UMKM ke pasar lisensi untuk passive income berkelanjutan.</p>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 8px 14px; font-size: 13px;">
+          <span style="color: var(--copy);">Slot Listing Pasar:</span>
+          <strong class="tabular-nums" id="listingQuota">0 / 0</strong>
+        </div>
+        <a href="pricing.html" class="btn-outline btn-sm">⭐ Tambah Kuota Listing</a>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-nav">
+      <button type="button" class="tab-btn active" id="tabContentBtn" onclick="switchTab('content')">Konten Kampanye Selesai</button>
+      <button type="button" class="tab-btn" id="tabSalesBtn" onclick="switchTab('sales')">Riwayat Penjualan Lisensi</button>
+    </div>
+
+    <!-- Tab 1: Konten -->
+    <div id="tabContent">
+      <div id="contentListContainer">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+    <!-- Tab 2: Penjualan -->
+    <div id="tabSales" style="display: none;">
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Pembeli (UMKM)</th>
+                <th>Jenis Lisensi</th>
+                <th>Harga Jual</th>
+                <th>Fee Platform</th>
+                <th>Pendapatan Bersih</th>
+              </tr>
+            </thead>
+            <tbody id="salesTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+        <div id="emptySalesState" class="empty-state" style="display: none;">
+          Belum ada riwayat penjualan lisensi konten. Daftarkan konten Anda ke pasar untuk mulai menghasilkan!
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Edit Pricing Modal -->
+  <div class="modal-overlay" id="priceModal" style="display: none;">
+    <div class="modal-content" style="max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Atur Harga Lisensi Konten</h3>
+        <button type="button" class="btn-outline btn-sm" onclick="closePriceModal()">✕</button>
+      </div>
+
+      <form id="priceForm" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label" for="inputAdsPrice">Harga Lisensi Iklan 6 Bulan (Rp)</label>
+          <input type="number" id="inputAdsPrice" class="input" placeholder="Contoh: 150000" min="10000" step="10000">
+          <div class="form-hint">Hak penggunaan untuk iklan berbayar (Meta/TikTok Ads).</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputBuyoutPrice">Harga Hak Milik Penuh / Buyout (Rp)</label>
+          <input type="number" id="inputBuyoutPrice" class="input" placeholder="Contoh: 450000" min="10000" step="10000">
+          <div class="form-hint">Hak eksklusif penuh (harus lebih tinggi dari lisensi iklan).</div>
+        </div>
+
+        <div id="priceErr" class="error-text" style="display: none; margin-bottom: 14px;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn-outline" onclick="closePriceModal()">Batal</button>
+          <button type="submit" class="btn-primary" id="btnSavePrice">Simpan Harga</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
+    const session = KolabDB.requireRole(['creator']);
+
+    if (session) {
+      KolabUI.renderNavbar('creator-library');
+
+      let currentTab = 'content';
+
+      function switchTab(t) {
+        currentTab = t;
+        document.getElementById('tabContentBtn').classList.toggle('active', t === 'content');
+        document.getElementById('tabSalesBtn').classList.toggle('active', t === 'sales');
+        document.getElementById('tabContent').style.display = t === 'content' ? 'block' : 'none';
+        document.getElementById('tabSales').style.display = t === 'sales' ? 'block' : 'none';
+        render();
+      }
+
+      function render() {
+        const contentData = KolabDB.getCreatorContent(session.id);
+        const quotaEl = document.getElementById('listingQuota');
+        const limitText = contentData.limit >= 999 ? 'Tanpa Batas' : contentData.limit;
+        quotaEl.textContent = `${contentData.listedCount} / ${limitText}`;
+
+        const container = document.getElementById('contentListContainer');
+        if (!contentData.items || contentData.items.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              Belum ada konten kampanye yang telah disetujui. Selesaikan tugas kampanye Anda terlebih dahulu untuk mulai melisensikan konten!
+              <div style="margin-top: 12px;">
+                <a href="campaign-browse.html" class="btn-primary btn-sm">Jelajahi Kampanye</a>
+              </div>
+            </div>
+          `;
+        } else {
+          let html = '<div style="display: flex; flex-direction: column; gap: 18px;">';
+          contentData.items.forEach(function(item) {
+            const sub = item.submission;
+            const camp = item.campaign;
+            const umkm = item.umkm;
+            const pr = item.pricing;
+            const isListed = !!sub.listed;
+            const isSold = !!sub.exclusiveSold;
+
+            let statusBadge = '<span class="badge badge-neutral">Belum Dijual</span>';
+            if (isSold) {
+              statusBadge = '<span class="badge badge-danger">Terjual Eksklusif (Buyout)</span>';
+            } else if (isListed) {
+              statusBadge = '<span class="badge badge-completed">Aktif di Pasar Lisensi</span>';
+            }
+
+            html += `
+              <div class="card" style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                      <strong style="font-size: 16px; color: var(--ink);">${camp ? camp.title : 'Konten Kampanye'}</strong>
+                      ${statusBadge}
+                    </div>
+                    <div style="font-size: 13px; color: var(--copy); display: flex; gap: 12px; flex-wrap: wrap;">
+                      <span>Klien: ${umkm ? umkm.name : 'UMKM'}</span>
+                      <span>·</span>
+                      <span>Link Konten: <a href="${sub.fileUrl}" target="_blank" style="color: var(--accent); text-decoration: underline;">Lihat Video ↗</a></span>
+                      ${sub.performance ? `<span>·</span><span>${(sub.performance.views || 0).toLocaleString('id-ID')} views</span>` : ''}
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    ${!isSold ? `
+                      <button type="button" class="btn-outline btn-sm" onclick="openPriceModal('${sub.id}', ${pr.ads}, ${pr.buyout})">
+                        ✏️ Atur Harga
+                      </button>
+                      <button type="button" class="${isListed ? 'btn-outline btn-sm' : 'btn-primary btn-sm'}" onclick="toggleListing('${sub.id}', ${!isListed})">
+                        ${isListed ? 'Tarik dari Pasar' : 'Jual di Pasar Konten'}
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+
+                <div style="background: var(--paper); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 13px;">
+                  <div>
+                    <span style="color: var(--copy);">Harga Lisensi Iklan (6 bln):</span>
+                    <strong class="tabular-nums" style="margin-left: 6px;">${KolabDB.formatRupiah(pr.ads)}</strong>
+                  </div>
+                  <div>
+                    <span style="color: var(--copy);">Harga Hak Milik Penuh (Buyout):</span>
+                    <strong class="tabular-nums" style="margin-left: 6px; color: var(--accent);">${KolabDB.formatRupiah(pr.buyout)}</strong>
+                  </div>
+                  <div style="color: var(--copy);">
+                    Penjualan Lisensi: <strong>${item.sales ? item.sales.length : 0}x</strong>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+          html += '</div>';
+          container.innerHTML = html;
+        }
+
+        const sales = KolabDB.getLicensesBySeller(session.id);
+        const tbody = document.getElementById('salesTableBody');
+        const emptySales = document.getElementById('emptySalesState');
+
+        if (!sales || sales.length === 0) {
+          tbody.innerHTML = '';
+          emptySales.style.display = 'block';
+        } else {
+          emptySales.style.display = 'none';
+          let sHtml = '';
+          sales.forEach(function(s) {
+            const dateStr = s.createdAt ? new Date(s.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
+            const buyer = KolabDB.getUserById(s.buyerId) || { name: 'UMKM' };
+            const typeLabel = s.type === 'buyout' ? '<span class="badge badge-completed">Hak Milik Penuh</span>' : '<span class="badge badge-open">Lisensi Iklan (6 bln)</span>';
+
+            sHtml += `
+              <tr>
+                <td>${dateStr}</td>
+                <td><strong>${buyer.name}</strong></td>
+                <td>${typeLabel}</td>
+                <td class="tabular-nums">${KolabDB.formatRupiah(s.price)}</td>
+                <td class="tabular-nums" style="color: var(--copy);">${KolabDB.formatRupiah(s.fee)}</td>
+                <td class="tabular-nums" style="font-weight: 700; color: var(--text-success);">${KolabDB.formatRupiah(s.net)}</td>
+              </tr>
+            `;
+          });
+          tbody.innerHTML = sHtml;
+        }
+      }
+
+      async function toggleListing(subId, shouldList) {
+        const res = KolabDB.setContentListed(session.id, subId, shouldList);
+        if (res.ok) {
+          await KolabDB.flush();
+          KolabUI.showToast(shouldList ? 'Konten berhasil dipublikasikan di pasar lisensi!' : 'Konten ditarik dari pasar lisensi.');
+          render();
+        } else {
+          KolabUI.showToast(res.message || 'Gagal mengubah status listing');
+        }
+      }
+
+      let editingSubId = null;
+
+      function openPriceModal(subId, currentAds, currentBuyout) {
+        editingSubId = subId;
+        document.getElementById('inputAdsPrice').value = currentAds || '';
+        document.getElementById('inputBuyoutPrice').value = currentBuyout || '';
+        document.getElementById('priceErr').style.display = 'none';
+        document.getElementById('priceModal').style.display = 'flex';
+      }
+
+      function closePriceModal() {
+        document.getElementById('priceModal').style.display = 'none';
+        editingSubId = null;
+      }
+
+      window.switchTab = switchTab;
+      window.toggleListing = toggleListing;
+      window.openPriceModal = openPriceModal;
+      window.closePriceModal = closePriceModal;
+
+      document.getElementById('btnSavePrice').addEventListener('click', async function() {
+        const err = document.getElementById('priceErr');
+        const btn = document.getElementById('btnSavePrice');
+        err.style.display = 'none';
+        err.textContent = '';
+
+        const ads = Number(document.getElementById('inputAdsPrice').value);
+        const buyout = Number(document.getElementById('inputBuyoutPrice').value);
+
+        if (!ads || ads <= 0 || !buyout || buyout <= 0) {
+          err.textContent = 'Semua harga harus lebih dari 0';
+          err.style.display = 'block';
+          return;
+        }
+
+        if (buyout < ads) {
+          err.textContent = 'Harga hak milik penuh harus lebih tinggi dari lisensi iklan';
+          err.style.display = 'block';
+          return;
+        }
+
+        btn.disabled = true;
+        const res = KolabDB.setLicensePricing(session.id, editingSubId, { ads: ads, buyout: buyout });
+        if (res.ok) {
+          await KolabDB.flush();
+          closePriceModal();
+          KolabUI.showToast('Harga lisensi berhasil disimpan!');
+          render();
+        } else {
+          err.textContent = res.message || 'Gagal menyimpan harga';
+          err.style.display = 'block';
+        }
+        btn.disabled = false;
+      });
+
+      render();
+    }
+  </script>
+</body>
+</html>

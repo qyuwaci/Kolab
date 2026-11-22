@@ -3,267 +3,600 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kolab - Marketplace UGC UMKM & Micro-Creator</title>
-  <meta name="description" content="Platform marketplace UGC yang menghubungkan UMKM lokal dengan micro-creator untuk kampanye konten otentik dengan sistem pembayaran aman.">
-  <meta property="og:title" content="Kolab - Marketplace UGC UMKM & Micro-Creator">
-  <meta property="og:description" content="Platform marketplace UGC yang menghubungkan UMKM lokal dengan micro-creator untuk kampanye konten otentik dengan sistem pembayaran aman.">
+  <title>Kolab - Marketplace UGC & Lisensi Konten UMKM</title>
+  <meta name="description" content="Marketplace konten UGC yang menghubungkan UMKM lokal dengan micro-creator untuk video review autentik, garansi escrow, langganan fleksibel, dan jual-beli lisensi konten siap pakai.">
+  <meta property="og:title" content="Kolab - Marketplace UGC & Lisensi Konten UMKM">
+  <meta property="og:description" content="Platform UGC terdepan di Indonesia: sistem pembayaran aman, kreator langsung diterima, langganan bulanan/tahunan, dan pasar lisensi konten.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="style.css">
   <style>
     .hero-section {
-      min-height: 88vh;
+      padding: 72px 24px 48px;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      text-align: center;
-      padding: 60px 24px;
+      background: radial-gradient(circle at 50% 10%, rgba(211, 84, 47, 0.08) 0%, transparent 60%);
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      margin-bottom: 20px;
     }
     .hero-title {
-      font-size: clamp(34px, 5vw, 56px);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      margin: 0 0 18px;
-      max-width: 820px;
+      font-size: clamp(34px, 5.5vw, 62px);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      margin: 0 0 20px;
+      max-width: 860px;
     }
     .hero-title span.accent {
       color: var(--accent);
     }
-    .hero-subtitle {
+    .hero-sub {
       font-size: 18px;
       color: var(--copy);
-      max-width: 640px;
+      max-width: 660px;
       line-height: 1.6;
-      margin: 0 0 48px;
+      margin: 0 0 32px;
     }
-    .step-badge {
-      width: 28px;
-      height: 28px;
+    .metrics-bar {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px 32px;
+      margin-top: 36px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      max-width: 1000px;
+      width: 100%;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--ink);
       color: #fff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       flex-shrink: 0;
     }
-    .step-item {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 24px;
-      align-items: flex-start;
+    .pricing-toggle-box {
+      display: inline-flex;
+      background: #e5e5e4;
+      padding: 4px;
+      border-radius: 999px;
+      margin-bottom: 32px;
+      gap: 4px;
     }
-    .step-content h4 {
-      margin: 0 0 4px;
-      font-size: 15px;
+    .p-toggle-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 13px;
       font-weight: 600;
-    }
-    .step-content p {
-      margin: 0;
-      font-size: 14px;
       color: var(--copy);
-      line-height: 1.5;
+      cursor: pointer;
+    }
+    .p-toggle-btn.active {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
     footer {
       border-top: 1px solid var(--line);
-      padding: 28px 32px;
+      padding: 32px;
       background: #fff;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 14px;
       color: var(--copy);
+      flex-wrap: wrap;
+      gap: 16px;
     }
-    footer .footer-links {
+    .hero-cta-row {
       display: flex;
-      gap: 20px;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 12px;
     }
-    footer a:hover {
-      color: var(--ink);
+    .footer-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
     }
     @media (max-width: 767px) {
-      footer {
-        flex-direction: column;
-        gap: 16px;
+      .hero-section {
+        padding: 36px 16px 28px;
+      }
+      .hero-badge {
+        font-size: 11px;
+        padding: 5px 12px;
         text-align: center;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .hero-title {
+        font-size: 30px;
+        margin-bottom: 14px;
+      }
+      .hero-sub {
+        font-size: 15px;
+        margin-bottom: 24px;
+      }
+      .hero-cta-row {
+        width: 100%;
+      }
+      .hero-cta-row > a {
+        width: 100%;
+      }
+      .metrics-bar {
+        padding: 16px;
+        margin-top: 24px;
+      }
+      .home-band-section {
+        padding: 36px 16px !important;
+      }
+      .home-card-padded {
+        padding: 20px 16px !important;
+      }
+      footer {
+        padding: 24px 16px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <header class="navbar">
-    <a href="index.html" class="nav-brand">
-      Kolab<span class="dot">.</span>
-    </a>
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <a href="login.html" class="btn-outline btn-sm">Masuk</a>
-      <a href="register.html" class="btn-primary btn-sm">Daftar Gratis</a>
-    </div>
-  </header>
+  <!-- Header / Navbar -->
+  <div id="navbar">
+    <header class="navbar">
+      <a href="index.html" class="nav-brand">
+        Kolab<span class="dot">.</span>
+      </a>
+      <div class="nav-links" id="staticNavLinks">
+        <a href="#cara-kerja" class="nav-link">Cara Kerja</a>
+        <a href="content-library.html" class="nav-link">Pasar Konten</a>
+        <a href="pricing.html" class="nav-link">Paket Langganan</a>
+        <a href="#kreator" class="nav-link">Kreator Pilihan</a>
+        <a href="login.html" class="nav-link">Masuk Google</a>
+      </div>
+      <div class="nav-actions">
+        <a href="login.html" class="btn-outline btn-sm nav-btn-secondary-hide-xs">Masuk Google</a>
+        <a href="register.html" class="btn-primary btn-sm">Daftar Gratis</a>
+        <button type="button" class="nav-toggle-btn" id="staticNavToggleBtn" aria-label="Buka menu navigasi" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+    </header>
+  </div>
 
   <main>
-    <!-- Hero -->
+    <!-- HERO SECTION -->
     <section class="hero-section">
-      <div style="max-width: 1000px; width: 100%;">
-        <h1 class="hero-title">
-          Kolaborasi yang <span class="accent">Menghasilkan</span>
-        </h1>
-        <p class="hero-subtitle">
-          Hubungkan brand lokal Anda dengan ratusan micro-creator otentik melalui sistem pembayaran escrow yang adil, transparan, dan terjamin.
-        </p>
+      <div class="hero-badge">
+        <span>✨</span> <strong>Kolab Platform</strong> — Google Auth, Analitik Sosial Media &amp; Pembayaran QRIS/VA
+      </div>
 
-        <!-- 3 Feature Cards -->
-        <div class="grid-3" style="text-align: left; margin-top: 16px;">
-          <!-- Card 1 -->
-          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div class="stat-value tabular-nums" style="color: var(--accent); font-size: 36px; margin-bottom: 8px;">
-                1.200+
+      <h1 class="hero-title">
+        UGC Autentik untuk UMKM, <br>
+        <span class="accent">Hasil Cepat &amp; Cuan Tanpa Drama.</span>
+      </h1>
+
+      <p class="hero-sub">
+        Hubungkan brand lokal Anda dengan micro-creator terverifikasi. Pembayaran terlindungi sistem escrow via QRIS &amp; Virtual Account, statistik YouTube/IG/TikTok live, dan pasar lisensi konten siap pakai.
+      </p>
+
+      <div class="hero-cta-row">
+        <a href="register.html" class="btn-primary" style="padding: 14px 28px; font-size: 15px;">Mulai dengan Google</a>
+        <a href="campaign-browse.html" class="btn-outline" style="padding: 14px 28px; font-size: 15px;">Jelajahi Peluang Kreator ↗</a>
+      </div>
+
+      <!-- LIVE METRICS BAR (dari KolabDB) -->
+      <div class="metrics-bar">
+        <div class="grid-4" style="text-align: left;">
+          <div>
+            <div class="stat-label">Dana Disalurkan (GMV)</div>
+            <div class="stat-value tabular-nums" style="font-size: 24px; color: var(--accent);" id="metricGMV">Rp0</div>
+            <div class="stat-sub">Dibayarkan aman via escrow</div>
+          </div>
+          <div>
+            <div class="stat-label">Micro-Creator Aktif</div>
+            <div class="stat-value tabular-nums" style="font-size: 24px;" id="metricCreators">0</div>
+            <div class="stat-sub">Nano, Mikro & Makro</div>
+          </div>
+          <div>
+            <div class="stat-label">UMKM Bergabung</div>
+            <div class="stat-value tabular-nums" style="font-size: 24px;" id="metricUmkm">0</div>
+            <div class="stat-sub">Brand lokal Indonesia</div>
+          </div>
+          <div>
+            <div class="stat-label">Lisensi Konten Terjual</div>
+            <div class="stat-value tabular-nums" style="font-size: 24px; color: var(--text-success);" id="metricLicenses">0</div>
+            <div class="stat-sub">Siap untuk Meta/TikTok Ads</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: PASAR LISENSI KONTEN SHOWCASE -->
+    <section class="container" style="padding-top: 40px; padding-bottom: 50px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <span class="badge" style="background: var(--bg-success); color: var(--text-success); font-size: 11px; margin-bottom: 6px;">FITUR BARU 2.0</span>
+          <h2 style="font-size: 26px; font-weight: 800; margin: 0 0 6px;">Pasar Lisensi Konten UGC Siap Pakai</h2>
+          <p style="margin: 0; color: var(--copy); font-size: 14px;">Beli hak guna iklan (Ads 6 bulan) atau hak milik penuh dari video-video creator terbaik.</p>
+        </div>
+        <a href="content-library.html" class="btn-primary btn-sm">Buka Seluruh Pasar Konten ↗</a>
+      </div>
+
+      <div class="grid-3" id="homeLibraryPreview">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- SECTION: CARA KERJA (Dual Path) -->
+    <section id="cara-kerja" class="home-band-section" style="background: #fafaf9; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 60px 24px;">
+      <div class="container" style="padding: 0;">
+        <div style="text-align: center; max-width: 600px; margin: 0 auto 40px;">
+          <h2 style="font-size: 28px; font-weight: 800; margin: 0 0 10px;">Proses Cepat & Terjamin</h2>
+          <p style="color: var(--copy); font-size: 15px; margin: 0;">Kolab menyederhanakan alur kerja sama: kreator langsung diterima, dana aman di escrow hingga hasil video disetujui.</p>
+        </div>
+
+        <div class="grid-2" style="gap: 24px;">
+          <!-- Jalur UMKM -->
+          <div class="card home-card-padded" style="background: #fff; padding: 32px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
+              <span class="badge" style="background: var(--ink); color: #fff; font-size: 11px;">UMKM & BRAND</span>
+              <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Untuk Pemilik Usaha</h3>
+            </div>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+              <div class="step-num">1</div>
+              <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Buat Kampanye & Top Up</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Tentukan brief, platform (TikTok/IG), jumlah slot, dan budget per kreator. Dana tersimpan aman di penjaminan escrow.</p>
               </div>
-              <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 600;">Kreator Terverifikasi</h3>
-              <p style="margin: 0 0 24px; font-size: 14px; color: var(--copy); line-height: 1.5;">
-                Micro-creator aktif di seluruh Indonesia dengan audiens riil dan keterlibatan tinggi di TikTok serta Instagram.
-              </p>
             </div>
-            <div>
-              <a href="register.html" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">Learn More</a>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+              <div class="step-num">2</div>
+              <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Kreator Bergabung Otomatis</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Kreator langsung diterima saat mendaftar, atau undang kandidat pilihan dari algoritma rekomendasi cerdas.</p>
+              </div>
             </div>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 28px;">
+              <div class="step-num">3</div>
+              <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Tinjau Konten & Rilis Pembayaran</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Tinjau hasil video, minta revisi jika perlu, lalu setujui untuk otomatis mencairkan dana dan beli lisensi iklan.</p>
+              </div>
+            </div>
+
+            <a href="register.html" class="btn-primary" style="width: 100%; justify-content: center;">Buka Kampanye Pertama</a>
           </div>
 
-          <!-- Card 2 -->
-          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div class="stat-value tabular-nums" style="font-size: 36px; margin-bottom: 8px; color: var(--ink);">
-                100%
-              </div>
-              <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 600;">Pembayaran Aman</h3>
-              <p style="margin: 0 0 24px; font-size: 14px; color: var(--copy); line-height: 1.5;">
-                Dana cair lewat sistem escrow setelah konten disetujui. Kepastian hasil bagi UMKM dan kepastian upah bagi kreator.
-              </p>
+          <!-- Jalur Kreator -->
+          <div class="card home-card-padded" style="background: #fff; padding: 32px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
+              <span class="badge" style="background: var(--accent); color: #fff; font-size: 11px;">MICRO-CREATOR</span>
+              <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Untuk Kreator Konten</h3>
             </div>
-            <div>
-              <a href="register.html" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">Learn More</a>
-            </div>
-          </div>
 
-          <!-- Card 3 (Dark) -->
-          <div class="card" style="background: var(--ink); color: #fff; border-color: var(--ink); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div class="stat-value tabular-nums" style="font-size: 36px; margin-bottom: 8px; color: #fff;">
-                15jt
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+              <div class="step-num" style="background: var(--accent);">1</div>
+              <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Pilih & Daftar 1-Klik</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Jelajahi kampanye sesuai niche Anda (kuliner, fashion, beauty, lifestyle). Klik gabung dan langsung diterima.</p>
               </div>
-              <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 600; color: #fff;">Pertumbuhan UMKM</h3>
-              <p style="margin: 0 0 24px; font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5;">
-                Estimasi nilai transaksi rata-rata per bulan yang digerakkan dari konten review UGC autentik.
-              </p>
             </div>
-            <div>
-              <a href="register.html" class="btn-primary btn-sm" style="width: 100%; justify-content: center; background: #fff; color: var(--ink);">Learn More</a>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+              <div class="step-num" style="background: var(--accent);">2</div>
+              <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Produksi Video Autentik</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Buat konten kreatif sesuai brief, kirimkan link karya lewat dashboard Anda tanpa ribet.</p>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 28px;">
+              <div class="step-num" style="background: var(--accent);">3</div>
+              <div>
+                <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 600;">Terima Honor + Passive Income</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--copy); line-height: 1.5;">Begitu video disetujui, dana langsung cair ke wallet. Jual kembali lisensi video Anda di pasar untuk pemasukan ekstra!</p>
+              </div>
+            </div>
+
+            <a href="campaign-browse.html" class="btn-outline" style="width: 100%; justify-content: center;">Jelajahi Kampanye Terbuka</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: SHOWCASE KREATOR PILIHAN -->
+    <section id="kreator" class="container" style="padding-top: 50px; padding-bottom: 50px;">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 36px;">
+        <h2 style="font-size: 26px; font-weight: 800; margin: 0 0 8px;">Kreator Siap Kolaborasi</h2>
+        <p style="color: var(--copy); font-size: 14px; margin: 0;">Micro-creator terverifikasi dengan engagement audiens organik di berbagai kategori industri.</p>
+      </div>
+
+      <div class="grid-3" id="homeCreatorsGrid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- SECTION: PAKET LANGGANAN TEASER -->
+    <section class="home-band-section" style="background: #fafaf9; border-top: 1px solid var(--line); padding: 60px 24px;">
+      <div class="container" style="padding: 0; text-align: center;">
+        <span class="badge" style="background: var(--bg-warning); color: var(--text-warning); margin-bottom: 10px; font-size: 12px;">PAKET & LANGGANAN</span>
+        <h2 style="font-size: 28px; font-weight: 800; margin: 0 0 10px;">Skala Bisnis Anda dengan Paket Kolab</h2>
+        <p style="color: var(--copy); font-size: 14px; max-width: 580px; margin: 0 auto 24px;">Pilih paket bulanan atau hemat 17% dengan paket tahunan. Nikmati diskon lisensi konten dan pemotongan fee rendah.</p>
+
+        <div class="card home-card-padded" style="max-width: 720px; margin: 0 auto; text-align: left; padding: 28px;">
+          <div class="grid-2" style="gap: 20px;">
+            <div style="background: var(--paper); padding: 18px; border-radius: var(--radius-sm);">
+              <span class="badge badge-neutral" style="font-size: 11px; margin-bottom: 6px;">UNTUK UMKM</span>
+              <h4 style="margin: 0 0 6px; font-size: 16px; font-weight: 700;">Paket Pro & Business</h4>
+              <p style="margin: 0 0 12px; font-size: 13px; color: var(--copy);">Mulai Rp149.000/bln. Buka hingga 10 kampanye aktif, diskon 10-20% pembelian lisensi konten, dan rekomendasi kreator prioritas.</p>
+              <a href="pricing.html" class="btn-primary btn-sm">Lihat Paket UMKM ↗</a>
+            </div>
+
+            <div style="background: var(--paper); padding: 18px; border-radius: var(--radius-sm);">
+              <span class="badge badge-neutral" style="font-size: 11px; margin-bottom: 6px;">UNTUK KREATOR</span>
+              <h4 style="margin: 0 0 6px; font-size: 16px; font-weight: 700;">Paket Plus & Pro</h4>
+              <p style="margin: 0 0 12px; font-size: 13px; color: var(--copy);">Mulai Rp39.000/bln. Potong fee platform hingga hanya 7%, kuota listing video di pasar konten tanpa batas, dan boost rekomendasi.</p>
+              <a href="pricing.html" class="btn-outline btn-sm">Lihat Paket Kreator ↗</a>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Section Cara Kerja -->
-    <section style="background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 64px 24px;">
-      <div class="container" style="padding-top: 0; padding-bottom: 0;">
-        <div style="text-align: center; margin-bottom: 48px;">
-          <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.02em;">Cara Kerja</h2>
-          <p style="color: var(--copy); font-size: 15px; margin: 0;">Sederhana, teratur, dan memberi keamanan penuh bagi kedua pihak.</p>
-        </div>
+    <!-- SECTION: ULASAN & TESTIMONI DARI DATABASE -->
+    <section class="container" style="padding-top: 50px; padding-bottom: 60px;">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 36px;">
+        <h2 style="font-size: 26px; font-weight: 800; margin: 0 0 8px;">Ulasan Nyata Komunitas Kolab</h2>
+        <p style="color: var(--copy); font-size: 14px; margin: 0;">Pengalaman kolaborasi autentik dari pemilik usaha dan kreator yang telah saling memberi rating.</p>
+      </div>
 
-        <div class="grid-2" style="gap: 40px;">
-          <!-- Kolom UMKM -->
-          <div class="card" style="padding: 32px; background: var(--paper); border: none;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
-              <span class="badge" style="background: var(--ink); color: #fff; font-size: 11px;">UMKM & BRAND</span>
-              <h3 style="margin: 0; font-size: 20px; font-weight: 600;">Untuk Pelaku Usaha</h3>
-            </div>
-
-            <div class="step-item">
-              <div class="step-badge">1</div>
-              <div class="step-content">
-                <h4>Buat Kampanye & Tahan Escrow</h4>
-                <p>Tentukan brief, platform pilihan, jumlah slot kreator, serta budget per konten. Budget ditahan aman di escrow.</p>
-              </div>
-            </div>
-
-            <div class="step-item">
-              <div class="step-badge">2</div>
-              <div class="step-content">
-                <h4>Pilih Pelamar Kreator</h4>
-                <p>Kreator mengajukan diri sesuai niche mereka. Anda meninjau profil dan menyetujui kandidat yang paling relevan.</p>
-              </div>
-            </div>
-
-            <div class="step-item">
-              <div class="step-badge">3</div>
-              <div class="step-content">
-                <h4>Tinjau Konten & Rilis Pembayaran</h4>
-                <p>Setelah kreator mengunggah hasil karya, minta revisi jika perlu atau setujui untuk otomatis mencairkan dana ke wallet kreator.</p>
-              </div>
-            </div>
-
-            <div style="margin-top: 28px;">
-              <a href="register.html" class="btn-primary" style="width: 100%; justify-content: center;">Mulai sebagai UMKM</a>
-            </div>
-          </div>
-
-          <!-- Kolom Creator -->
-          <div class="card" style="padding: 32px; background: var(--paper); border: none;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
-              <span class="badge" style="background: var(--accent); color: #fff; font-size: 11px;">MICRO-CREATOR</span>
-              <h3 style="margin: 0; font-size: 20px; font-weight: 600;">Untuk Kreator Konten</h3>
-            </div>
-
-            <div class="step-item">
-              <div class="step-badge" style="background: var(--accent);">1</div>
-              <div class="step-content">
-                <h4>Pilih Kampanye Terbuka</h4>
-                <p>Jelajahi berbagai penawaran dari brand lokal sesuai niche Anda (kuliner, fashion, kecantikan, lifestyle).</p>
-              </div>
-            </div>
-
-            <div class="step-item">
-              <div class="step-badge" style="background: var(--accent);">2</div>
-              <div class="step-content">
-                <h4>Ajukan Diri & Produksi Konten</h4>
-                <p>Daftar dengan satu klik. Setelah pengajuan diterima UMKM, buat konten autentik sesuai arahan brief.</p>
-              </div>
-            </div>
-
-            <div class="step-item">
-              <div class="step-badge" style="background: var(--accent);">3</div>
-              <div class="step-content">
-                <h4>Kirim Link & Terima Bayaran</h4>
-                <p>Submit tautan konten review. Begitu disetujui UMKM, saldo langsung masuk ke wallet Anda dan siap dicairkan.</p>
-              </div>
-            </div>
-
-            <div style="margin-top: 28px;">
-              <a href="register.html" class="btn-outline" style="width: 100%; justify-content: center;">Daftar sebagai Kreator</a>
-            </div>
-          </div>
-        </div>
+      <div class="grid-3" id="homeReviewsGrid">
+        <!-- Rendered via JS -->
       </div>
     </section>
   </main>
 
   <!-- Footer -->
   <footer>
-    <div>© 2026 Kolab. Platform Marketplace UGC Indonesia.</div>
+    <div>© 2026 Kolab. Platform Marketplace UGC &amp; Lisensi Konten Indonesia.</div>
     <div class="footer-links">
-      <a href="#">Ketentuan Layanan</a>
-      <a href="#">Kebijakan Privasi</a>
-      <a href="#">Pusat Bantuan</a>
+      <a href="content-library.html">Pasar Konten</a>
+      <a href="pricing.html">Paket Langganan</a>
+      <a href="login.html">Masuk Google</a>
+      <a href="register.html">Daftar</a>
     </div>
   </footer>
+
+  <script>
+    (function() {
+      var btn = document.getElementById('staticNavToggleBtn');
+      var links = document.getElementById('staticNavLinks');
+      if (btn && links) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var open = links.classList.toggle('open');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        links.querySelectorAll('a').forEach(function(a) {
+          a.addEventListener('click', function() {
+            links.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+          });
+        });
+        document.addEventListener('click', function(e) {
+          if (!links.contains(e.target) && e.target !== btn) {
+            links.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+    })();
+  </script>
+
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
+    const session = KolabDB.getSession();
+    if (session) {
+      KolabUI.renderNavbar('index');
+    }
+
+    const db = KolabDB.load();
+    const revSummary = KolabDB.getRevenueSummary();
+
+    if (session) {
+      document.getElementById('metricGMV').textContent = KolabDB.formatRupiah(revSummary.campaignGMV || 0);
+      document.getElementById('metricCreators').textContent = String(revSummary.totalCreators || 0);
+      document.getElementById('metricUmkm').textContent = String(revSummary.totalUmkm || 0);
+      document.getElementById('metricLicenses').textContent = (db.licenses ? db.licenses.length : 0) + ' video';
+    } else {
+      document.getElementById('metricGMV').textContent = 'Escrow Aman';
+      document.getElementById('metricCreators').textContent = 'YT · IG · TT';
+      document.getElementById('metricUmkm').textContent = 'QRIS & VA';
+      document.getElementById('metricLicenses').textContent = 'Lisensi Ads';
+    }
+
+    function renderLibraryPreview() {
+      const listings = KolabDB.getLibraryListings();
+      const container = document.getElementById('homeLibraryPreview');
+      if (!listings || listings.length === 0) {
+        container.className = '';
+        container.innerHTML = session
+          ? `<div class="empty-state">Belum ada video yang dilisting di Pasar Konten saat ini.</div>`
+          : `<div class="card" style="padding: 24px; text-align: center;">
+               <p style="margin: 0 0 14px; font-size: 14px; color: var(--copy);">Masuk dengan akun Google Anda untuk melihat katalog konten UGC siap pakai beserta performa views &amp; harga lisensinya secara langsung.</p>
+               <a href="login.html" class="btn-primary btn-sm">Masuk dengan Google ↗</a>
+             </div>`;
+        return;
+      }
+
+      let html = '';
+      listings.slice(0, 3).forEach(function(item) {
+        const cr = item.creator || { name: 'Creator' };
+        const camp = item.campaign;
+        const pr = item.pricing || { ads: 0, buyout: 0 };
+        const perf = item.performance || { views: 0, likes: 0 };
+
+        html += `
+          <div class="card" style="padding: 18px; display: flex; flex-direction: column;">
+            <div style="background: linear-gradient(135deg, #1c1c1c, #333); height: 140px; border-radius: 8px; color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; margin-bottom: 12px;">
+              <span class="badge" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 10px; width: fit-content;">UGC VIDEO</span>
+              <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                <span>👁️ ${(perf.views || 0).toLocaleString('id-ID')} views</span>
+                <span>❤️ ${(perf.likes || 0).toLocaleString('id-ID')}</span>
+              </div>
+            </div>
+
+            <div style="flex: 1; display: flex; flex-direction: column;">
+              <strong style="font-size: 14px; margin-bottom: 4px; display: block;">${camp ? camp.title : 'Konten Kreator'}</strong>
+              <div style="font-size: 12px; color: var(--copy); margin-bottom: 10px;">
+                Oleh <strong>${cr.name}</strong> · Tier ${item.tier}
+              </div>
+
+              <div style="background: var(--paper); padding: 8px 10px; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 14px; margin-top: auto;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--copy);">Lisensi Iklan:</span>
+                  <strong>${KolabDB.formatRupiah(pr.ads)}</strong>
+                </div>
+              </div>
+
+              <a href="content-library.html" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">Lihat di Pasar Konten ↗</a>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderCreatorsShowcase() {
+      const creators = KolabDB.getUsersByRole('creator');
+      const container = document.getElementById('homeCreatorsGrid');
+      if (!creators || creators.length === 0) {
+        container.className = '';
+        container.innerHTML = session
+          ? `<div class="empty-state">Belum ada kreator terdaftar saat ini.</div>`
+          : `<div class="card" style="padding: 24px; text-align: center;">
+               <p style="margin: 0 0 14px; font-size: 14px; color: var(--copy);">Jelajahi profil micro-creator yang telah menghubungkan statistik YouTube, Instagram, dan TikTok mereka.</p>
+               <a href="register.html" class="btn-outline btn-sm">Daftar atau Masuk dengan Google</a>
+             </div>`;
+        return;
+      }
+
+      let html = '';
+      creators.slice(0, 3).forEach(function(c) {
+        const social = KolabDB.getSocialSummary(c.id);
+        const reviews = KolabDB.getReviewsForUser(c.id);
+        const ratingText = reviews.average !== null ? `⭐ ${reviews.average} (${reviews.count} ulasan)` : '⭐ Kreator Baru';
+
+        html += `
+          <div class="card" style="padding: 20px; text-align: center;">
+            <div class="avatar-circle" style="width: 60px; height: 60px; margin: 0 auto 12px; font-size: 20px;">
+              ${(c.name || 'CR').substring(0, 2).toUpperCase()}
+            </div>
+            <h3 style="margin: 0 0 4px; font-size: 17px; font-weight: 700;">${c.name}</h3>
+            <div style="display: flex; justify-content: center; gap: 6px; margin-bottom: 12px;">
+              <span class="badge" style="background: var(--accent); color: #fff; font-size: 11px;">Tier ${social.tier}</span>
+              <span class="badge badge-neutral" style="font-size: 11px;">${(c.niche || 'Umum').toUpperCase()}</span>
+            </div>
+
+            <div style="background: var(--paper); padding: 10px; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 16px; display: flex; justify-content: space-around;">
+              <div>
+                <div style="color: var(--copy);">Pengikut</div>
+                <strong class="tabular-nums">${(social.totalFollowers || 0).toLocaleString('id-ID')}</strong>
+              </div>
+              <div>
+                <div style="color: var(--copy);">Engagement</div>
+                <strong>${social.avgEngagement}%</strong>
+              </div>
+            </div>
+
+            <div style="font-size: 12px; color: var(--copy); margin-bottom: 14px;">
+              ${ratingText}
+            </div>
+
+            <a href="creator-profile.html?id=${encodeURIComponent(c.id)}" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">
+              Lihat Portofolio ↗
+            </a>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderReviewsShowcase() {
+      const container = document.getElementById('homeReviewsGrid');
+      const reviews = db.reviews || [];
+      if (reviews.length === 0) {
+        container.className = '';
+        container.innerHTML = session
+          ? `<div class="empty-state">Belum ada ulasan kolaborasi tercatat.</div>`
+          : `<div class="card" style="padding: 24px; text-align: center;">
+               <p style="margin: 0; font-size: 14px; color: var(--copy);">Ulasan terverifikasi antar UMKM dan kreator ditampilkan setelah Anda masuk.</p>
+             </div>`;
+        return;
+      }
+
+      let html = '';
+      reviews.slice(0, 3).forEach(function(r) {
+        const reviewer = KolabDB.getUserById(r.reviewerId) || { name: 'Mitra Kolab' };
+        const reviewee = KolabDB.getUserById(r.revieweeId) || { name: 'Kreator' };
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+
+        html += `
+          <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="color: #f59e0b; font-size: 16px; margin-bottom: 8px;">${stars}</div>
+              <p style="margin: 0 0 16px; font-size: 14px; color: var(--ink); line-height: 1.6; font-style: italic;">
+                "${r.comment || 'Kerja sama sangat lancar dan tepat waktu.'}"
+              </p>
+            </div>
+            <div style="border-top: 1px solid var(--line); padding-top: 12px; font-size: 12px;">
+              <strong style="display: block; color: var(--ink);">${reviewer.name}</strong>
+              <span style="color: var(--copy);">Ulasan untuk: <strong>${reviewee.name}</strong></span>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    renderLibraryPreview();
+    renderCreatorsShowcase();
+    renderReviewsShowcase();
+  </script>
 </body>
 </html>

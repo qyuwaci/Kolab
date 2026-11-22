@@ -16,9 +16,13 @@
     <!-- Diisi via JS -->
   </main>
 
-  <script src="kolab-db.js"></script>
-  <script src="kolab-ui.js"></script>
-  <script>
+  <script type="module" src="/src/kolab-cloud.ts"></script>
+  <script type="module" src="/src/kolab-ui.ts"></script>
+  <script type="module">
+    const KolabDB = window.KolabDB;
+    const KolabUI = window.KolabUI;
+    await KolabDB.ready();
+
     const session = KolabDB.getSession();
     if (!session) {
       window.location.href = 'login.html';
@@ -50,6 +54,7 @@
         const completedCount = allCampaigns.filter(function(c) { return c.status === 'completed'; }).length;
 
         let reviewsHtml = '';
+        const reviewsList = reviewsData.reviews || [];
         if (!reviewsData.count || reviewsData.count === 0) {
           reviewsHtml = `
             <div class="empty-state">
@@ -57,7 +62,7 @@
             </div>
           `;
         } else {
-          reviewsData.list.forEach(function(r) {
+          reviewsList.forEach(function(r) {
             const reviewer = KolabDB.getUserById(r.reviewerId);
             const reviewerName = reviewer ? reviewer.name : 'Pengguna';
             const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);

@@ -1,0 +1,273 @@
+{
+  "entities": {
+    "UserPublic": {
+      "title": "UserPublic",
+      "description": "Public marketplace profile for UMKM or Micro-Creator (strictly no PII such as email or phone).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "role": { "type": "string", "enum": ["umkm", "creator"] },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "businessName": { "type": "string", "maxLength": 140 },
+        "category": { "type": "string", "maxLength": 80 },
+        "city": { "type": "string", "maxLength": 80 },
+        "niche": { "type": "string", "maxLength": 80 },
+        "bio": { "type": "string", "maxLength": 500 },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "followers": { "type": "number" },
+        "tier": { "type": "string", "enum": ["Nano", "Mikro", "Makro", "Mega"] },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
+        "planId": { "type": "string", "enum": ["free", "pro", "business", "plus"] },
+        "planCycle": { "type": "string", "enum": ["monthly", "yearly"] },
+        "planStatus": { "type": "string", "enum": ["active", "cancelled"] },
+        "planExpiresAt": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "role", "name", "status", "createdAt", "updatedAt"]
+    },
+    "UserPrivate": {
+      "title": "UserPrivate",
+      "description": "Private PII and payout details isolated per user.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "format": "email", "maxLength": 160 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "bankMethod": { "type": "string", "maxLength": 40 },
+        "bankAccountNumber": { "type": "string", "maxLength": 60 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "updatedAt"]
+    },
+    "Wallet": {
+      "title": "Wallet",
+      "description": "User wallet storing available balance and escrow-held funds.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "balance": { "type": "number" },
+        "held": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "balance", "held", "updatedAt"]
+    },
+    "Campaign": {
+      "title": "Campaign",
+      "description": "UGC campaign created by an UMKM brand.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "umkmId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 3, "maxLength": 180 },
+        "niche": { "type": "string", "maxLength": 80 },
+        "brief": { "type": "string", "minLength": 5, "maxLength": 2000 },
+        "deliverable": { "type": "string", "maxLength": 300 },
+        "budgetPerSlot": { "type": "number" },
+        "slots": { "type": "number" },
+        "deadline": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["open", "completed", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "umkmId", "title", "niche", "brief", "budgetPerSlot", "slots", "status", "createdAt", "updatedAt"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "Creator enrollment in a campaign.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "campaignId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "umkmId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "creatorId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "status": { "type": "string", "enum": ["accepted", "completed", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "campaignId", "umkmId", "creatorId", "status", "createdAt", "updatedAt"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "UGC video deliverable submitted by a creator for a campaign.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "applicationId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "campaignId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "umkmId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "creatorId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "fileUrl": { "type": "string", "minLength": 5, "maxLength": 500 },
+        "note": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["submitted", "revision", "approved"] },
+        "listed": { "type": "boolean" },
+        "exclusiveSold": { "type": "boolean" },
+        "adsPrice": { "type": "number" },
+        "buyoutPrice": { "type": "number" },
+        "perfViews": { "type": "number" },
+        "perfLikes": { "type": "number" },
+        "perfComments": { "type": "number" },
+        "perfClicks": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "applicationId", "campaignId", "umkmId", "creatorId", "fileUrl", "status", "listed", "exclusiveSold", "createdAt", "updatedAt"]
+    },
+    "License": {
+      "title": "License",
+      "description": "Purchased content license record between UMKM buyer and Creator seller.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "submissionId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "buyerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "type": { "type": "string", "enum": ["ads", "buyout"] },
+        "price": { "type": "number" },
+        "platformFee": { "type": "number" },
+        "netSeller": { "type": "number" },
+        "expiresAt": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "submissionId", "buyerId", "sellerId", "type", "price", "platformFee", "netSeller", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Post-campaign star rating and review between UMKM and Creator.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "campaignId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "reviewerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "revieweeId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string", "maxLength": 600 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "campaignId", "reviewerId", "revieweeId", "rating", "createdAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Ledger entry for topup, escrow hold/release, payout, license, or subscription.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "type": { "type": "string", "enum": ["topup", "escrow_hold", "escrow_release", "escrow_refund", "payout", "subscription", "license_purchase"] },
+        "fromUserId": { "type": "string", "maxLength": 128 },
+        "toUserId": { "type": "string", "maxLength": 128 },
+        "campaignId": { "type": "string", "maxLength": 128 },
+        "amount": { "type": "number" },
+        "fee": { "type": "number" },
+        "description": { "type": "string", "maxLength": 240 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "type", "amount", "createdAt"]
+    },
+    "PaymentOrder": {
+      "title": "PaymentOrder",
+      "description": "QRIS or Virtual Account payment gateway transaction record.",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "provider": { "type": "string", "enum": ["midtrans", "xendit", "sandbox"] },
+        "method": { "type": "string", "enum": ["qris", "bca_va", "mandiri_va", "bni_va", "bri_va", "permata_va"] },
+        "purpose": { "type": "string", "enum": ["topup", "subscription", "campaign", "license"] },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "settled", "expired", "failed"] },
+        "vaNumber": { "type": "string", "maxLength": 64 },
+        "qrString": { "type": "string", "maxLength": 2000 },
+        "expiresAt": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderId", "userId", "provider", "method", "purpose", "amount", "status", "createdAt", "updatedAt"]
+    },
+    "SocialAccount": {
+      "title": "SocialAccount",
+      "description": "Public verified social media stats linked via OAuth (YouTube, Instagram, TikTok).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 160, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "platform": { "type": "string", "enum": ["youtube", "instagram", "tiktok"] },
+        "handle": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "channelTitle": { "type": "string", "maxLength": 160 },
+        "profileUrl": { "type": "string", "maxLength": 400 },
+        "connected": { "type": "boolean" },
+        "isPublic": { "type": "boolean" },
+        "followers": { "type": "number" },
+        "totalViews": { "type": "number" },
+        "mediaCount": { "type": "number" },
+        "engagementRate": { "type": "number" },
+        "avgLikes": { "type": "number" },
+        "avgComments": { "type": "number" },
+        "avgViews": { "type": "number" },
+        "topContentSummary": { "type": "string", "maxLength": 2000 },
+        "lastSyncedAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "platform", "handle", "connected", "isPublic", "followers", "engagementRate", "updatedAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Trusted administrator lookup document.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "format": "email", "maxLength": 160 }
+      },
+      "required": ["uid"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPublic" },
+      "description": "Public profile for UMKM and Creators (zero PII)."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivate" },
+      "description": "Private PII and bank account info owned strictly by the user."
+    },
+    "/wallets/{userId}": {
+      "schema": { "$ref": "#/entities/Wallet" },
+      "description": "Wallet balance and escrow holdings per user."
+    },
+    "/campaigns/{campaignId}": {
+      "schema": { "$ref": "#/entities/Campaign" },
+      "description": "UGC campaigns created by UMKM brands."
+    },
+    "/applications/{applicationId}": {
+      "schema": { "$ref": "#/entities/Application" },
+      "description": "Creator campaign enrollments."
+    },
+    "/submissions/{submissionId}": {
+      "schema": { "$ref": "#/entities/Submission" },
+      "description": "UGC deliverables and content library listings."
+    },
+    "/licenses/{licenseId}": {
+      "schema": { "$ref": "#/entities/License" },
+      "description": "Purchased ads and buyout content licenses."
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Verified post-campaign user ratings."
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Financial transaction ledger."
+    },
+    "/payment_orders/{orderId}": {
+      "schema": { "$ref": "#/entities/PaymentOrder" },
+      "description": "Payment gateway orders for QRIS and Virtual Accounts."
+    },
+    "/social_accounts/{accountId}": {
+      "schema": { "$ref": "#/entities/SocialAccount" },
+      "description": "OAuth-verified social media channel metrics and analytics."
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Admin role registry."
+    }
+  }
+}
