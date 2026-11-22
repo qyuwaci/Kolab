@@ -3,59 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jelajahi Kampanye - Kolab</title>
+  <title>Cari job – Kolab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
   <style>
-    .campaign-browse-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      position: relative;
-    }
-    .campaign-browse-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
-    }
-    .campaign-browse-card.featured {
-      border: 2px solid #f59e0b;
-    }
+    .job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .job { display: flex; flex-direction: column; gap: 14px; }
+    .job .net { font-family: var(--font-serif); font-size: 40px; line-height: 1; letter-spacing: -0.02em; }
+    .job .brief { font-size: 14px; color: var(--copy); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { padding: 4px 10px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); font-size: 13px; }
   </style>
 </head>
 <body>
   <div id="navbar"></div>
-
   <main class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+    <div class="page-head">
       <div>
-        <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Jelajahi Kampanye Terbuka</h1>
-        <p style="margin: 0; color: var(--copy); font-size: 14px;">
-          Daftar dengan satu klik dan langsung diterima untuk memproduksi konten UGC autentik.
-        </p>
+        <span class="eyebrow">Job untuk kreator</span>
+        <h1 style="margin: 8px 0 0;">Cari job dari UMKM lokal</h1>
+        <p>Honor yang tertulis besar adalah yang masuk ke dompetmu, sudah dipotong biaya layanan sesuai paketmu.</p>
       </div>
-      <div class="filter-bar">
-        <select id="nicheSelect" class="input" style="max-width: 170px;" onchange="renderCampaigns()">
-          <option value="">Semua Niche</option>
-          <option value="food">Kuliner</option>
+      <form class="filter-bar" role="search" onsubmit="return false;" style="min-width: min(100%, 460px);">
+        <label class="sr-only" for="nicheSelect">Bidang</label>
+        <select id="nicheSelect" class="input" style="flex: 1 1 160px;">
+          <option value="">Semua bidang</option>
+          <option value="food">Kuliner dan minuman</option>
           <option value="fashion">Fashion</option>
-          <option value="beauty">Beauty</option>
-          <option value="lifestyle">Lifestyle</option>
+          <option value="beauty">Kecantikan</option>
+          <option value="lifestyle">Gaya hidup</option>
+          <option value="lainnya">Lainnya</option>
         </select>
-        <input type="text" id="searchInput" class="input" placeholder="Cari judul atau brand..." style="max-width: 220px;" oninput="renderCampaigns()">
-      </div>
+        <label class="sr-only" for="searchInput">Cari judul atau nama usaha</label>
+        <input type="search" id="searchInput" class="input" placeholder="Cari judul atau nama usaha" style="flex: 2 1 220px;">
+      </form>
     </div>
-
-    <!-- Container Grid Kampanye -->
-    <div id="campaignsGrid" class="grid-2">
-      <!-- Diisi dinamis lewat JS -->
-    </div>
+    <div id="feeNote" class="notice-bar" style="margin-bottom: 20px;"></div>
+    <div id="jobs" class="job-grid" aria-live="polite"></div>
   </main>
 
   <script type="module" src="/src/kolab-cloud.ts"></script>
@@ -64,155 +49,79 @@
     const KolabDB = window.KolabDB;
     const KolabUI = window.KolabUI;
     await KolabDB.ready();
-
     const session = KolabDB.requireRole(['creator']);
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const rp = (n) => KolabDB.formatRupiah(n || 0);
+    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '-';
+    const NICHE = { food: 'Kuliner', fashion: 'Fashion', beauty: 'Kecantikan', lifestyle: 'Gaya hidup', lainnya: 'Lainnya' };
+    const STATUS = { pending: ['Menunggu keputusan UMKM', 'badge-notice'], invited: ['Kamu diundang', 'badge-accent'], accepted: ['Diterima', 'badge-open'], completed: ['Selesai', 'badge-completed'], rejected: ['Tidak dipilih', 'badge-neutral'], declined: ['Kamu menolak', 'badge-neutral'], expired: ['Batal (lewat batas)', 'badge-neutral'] };
 
     if (session) {
       KolabUI.renderNavbar('campaign-browse');
+      const plan = KolabDB.getUserPlan(session.id)?.plan || {};
+      const fee = typeof plan.platformFeeRate === 'number' ? plan.platformFeeRate : 0.15;
+      document.getElementById('feeNote').innerHTML = `Biaya layanan paket ${esc(plan.name || 'Gratis')}: <strong style="margin: 0 4px;">${Math.round(fee * 100)}%</strong>. <a href="pricing.html" style="text-decoration: underline; font-weight: 600;">Paket Plus atau Pro</a>&nbsp;memotong lebih sedikit.`;
 
-      function renderCampaigns() {
-        const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      function render() {
+        const q = document.getElementById('searchInput').value.trim().toLowerCase();
         const niche = document.getElementById('nicheSelect').value;
-        let openCampaigns = KolabDB.getOpenCampaigns();
-        const myApps = KolabDB.getApplicationsByCreator(session.id);
-        const grid = document.getElementById('campaignsGrid');
-
-        if (query) {
-          openCampaigns = openCampaigns.filter(function(c) {
-            const umkm = KolabDB.getUserById(c.umkmId);
-            const umkmName = umkm ? umkm.name.toLowerCase() : '';
-            const title = (c.title || '').toLowerCase();
-            const brief = (c.brief || '').toLowerCase();
-            return title.includes(query) || umkmName.includes(query) || brief.includes(query);
-          });
-        }
-
-        if (niche) {
-          openCampaigns = openCampaigns.filter(function(c) {
-            return c.targetNiche === niche;
-          });
-        }
-
-        if (!openCampaigns || openCampaigns.length === 0) {
-          grid.className = '';
-          grid.innerHTML = `
-            <div class="empty-state card" style="width: 100%;">
-              Belum ada kampanye terbuka yang sesuai filter pencarian saat ini.
-            </div>
-          `;
+        const mine = KolabDB.getApplicationsByCreator(session.id);
+        let list = KolabDB.getOpenCampaigns().filter((c) => !c.deadline || new Date(c.deadline + 'T23:59:59') >= new Date());
+        if (niche) list = list.filter((c) => (c.targetNiche || c.niche) === niche);
+        if (q) list = list.filter((c) => {
+          const u = KolabDB.getUserById(c.umkmId);
+          return [c.title, c.brief, u?.name, u?.businessName].some((x) => String(x || '').toLowerCase().includes(q));
+        });
+        const box = document.getElementById('jobs');
+        if (!list.length) {
+          box.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><strong>Belum ada job yang cocok</strong>Job baru dari UMKM akan muncul di sini. Sambil menunggu, lengkapi profil dan sambungkan akun sosmedmu supaya mudah dipilih.<div style="margin-top: 14px;"><a href="creator-analytics.html" class="btn-outline btn-sm">Sambungkan akun sosmed</a></div></div>`;
           return;
         }
-
-        grid.className = 'grid-2';
-        let html = '';
-
-        openCampaigns.forEach(function(c) {
-          const umkm = KolabDB.getUserById(c.umkmId) || { name: 'UMKM Brand', city: '' };
-          const platforms = Array.isArray(c.platform) ? c.platform.join(', ') : (c.platform || 'Semua Platform');
-          const existingApp = myApps.find(function(a) { return a.campaignId === c.id; });
-
-          const umkmReviews = KolabDB.getReviewsForUser(c.umkmId);
-          const ratingBadgeText = umkmReviews.average !== null ? `⭐ ${umkmReviews.average}` : '⭐ Baru';
-
-          let btnHtml = '';
-          if (existingApp) {
-            btnHtml = `
-              <div style="display: flex; gap: 8px;">
-                <button type="button" class="btn-outline btn-sm" disabled style="flex: 1; justify-content: center; color: var(--text-success); border-color: var(--text-success); font-weight: 600;">
-                  ✓ Sudah Diterima
-                </button>
-                <a href="dashboard-creator.html" class="btn-primary btn-sm" style="justify-content: center;">
-                  Upload Konten ↗
-                </a>
+        box.innerHTML = list.map((c) => {
+          const u = KolabDB.getUserById(c.umkmId) || {};
+          const app = mine.find((a) => a.campaignId === c.id);
+          const net = Math.round(c.budgetPerSlot * (1 - fee));
+          const rights = KolabDB.usageRightsOf(c);
+          const platforms = Array.isArray(c.platform) ? c.platform : [c.platform];
+          const st = app ? STATUS[app.status] : null;
+          return `
+            <article class="card card-lift job">
+              <div style="display: flex; justify-content: space-between; gap: 10px; align-items: flex-start;">
+                <div style="min-width: 0;">
+                  <div style="font-size: 13px; color: var(--meta);">${esc(u.businessName || u.name || 'UMKM')}${u.city ? ' · ' + esc(u.city) : ''}</div>
+                  <h2 class="card-title" style="margin: 4px 0 0;">${esc(c.title)}</h2>
+                </div>
+                ${st ? `<span class="badge ${st[1]}">${st[0]}</span>` : ''}
               </div>
-            `;
-          } else {
-            btnHtml = `
-              <button type="button" class="btn-primary btn-sm" id="btnApply_${c.id}" onclick="handleApply('${c.id}')" style="width: 100%; justify-content: center;">
-                ⚡ Gabung Kampanye (Langsung Diterima)
-              </button>
-            `;
-          }
-
-          html += `
-            <div class="campaign-browse-card ${c.featured ? 'featured' : ''}">
               <div>
-                ${c.featured ? '<div style="position: absolute; top: -10px; right: 20px; background: #f59e0b; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;">⭐ UNGGULAN</div>' : ''}
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px;">
-                  <div>
-                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                      <a href="umkm-profile.html?id=${encodeURIComponent(c.umkmId)}" style="font-size: 12px; color: var(--accent); font-weight: 600; text-transform: uppercase; text-decoration: underline;" title="Lihat profil UMKM">
-                        ${umkm.name} ↗
-                      </a>
-                      <span class="badge badge-neutral" style="font-size: 11px; padding: 2px 8px; color: #b45309; background: #fef3c7;">
-                        ${ratingBadgeText}
-                      </span>
-                      ${umkm.city ? `<span style="font-size: 12px; color: var(--copy);">· ${umkm.city}</span>` : ''}
-                    </div>
-                    <h3 style="margin: 6px 0 0; font-size: 18px; font-weight: 700; color: var(--ink);">${c.title}</h3>
-                  </div>
-                  <span class="badge badge-open">Terbuka</span>
-                </div>
-
-                <p style="font-size: 14px; color: var(--copy); line-height: 1.5; margin: 10px 0 16px; min-height: 42px;">
-                  ${c.brief ? (c.brief.length > 120 ? c.brief.substring(0, 120) + '...' : c.brief) : 'Tidak ada brief khusus.'}
-                </p>
-
-                <div style="background: var(--paper); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 18px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
-                  <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--copy);">Platform:</span>
-                    <strong>${platforms}</strong>
-                  </div>
-                  <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--copy);">Format:</span>
-                    <strong>${c.contentType || 'Video Review'}</strong>
-                  </div>
-                  <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--copy);">Target Niche:</span>
-                    <strong style="text-transform: capitalize;">${c.targetNiche || 'Umum'}</strong>
-                  </div>
-                  <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--copy);">Slot Terisi:</span>
-                    <span class="tabular-nums"><strong>${c.accepted || c.slotsFilled || 0}</strong> dari ${c.slots} slot</span>
-                  </div>
-                </div>
+                <div style="font-size: 13px; color: var(--meta);">Honor masuk ke dompetmu</div>
+                <div class="net tabular-nums">${rp(net)}</div>
+                <div style="font-size: 13px; color: var(--meta); margin-top: 4px;">Honor ${rp(c.budgetPerSlot)} dikurangi biaya layanan ${Math.round(fee * 100)}%</div>
               </div>
-
-              <div>
-                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
-                  <span style="font-size: 12px; color: var(--copy);">Bayaran per Konten:</span>
-                  <span class="stat-value tabular-nums" style="font-size: 20px; color: var(--accent);">${KolabDB.formatRupiah(c.budgetPerSlot)}</span>
-                </div>
-
-                <div id="btnContainer_${c.id}">
-                  ${btnHtml}
-                </div>
+              <div class="chips">
+                <span class="chip">${esc(NICHE[c.targetNiche || c.niche] || 'Umum')}</span>
+                ${platforms.map((p) => `<span class="chip">${esc(p)}</span>`).join('')}
+                <span class="chip">${esc(c.contentType || 'Video review')}</span>
               </div>
-            </div>
-          `;
-        });
-
-        grid.innerHTML = html;
-      }
-
-      window.renderCampaigns = renderCampaigns;
-
-      window.handleApply = async function(campaignId) {
-        const btn = document.getElementById(`btnApply_${campaignId}`);
-        if (btn) btn.disabled = true;
-
-        const res = KolabDB.applyToCampaign(campaignId, session.id);
-        if (res.ok) {
+              <p class="brief" style="margin: 0;">${esc(c.brief)}</p>
+              <div class="kv"><span class="k">Sisa slot</span><span class="v">${c.slotsLeft} dari ${c.slots}</span></div>
+              <div class="kv"><span class="k">Batas kirim video</span><span class="v">${fmtDate(c.deadline)}</span></div>
+              <div class="kv"><span class="k">Hak pakai untuk UMKM</span><span class="v">${esc(rights.label)}</span></div>
+              ${app ? `<a href="dashboard-creator.html" class="btn-outline" style="margin-top: auto;">Lihat di dashboard</a>`
+                : `<button type="button" class="btn-primary" data-apply="${c.id}" style="margin-top: auto;" ${c.slotsLeft === 0 ? 'disabled' : ''}>${c.slotsLeft === 0 ? 'Slot penuh' : 'Lamar job ini'}</button>`}
+            </article>`;
+        }).join('');
+        box.querySelectorAll('[data-apply]').forEach((b) => b.addEventListener('click', async () => {
+          b.disabled = true;
+          const r = KolabDB.applyToCampaign(b.dataset.apply, session.id);
           await KolabDB.flush();
-          KolabUI.showToast('Selamat! Anda langsung diterima dan bergabung di kampanye ini.');
-          renderCampaigns();
-        } else {
-          if (btn) btn.disabled = false;
-          KolabUI.showToast(res.message || 'Gagal bergabung ke kampanye');
-        }
-      };
-
-      renderCampaigns();
+          KolabUI.showToast(r.ok ? 'Lamaran terkirim. UMKM akan memilih, kamu dapat kabar di dashboard.' : r.message);
+          render();
+        }));
+      }
+      document.getElementById('searchInput').addEventListener('input', render);
+      document.getElementById('nicheSelect').addEventListener('change', render);
+      render();
     }
   </script>
 </body>

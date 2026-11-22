@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Konten & Lisensi Saya - Kreator Kolab</title>
+  <title>Video saya - Kreator Kolab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -16,19 +16,19 @@
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
       <div>
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-          <span class="badge badge-neutral" style="font-size: 11px;">MONETISASI TAMBAHAN</span>
-          <span style="font-size: 12px; color: var(--copy);">Pasar Konten UGC</span>
+          <span class="badge badge-neutral" style="font-size: 11px;">PENGHASILAN TAMBAHAN</span>
+          <span style="font-size: 12px; color: var(--copy);">Video siap pakai</span>
         </div>
-        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px;">Konten & Lisensi Saya</h1>
-        <p style="margin: 0; color: var(--copy); font-size: 14px;">Daftarkan video yang telah disetujui UMKM ke pasar lisensi untuk passive income berkelanjutan.</p>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px;">Video saya</h1>
+        <p style="margin: 0; color: var(--copy); font-size: 14px;">Jual lagi video yang sudah disetujui sebagai izin pakai iklan, kalau hak pakai kampanyenya mengizinkan.</p>
       </div>
 
       <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
         <div style="background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 8px 14px; font-size: 13px;">
-          <span style="color: var(--copy);">Slot Listing Pasar:</span>
+          <span style="color: var(--copy);">Video dijual:</span>
           <strong class="tabular-nums" id="listingQuota">0 / 0</strong>
         </div>
-        <a href="pricing.html" class="btn-outline btn-sm">⭐ Tambah Kuota Listing</a>
+        <a href="pricing.html" class="btn-outline btn-sm">Tambah kuota</a>
       </div>
     </div>
 
@@ -76,19 +76,19 @@
   <div class="modal-overlay" id="priceModal" style="display: none;">
     <div class="modal-content" style="max-width: 440px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Atur Harga Lisensi Konten</h3>
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Atur harga video</h3>
         <button type="button" class="btn-outline btn-sm" onclick="closePriceModal()">✕</button>
       </div>
 
       <form id="priceForm" onsubmit="return false;">
         <div class="form-group">
-          <label class="form-label" for="inputAdsPrice">Harga Lisensi Iklan 6 Bulan (Rp)</label>
+          <label class="form-label" for="inputAdsPrice">Harga izin iklan 6 bulan (Rp)</label>
           <input type="number" id="inputAdsPrice" class="input" placeholder="Contoh: 150000" min="10000" step="10000">
-          <div class="form-hint">Hak penggunaan untuk iklan berbayar (Meta/TikTok Ads).</div>
+          <div class="form-hint">Untuk iklan berbayar di TikTok dan Meta.</div>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="inputBuyoutPrice">Harga Hak Milik Penuh / Buyout (Rp)</label>
+          <label class="form-label" for="inputBuyoutPrice">Harga hak milik penuh (Rp)</label>
           <input type="number" id="inputBuyoutPrice" class="input" placeholder="Contoh: 450000" min="10000" step="10000">
           <div class="form-hint">Hak eksklusif penuh (harus lebih tinggi dari lisensi iklan).</div>
         </div>
@@ -154,9 +154,9 @@
 
             let statusBadge = '<span class="badge badge-neutral">Belum Dijual</span>';
             if (isSold) {
-              statusBadge = '<span class="badge badge-danger">Terjual Eksklusif (Buyout)</span>';
+              statusBadge = '<span class="badge badge-danger">Terjual, hak milik penuh</span>';
             } else if (isListed) {
-              statusBadge = '<span class="badge badge-completed">Aktif di Pasar Lisensi</span>';
+              statusBadge = '<span class="badge badge-completed">Sedang dijual</span>';
             }
 
             html += `
@@ -193,7 +193,7 @@
                     <strong class="tabular-nums" style="margin-left: 6px;">${KolabDB.formatRupiah(pr.ads)}</strong>
                   </div>
                   <div>
-                    <span style="color: var(--copy);">Harga Hak Milik Penuh (Buyout):</span>
+                    <span style="color: var(--copy);">Harga hak milik penuh:</span>
                     <strong class="tabular-nums" style="margin-left: 6px; color: var(--accent);">${KolabDB.formatRupiah(pr.buyout)}</strong>
                   </div>
                   <div style="color: var(--copy);">

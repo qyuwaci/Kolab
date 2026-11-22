@@ -94,7 +94,10 @@ service cloud.firestore {
 
     function isValidCampaign(data) {
       return data.keys().hasAll(['id', 'umkmId', 'title', 'niche', 'brief', 'budgetPerSlot', 'slots', 'status', 'createdAt', 'updatedAt'])
-        && data.keys().hasOnly(['id', 'umkmId', 'title', 'niche', 'brief', 'deliverable', 'budgetPerSlot', 'slots', 'deadline', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'umkmId', 'title', 'niche', 'brief', 'deliverable', 'platform', 'contentType', 'usageRights', 'budgetPerSlot', 'slots', 'deadline', 'status', 'createdAt', 'updatedAt'])
+        && (!('platform' in data) || (data.platform is list && data.platform.size() >= 1 && data.platform.size() <= 3))
+        && (!('contentType' in data) || (data.contentType is string && data.contentType.size() <= 80))
+        && (!('usageRights' in data) || data.usageRights in ['organic', 'ads6m', 'buyout'])
         && isValidId(data.id)
         && isValidId(data.umkmId)
         && data.title is string && data.title.size() >= 3 && data.title.size() <= 180
@@ -116,7 +119,7 @@ service cloud.firestore {
         && isValidId(data.campaignId)
         && isValidId(data.umkmId)
         && isValidId(data.creatorId)
-        && data.status in ['accepted', 'completed', 'cancelled']
+        && data.status in ['pending', 'invited', 'accepted', 'rejected', 'declined', 'expired', 'completed', 'cancelled']
         && data.createdAt is timestamp
         && data.updatedAt is timestamp;
     }
@@ -127,8 +130,12 @@ service cloud.firestore {
           'id', 'applicationId', 'campaignId', 'umkmId', 'creatorId',
           'fileUrl', 'note', 'status', 'listed', 'exclusiveSold',
           'adsPrice', 'buyoutPrice', 'perfViews', 'perfLikes', 'perfComments', 'perfClicks',
+          'revisionCount', 'revisionNote', 'submittedAt',
           'createdAt', 'updatedAt'
         ])
+        && (!('revisionCount' in data) || (data.revisionCount is int && data.revisionCount >= 0 && data.revisionCount <= 5))
+        && (!('revisionNote' in data) || (data.revisionNote is string && data.revisionNote.size() <= 1000))
+        && (!('submittedAt' in data) || data.submittedAt is timestamp)
         && isValidId(data.id)
         && isValidId(data.applicationId)
         && isValidId(data.campaignId)
@@ -366,9 +373,16 @@ service cloud.firestore {
         && isVerified()
         && isValidApplication(incoming())
         && incoming().id == applicationId
-        && (incoming().creatorId == request.auth.uid || incoming().umkmId == request.auth.uid)
-        && incoming().status == 'accepted'
         && exists(/databases/$(database)/documents/campaigns/$(incoming().campaignId))
+        && (
+          // Kreator melamar: menunggu seleksi UMKM
+          (incoming().creatorId == request.auth.uid && incoming().status == 'pending')
+          ||
+          // UMKM pemilik kampanye mengundang kreator: menunggu jawaban kreator
+          (incoming().umkmId == request.auth.uid
+            && incoming().status == 'invited'
+            && get(/databases/$(database)/documents/campaigns/$(incoming().campaignId)).data.umkmId == request.auth.uid)
+        )
         && incoming().createdAt == request.time
         && incoming().updatedAt == request.time;
 
@@ -384,9 +398,22 @@ service cloud.firestore {
         && (
           isAdmin() ||
           (
-            existing().status == 'accepted'
-            && (existing().creatorId == request.auth.uid || existing().umkmId == request.auth.uid)
-            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+            incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+            && (
+              // UMKM menyeleksi pelamar
+              (existing().umkmId == request.auth.uid && existing().status == 'pending' && incoming().status in ['accepted', 'rejected'])
+              ||
+              // Kreator menjawab undangan
+              (existing().creatorId == request.auth.uid && existing().status == 'invited' && incoming().status in ['accepted', 'declined'])
+              ||
+              // UMKM menutup undangan yang tidak dijawab setelah deadline
+              (existing().umkmId == request.auth.uid && existing().status == 'invited' && incoming().status == 'declined')
+              ||
+              // Kreator yang diterima: selesai, batal, atau kedaluwarsa setelah deadline
+              (existing().status == 'accepted'
+                && (existing().creatorId == request.auth.uid || existing().umkmId == request.auth.uid)
+                && incoming().status in ['completed', 'cancelled', 'expired'])
+            )
           )
         );
 
@@ -405,7 +432,9 @@ service cloud.firestore {
         && incoming().status == 'submitted'
         && incoming().listed == false
         && incoming().exclusiveSold == false
-        && exists(/databases/$(database)/documents/applications/$(incoming().applicationId))
+        && (!('revisionCount' in incoming()) || incoming().revisionCount == 0)
+        && get(/databases/$(database)/documents/applications/$(incoming().applicationId)).data.status == 'accepted'
+        && get(/databases/$(database)/documents/applications/$(incoming().applicationId)).data.creatorId == request.auth.uid
         && incoming().createdAt == request.time
         && incoming().updatedAt == request.time;
 
@@ -425,12 +454,23 @@ service cloud.firestore {
             existing().creatorId == request.auth.uid
             && existing().status != 'approved'
             && incoming().status == 'submitted'
-            && incoming().diff(existing()).affectedKeys().hasOnly(['fileUrl', 'note', 'status', 'updatedAt'])
+            && incoming().diff(existing()).affectedKeys().hasOnly(['fileUrl', 'note', 'status', 'submittedAt', 'updatedAt'])
           ) ||
           (
+            // UMKM minta revisi: wajib catatan, hitungan naik satu, maksimal 5
+            existing().umkmId == request.auth.uid
+            && existing().status == 'submitted'
+            && incoming().status == 'revision'
+            && incoming().revisionCount == existing().get('revisionCount', 0) + 1
+            && incoming().revisionCount <= 5
+            && incoming().revisionNote is string && incoming().revisionNote.size() >= 3
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'revisionCount', 'revisionNote', 'updatedAt'])
+          ) ||
+          (
+            // UMKM menyetujui video
             existing().umkmId == request.auth.uid
             && existing().status in ['submitted', 'revision']
-            && incoming().status in ['revision', 'approved']
+            && incoming().status == 'approved'
             && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
           ) ||
           (
@@ -443,6 +483,9 @@ service cloud.firestore {
             && existing().status == 'approved'
             && existing().exclusiveSold == false
             && incoming().diff(existing()).affectedKeys().hasOnly(['listed', 'adsPrice', 'buyoutPrice', 'updatedAt'])
+            // Video dengan hak milik penuh UMKM tidak boleh dijual lagi
+            && (incoming().listed == false
+              || get(/databases/$(database)/documents/campaigns/$(existing().campaignId)).data.get('usageRights', 'organic') != 'buyout')
           ) ||
           (
             existing().status == 'approved'

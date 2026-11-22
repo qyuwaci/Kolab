@@ -52,16 +52,15 @@ export function renderNavbar(activePage: string): void {
   if (!session) {
     navContainer.className = 'navbar';
     navContainer.innerHTML = `
-      <a href="index.html" class="nav-brand">Kolab<span class="dot">.</span></a>
+      <a href="index.html" class="nav-brand" aria-label="Kolab, beranda">Kolab<span class="brand-dot" aria-hidden="true"></span></a>
       <div class="nav-links" id="navLinksDrawer">
-        <a href="content-library.html" class="nav-link ${activePage === 'content-library' ? 'active' : ''}">Pasar Konten</a>
-        <a href="pricing.html" class="nav-link ${activePage === 'pricing' ? 'active' : ''}">Paket Langganan</a>
-        <a href="login.html" class="nav-link">Masuk Google</a>
-        <a href="register.html" class="nav-link">Daftar Gratis</a>
+        <a href="content-library.html" class="nav-link ${activePage === 'content-library' ? 'active' : ''}">Video siap pakai</a>
+        <a href="pricing.html" class="nav-link ${activePage === 'pricing' ? 'active' : ''}">Harga</a>
+        <a href="login.html" class="nav-link">Masuk</a>
       </div>
       <div class="nav-actions">
-        <a href="login.html" class="btn-outline btn-sm nav-btn-secondary-hide-xs">Masuk Google</a>
-        <a href="register.html" class="btn-primary btn-sm">Daftar Gratis</a>
+        <a href="login.html" class="btn-outline btn-sm nav-btn-secondary-hide-xs">Masuk</a>
+        <a href="register.html" class="btn-primary btn-sm">Mulai gratis</a>
         <button type="button" class="nav-toggle-btn" id="navToggleBtn" aria-label="Buka menu navigasi" aria-expanded="false">
           ${hamburgerSvg}
         </button>
@@ -80,31 +79,31 @@ export function renderNavbar(activePage: string): void {
   if (session.role === 'umkm') {
     linksHtml = `
       <a href="dashboard-umkm.html" class="nav-link ${activePage === 'dashboard-umkm' ? 'active' : ''}">Dashboard</a>
-      <a href="campaign-new.html" class="nav-link ${activePage === 'campaign-new' ? 'active' : ''}">+ Buat Kampanye</a>
-      <a href="content-library.html" class="nav-link ${activePage === 'content-library' ? 'active' : ''}">Pasar Konten</a>
-      <a href="pricing.html" class="nav-link ${activePage === 'pricing' ? 'active' : ''}">Paket & Langganan</a>
+      <a href="campaign-new.html" class="nav-link ${activePage === 'campaign-new' ? 'active' : ''}">Buat kampanye</a>
+      <a href="content-library.html" class="nav-link ${activePage === 'content-library' ? 'active' : ''}">Video siap pakai</a>
+      <a href="pricing.html" class="nav-link ${activePage === 'pricing' ? 'active' : ''}">Paket</a>
     `;
   } else if (session.role === 'creator') {
     linksHtml = `
       <a href="dashboard-creator.html" class="nav-link ${activePage === 'dashboard-creator' ? 'active' : ''}">Dashboard</a>
-      <a href="campaign-browse.html" class="nav-link ${activePage === 'campaign-browse' ? 'active' : ''}">Jelajahi Kampanye</a>
-      <a href="creator-analytics.html" class="nav-link ${activePage === 'creator-analytics' ? 'active' : ''}">Sosial & Analitik</a>
-      <a href="creator-library.html" class="nav-link ${activePage === 'creator-library' ? 'active' : ''}">Konten & Lisensi</a>
+      <a href="campaign-browse.html" class="nav-link ${activePage === 'campaign-browse' ? 'active' : ''}">Cari job</a>
+      <a href="creator-analytics.html" class="nav-link ${activePage === 'creator-analytics' ? 'active' : ''}">Akun sosmed</a>
+      <a href="creator-library.html" class="nav-link ${activePage === 'creator-library' ? 'active' : ''}">Video saya</a>
       <a href="wallet-creator.html" class="nav-link ${activePage === 'wallet-creator' ? 'active' : ''}">Wallet</a>
     `;
   } else if (session.role === 'admin') {
     linksHtml = `
       <a href="dashboard-admin.html" class="nav-link ${activePage === 'dashboard-admin' ? 'active' : ''}">Ringkasan</a>
       <a href="admin-users.html" class="nav-link ${activePage === 'admin-users' ? 'active' : ''}">Pengguna</a>
-      <a href="admin-transactions.html" class="nav-link ${activePage === 'admin-transactions' ? 'active' : ''}">Transaksi & MRR</a>
-      <a href="content-library.html" class="nav-link ${activePage === 'content-library' ? 'active' : ''}">Pasar Konten</a>
+      <a href="admin-transactions.html" class="nav-link ${activePage === 'admin-transactions' ? 'active' : ''}">Transaksi</a>
+      <a href="content-library.html" class="nav-link ${activePage === 'content-library' ? 'active' : ''}">Video siap pakai</a>
     `;
   }
 
   const user = KolabDB.getUserById(session.id);
   const avatarUrl = user?.avatarUrl || session.avatarUrl || '';
   const initials = getInitials(session.name);
-  const roleLabel = session.role ? session.role.toUpperCase() : 'USER';
+  const roleLabel = session.role === 'umkm' ? 'Pemilik usaha' : session.role === 'creator' ? 'Kreator' : session.role === 'admin' ? 'Admin' : 'Pengguna';
 
   let planBadgeHtml = '';
   let planNameText = 'Paket';
@@ -127,9 +126,7 @@ export function renderNavbar(activePage: string): void {
 
   navContainer.className = 'navbar';
   navContainer.innerHTML = `
-    <a href="${dashboardUrl}" class="nav-brand">
-      Kolab<span class="dot">.</span>
-    </a>
+    <a href="${dashboardUrl}" class="nav-brand" aria-label="Kolab, dashboard">Kolab<span class="brand-dot" aria-hidden="true"></span></a>
     <div class="nav-links" id="navLinksDrawer">
       ${linksHtml}
     </div>
@@ -137,7 +134,6 @@ export function renderNavbar(activePage: string): void {
       ${
         session.role !== 'admin'
           ? `<a href="pricing.html" class="btn-outline btn-sm nav-plan-pill" style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 6px 12px; border-radius: 999px;">
-              <span>⭐</span>
               <span id="navPlanName">${planNameText}</span>
             </a>`
           : ''
@@ -157,7 +153,7 @@ export function renderNavbar(activePage: string): void {
         </div>
         ${session.role === 'umkm' ? `<a href="umkm-profile.html?id=${encodeURIComponent(session.id)}" class="dropdown-item">Profil Usaha</a>` : ''}
         ${session.role === 'creator' ? `<a href="creator-profile.html?id=${encodeURIComponent(session.id)}" class="dropdown-item">Profil Kreator</a>` : ''}
-        ${session.role === 'creator' ? `<a href="creator-analytics.html" class="dropdown-item">Sosial Media & Analitik</a>` : ''}
+        ${session.role === 'creator' ? `<a href="creator-analytics.html" class="dropdown-item">Akun sosmed</a>` : ''}
         ${session.role !== 'admin' ? `<a href="pricing.html" class="dropdown-item">Kelola Langganan</a>` : ''}
         <button type="button" class="dropdown-item danger" id="btnLogout">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -198,7 +194,8 @@ export function renderNavbar(activePage: string): void {
 export function showToast(message: string, duration = 2800): void {
   const toast = document.createElement('div');
   toast.className = 'toast-notice';
-  toast.innerHTML = `<span>✓</span><span>${message}</span>`;
+  toast.setAttribute('role', 'status');
+  toast.innerHTML = `<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFC24B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg><span>${message}</span>`;
   document.body.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = '0';

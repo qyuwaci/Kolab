@@ -4,6 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import QRCode from 'qrcode';
+import { GoogleGenAI } from '@google/genai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -274,6 +275,55 @@ async function fetchYouTubeChannelAndVideos(params: { accessToken?: string; hand
 async function startServer() {
   const app = express();
   app.use(express.json({ limit: '1mb' }));
+
+  // =========================================================
+  // AI BRIEF BUILDER: menyusun arahan video dari jawaban singkat UMKM.
+  // Memakai GEMINI_API_KEY (disediakan AI Studio). Tanpa kunci, endpoint
+  // menjawab 503 dan halaman memakai template bawaan.
+  // =========================================================
+  app.post('/api/brief', async (req: Request, res: Response) => {
+    const clip = (v: unknown, n: number) => String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, n);
+    const product = clip(req.body?.product, 200);
+    const strength = clip(req.body?.strength, 300);
+    const audience = clip(req.body?.audience, 200);
+    const promo = clip(req.body?.promo, 200);
+    const contentType = clip(req.body?.contentType, 60);
+    const platforms = clip(req.body?.platforms, 80);
+    if (!product) {
+      res.status(400).json({ ok: false, message: 'Ceritakan dulu apa yang mau dipromosikan.' });
+      return;
+    }
+    const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+    if (!apiKey) {
+      res.status(503).json({ ok: false, message: 'AI belum aktif.' });
+      return;
+    }
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = [
+        'Kamu membantu pemilik UMKM Indonesia menulis arahan video untuk kreator TikTok/Instagram/YouTube.',
+        'Tulis dalam Bahasa Indonesia yang santai dan jelas, sapaan "kamu" untuk kreator, tanpa emoji, tanpa markdown.',
+        'Format: 4 sampai 6 baris pendek, masing-masing diawali tanda "- ". Isi: pembuka 3 detik pertama, hal yang wajib disebut,',
+        'suasana atau gaya video, ajakan di akhir, dan satu larangan bila perlu. Jangan mengarang harga atau klaim yang tidak disebut.',
+        `Produk/usaha: ${product}`,
+        strength ? `Keunggulan: ${strength}` : '',
+        audience ? `Target pembeli: ${audience}` : '',
+        promo ? `Promo yang wajib disebut: ${promo}` : '',
+        contentType ? `Jenis video: ${contentType}` : '',
+        platforms ? `Platform: ${platforms}` : '',
+      ].filter(Boolean).join('\n');
+      const response = await ai.models.generateContent({
+        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        contents: prompt,
+      });
+      const brief = String(response.text || '').trim().slice(0, 1800);
+      if (!brief) throw new Error('empty');
+      res.json({ ok: true, brief });
+    } catch (err) {
+      console.error('brief generation failed', err);
+      res.status(502).json({ ok: false, message: 'AI sedang tidak bisa dipakai.' });
+    }
+  });
 
   app.get('/api/health', (_req: Request, res: Response) => {
     res.json({ ok: true, appUrl: APP_URL, paymentProvider: getActiveGatewayProvider() });

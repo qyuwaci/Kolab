@@ -90,9 +90,9 @@
       </a>
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
-          <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Koneksi Sosial Media &amp; Analitik</h1>
+          <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Akun sosmed kamu</h1>
           <p style="margin: 0; color: var(--copy); font-size: 14px;">
-            Kaitkan akun YouTube, Instagram, atau TikTok via OAuth untuk verifikasi jumlah pengikut, engagement rate, dan performa konten nyata.
+            Sambungkan akun YouTube, Instagram, atau TikTok supaya jumlah pengikut dan tingkat interaksimu terverifikasi. UMKM lebih mudah memilih kreator yang terverifikasi.
           </p>
         </div>
         <div style="display: flex; align-items: center; gap: 12px;" id="headerTierSummary"></div>
@@ -166,7 +166,7 @@
           <div class="card">
             <div class="stat-label">Platform Terhubung</div>
             <div class="stat-value tabular-nums">${social.connectedCount} / 3</div>
-            <div class="stat-sub">Terverifikasi via OAuth resmi</div>
+            <div class="stat-sub">Tersambung langsung ke platform</div>
           </div>
           <div class="card">
             <div class="stat-label">Total Pengikut / Subscriber</div>
@@ -181,9 +181,9 @@
         `;
 
         const platforms = [
-          { id: 'youtube', name: 'YouTube', icon: '▶️', desc: 'Kaitkan Channel YouTube Anda langsung via otorisasi Google untuk menarik subscriber, total views, dan performa video terbaru.' },
-          { id: 'instagram', name: 'Instagram', icon: '📸', desc: 'Hubungkan akun Instagram Creator/Business untuk verifikasi followers, likes, komentar, dan engagement rate.' },
-          { id: 'tiktok', name: 'TikTok', icon: '🎵', desc: 'Hubungkan akun TikTok via TikTok Login Kit untuk memverifikasi followers, views video, dan rasio keterlibatan.' }
+          { id: 'youtube', name: 'YouTube', icon: 'YT', desc: 'Kaitkan Channel YouTube Anda langsung via otorisasi Google untuk menarik subscriber, total views, dan performa video terbaru.' },
+          { id: 'instagram', name: 'Instagram', icon: 'IG', desc: 'Hubungkan akun Instagram Creator/Business untuk verifikasi followers, likes, komentar, dan engagement rate.' },
+          { id: 'tiktok', name: 'TikTok', icon: 'TT', desc: 'Hubungkan akun TikTok via TikTok Login Kit untuk memverifikasi followers, views video, dan rasio keterlibatan.' }
         ];
 
         const container = document.getElementById('platformCardsContainer');
@@ -222,7 +222,7 @@
 
             return `
               <div class="card" style="border: 2px dashed var(--line); text-align: center; padding: 36px 24px;">
-                <div style="font-size: 34px; margin-bottom: 10px;">${p.icon}</div>
+                <div aria-hidden="true" style="width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 16px; background: var(--accent-soft); color: var(--accent-strong); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 14px;">${p.icon}</div>
                 <h3 style="margin: 0 0 6px; font-size: 18px; font-weight: 600;">${p.name} Belum Terhubung</h3>
                 <p style="margin: 0 auto 20px; font-size: 14px; color: var(--copy); max-width: 480px;">${p.desc}</p>
                 ${actionHtml}
@@ -277,7 +277,7 @@
                       <span style="font-weight: 400; color: var(--copy); font-size: 14px;">(${acc.handle})</span>
                     </h2>
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                      <span class="badge badge-active" style="font-size: 11px;">Terverifikasi OAuth</span>
+                      <span class="badge badge-active" style="font-size: 11px;">Terverifikasi</span>
                       ${acc.profileUrl ? `<a href="${acc.profileUrl}" target="_blank" rel="noopener" style="font-size: 12px; color: var(--accent);">Lihat Profil ↗</a>` : ''}
                     </div>
                   </div>
@@ -380,7 +380,7 @@
           const resp = await fetch(`/api/oauth/${encodeURIComponent(plat)}/url?userId=${encodeURIComponent(session.id)}`);
           const data = await resp.json();
           if (!resp.ok || !data.ok) {
-            KolabUI.showToast(data.message || `OAuth ${plat} belum dikonfigurasi di server.`);
+            KolabUI.showToast(data.message || `Penyambungan ${plat} belum tersedia.`);
             return;
           }
           const popup = window.open(data.url, 'oauth_popup', 'width=600,height=700');
@@ -388,7 +388,7 @@
             KolabUI.showToast('Mohon izinkan popup browser untuk menghubungkan akun sosial media.');
           }
         } catch (err) {
-          KolabUI.showToast(err?.message || 'Gagal memulai OAuth.');
+          KolabUI.showToast(err?.message || 'Gagal menyambungkan akun.');
         }
       };
 

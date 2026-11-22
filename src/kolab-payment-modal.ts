@@ -61,7 +61,7 @@ export function openPaymentGatewayModal(opts: OpenPaymentOptions): void {
         ">
           <div>
             <div style="font-weight: 600; font-size: 13px; color: var(--ink);">
-              ${ch.group === 'qris' ? '📱 ' : '🏦 '}${ch.label}
+              ${ch.label}
             </div>
           </div>
           <span class="badge ${isSelected ? 'badge-active' : 'badge-neutral'}" style="font-size: 10px;">${ch.badge}</span>
@@ -209,7 +209,7 @@ export function openPaymentGatewayModal(opts: OpenPaymentOptions): void {
         ${paymentBody}
 
         <div id="gwStatusLine" style="text-align: center; font-size: 12px; color: var(--copy); margin-bottom: 14px;">
-          ⏳ Memeriksa status pembayaran otomatis...
+          Memeriksa status pembayaran otomatis...
         </div>
 
         <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">

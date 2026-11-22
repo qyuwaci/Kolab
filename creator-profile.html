@@ -104,7 +104,7 @@
         if (social.platforms && social.platforms.length > 0) {
           social.platforms.forEach(function(p) {
             const acc = social.accounts[p];
-            const icon = p === 'instagram' ? '📸 Instagram' : p === 'youtube' ? '▶️ YouTube' : '🎵 TikTok';
+            const icon = p === 'instagram' ? 'Instagram' : p === 'youtube' ? 'YouTube' : 'TikTok';
             platformsBadgeHtml += `
               <div style="background: var(--paper); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
                 <span>${icon}:</span>
