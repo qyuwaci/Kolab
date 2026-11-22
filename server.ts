@@ -16,6 +16,11 @@ const MIDTRANS_SERVER_KEY = (process.env.MIDTRANS_SERVER_KEY || '').trim();
 const MIDTRANS_IS_PRODUCTION = process.env.MIDTRANS_IS_PRODUCTION === 'true';
 const XENDIT_SECRET_KEY = (process.env.XENDIT_SECRET_KEY || '').trim();
 const XENDIT_CALLBACK_TOKEN = (process.env.XENDIT_CALLBACK_TOKEN || '').trim();
+// Mode uji pembayaran (sandbox) hanya boleh aktif di lingkungan pengembangan,
+// atau kalau ALLOW_SANDBOX_PAYMENTS=true diisi dengan sengaja (misalnya untuk staging).
+// Di versi live tanpa kunci Midtrans/Xendit, pembayaran ditolak, bukan disimulasikan.
+const ALLOW_SANDBOX_PAYMENTS =
+  process.env.ALLOW_SANDBOX_PAYMENTS === 'true' || process.env.NODE_ENV !== 'production';
 
 const YOUTUBE_CLIENT_ID = (process.env.YOUTUBE_CLIENT_ID || '').trim();
 const YOUTUBE_CLIENT_SECRET = (process.env.YOUTUBE_CLIENT_SECRET || '').trim();
@@ -281,6 +286,8 @@ async function startServer() {
     const provider = getActiveGatewayProvider();
     res.json({
       provider,
+      sandboxAllowed: ALLOW_SANDBOX_PAYMENTS,
+      paymentsEnabled: provider !== 'sandbox' || ALLOW_SANDBOX_PAYMENTS,
       isProduction: provider === 'midtrans' ? MIDTRANS_IS_PRODUCTION : provider === 'xendit',
       webhookUrl: `${APP_URL}/api/payments/webhook`,
       channels: [
@@ -318,6 +325,13 @@ async function startServer() {
       const orderId = `KLP-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
       const provider = getActiveGatewayProvider();
+      if (provider === 'sandbox' && !ALLOW_SANDBOX_PAYMENTS) {
+        res.status(503).json({
+          ok: false,
+          message: 'Pembayaran sedang disiapkan dan belum bisa dipakai. Coba lagi nanti atau hubungi tim Kolab.'
+        });
+        return;
+      }
 
       let order: PaymentOrderRecord = {
         orderId,
@@ -554,8 +568,8 @@ async function startServer() {
       res.status(404).json({ ok: false, message: 'Order tidak ditemukan.' });
       return;
     }
-    if (order.provider !== 'sandbox') {
-      res.status(403).json({ ok: false, message: 'Simulasi hanya tersedia pada mode Sandbox.' });
+    if (order.provider !== 'sandbox' || !ALLOW_SANDBOX_PAYMENTS) {
+      res.status(403).json({ ok: false, message: 'Simulasi hanya tersedia pada mode uji.' });
       return;
     }
     order.status = 'settled';

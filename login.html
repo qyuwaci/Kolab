@@ -96,7 +96,7 @@
 
       <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--copy);">
         Pengguna baru? <a href="register.html" style="color: var(--accent); font-weight: 600;">Daftar &amp; pilih peran di sini</a>
-        <div style="margin-top: 10px;">
+        <div id="adminLoginWrap" style="margin-top: 10px; display: none;">
           <button type="button" id="btnAdminLogin" style="background: none; border: none; color: var(--copy); font-size: 12px; text-decoration: underline; cursor: pointer; font-family: inherit;">
             Masuk sebagai Administrator
           </button>
@@ -169,6 +169,10 @@
 
     btnGoogleLogin.addEventListener('click', () => handleGoogleSignIn());
     btnAdminLogin.addEventListener('click', () => handleGoogleSignIn('admin'));
+    // Tombol masuk admin tidak ditampilkan ke publik. Admin membuka login.html?admin=1
+    if (new URLSearchParams(window.location.search).has('admin')) {
+      document.getElementById('adminLoginWrap').style.display = 'block';
+    }
   </script>
 </body>
 </html>
