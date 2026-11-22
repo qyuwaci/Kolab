@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pasar Lisensi Konten UGC - Kolab</title>
+  <title>Video siap pakai – Kolab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -78,15 +78,15 @@
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
       <div>
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-          <span class="badge" style="background: var(--bg-success); color: var(--text-success); font-size: 11px;">MARKETPLACE UGC</span>
-          <span style="font-size: 12px; color: var(--copy);">Lisensi Konten Siap Pakai</span>
+          <span class="badge" style="background: var(--bg-success); color: var(--text-success); font-size: 11px;">VIDEO SIAP PAKAI</span>
+          <span style="font-size: 12px; color: var(--copy);">Dari kreator lokal</span>
         </div>
-        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px;">Pasar Lisensi Konten</h1>
-        <p style="margin: 0; color: var(--copy); font-size: 14px;">Beli hak guna iklan (Ads) atau hak milik penuh (Buyout) video UGC berkualitas dari kreator terverifikasi.</p>
+        <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px;">Video siap pakai untuk iklanmu</h1>
+        <p style="margin: 0; color: var(--copy); font-size: 14px;">Beli izin pakai iklan 6 bulan atau hak milik penuh atas video yang sudah jadi.</p>
       </div>
 
       <div style="display: flex; gap: 10px;">
-        <a href="pricing.html" class="btn-outline btn-sm">⭐ Diskon Lisensi via Paket</a>
+        <a href="pricing.html" class="btn-outline btn-sm">Diskon lewat paket</a>
       </div>
     </div>
 
@@ -127,7 +127,7 @@
   <div class="modal-overlay" id="licenseModal" style="display: none;">
     <div class="modal-content" style="max-width: 500px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Beli Lisensi Konten</h3>
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Beli hak pakai video</h3>
         <button type="button" class="btn-outline btn-sm" onclick="closeLicenseModal()">✕</button>
       </div>
 
@@ -156,10 +156,10 @@
       if (!session) {
         container.innerHTML = `
           <div class="card empty-state" style="grid-column: 1 / -1; padding: 48px 24px; text-align: center;">
-            <div style="font-size: 32px; margin-bottom: 10px;">🎬</div>
-            <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 700;">Masuk dengan Google untuk Melihat Pasar Konten</h3>
+            
+            <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 700;">Masuk untuk melihat video siap pakai</h3>
             <p style="margin: 0 auto 20px; max-width: 460px; color: var(--copy); font-size: 14px;">
-              Telusuri video UGC terverifikasi dari kreator dan beli lisensi iklan (6 bulan) atau hak milik penuh langsung melalui QRIS &amp; Virtual Account.
+              Lihat video yang sudah jadi dari kreator lokal, lalu beli izin iklan 6 bulan atau hak milik penuh lewat QRIS atau transfer bank.
             </p>
             <a href="login.html" class="btn-primary">Masuk dengan Google</a>
           </div>
@@ -219,7 +219,7 @@
         const adsDiscounted = buyerDiscount > 0 ? Math.round(pricing.ads * (1 - buyerDiscount)) : pricing.ads;
         const buyoutDiscounted = buyerDiscount > 0 ? Math.round(pricing.buyout * (1 - buyerDiscount)) : pricing.buyout;
 
-        const ratingVal = item.rating ? `⭐ ${item.rating}` : '⭐ Baru';
+        const ratingVal = item.rating ? `Rating ${item.rating}` : 'Kreator baru';
         const tierBadge = `<span class="badge badge-neutral" style="font-size: 11px;">Tier ${item.tier || 'Mikro'}</span>`;
 
         html += `
@@ -267,7 +267,7 @@
 
               <div style="margin-top: auto;">
                 <button type="button" class="btn-primary" style="width: 100%; justify-content: center;" onclick="openPurchaseModal('${sub.id}')">
-                  Beli Lisensi Konten
+                  Beli hak pakai video
                 </button>
               </div>
             </div>

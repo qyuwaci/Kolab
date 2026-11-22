@@ -3,71 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detail Kampanye - Kolab</title>
+  <title>Kelola kampanye – Kolab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
   <style>
-    .list-item-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      margin-bottom: 12px;
-      background: #fff;
-    }
-    .star-rating-select {
-      display: flex;
-      gap: 6px;
-      font-size: 24px;
-      cursor: pointer;
-    }
-    .star-rating-select span {
-      color: #d1d5db;
-      transition: color 0.15s ease;
-    }
-    .star-rating-select span.selected, .star-rating-select span:hover {
-      color: #f59e0b;
-    }
+    .person { display: flex; gap: 12px; align-items: center; min-width: 0; }
+    .person .av { flex: none; width: 48px; height: 48px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; overflow: hidden; }
+    .person .av img { width: 100%; height: 100%; object-fit: cover; }
+    .person .name { font-weight: 600; font-size: 16px; }
+    .person .meta { font-size: 13px; color: var(--meta); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+    .item { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 16px; background: var(--surface); }
+    .item + .item { margin-top: 14px; }
+    .item-top { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .video-frame { width: 100%; max-width: 340px; aspect-ratio: 9 / 16; border: 0; border-radius: var(--radius-sm); background: var(--night); }
+    .video-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+    .video-wrap > .side { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+    .stars { display: flex; gap: 4px; }
+    .stars button { background: none; border: none; cursor: pointer; padding: 4px; font-size: 26px; line-height: 1; color: var(--line-strong); min-width: 36px; min-height: 36px; }
+    .stars button.on { color: var(--accent); }
   </style>
 </head>
 <body>
   <div id="navbar"></div>
+  <main class="container" id="main" aria-live="polite"></main>
 
-  <main class="container" id="mainContent">
-    <!-- Diisi lewat JavaScript -->
-  </main>
-
-  <!-- Modal Beli Lisensi Tambahan -->
-  <div class="modal-overlay" id="licModal" style="display: none;">
-    <div class="modal-content" style="max-width: 480px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Lisensi Tambahan Konten</h3>
-        <button type="button" class="btn-outline btn-sm" onclick="closeLicModal()">✕</button>
+  <div class="modal-overlay" id="confirmModal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-content">
+      <h2 class="card-title" id="confirmTitle" style="margin: 0 0 10px;"></h2>
+      <p id="confirmBody" style="margin: 0 0 20px; color: var(--copy); font-size: 15px;"></p>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="btn-outline btn-sm" id="confirmCancel">Batal</button>
+        <button type="button" class="btn-primary btn-sm" id="confirmOk"></button>
       </div>
-      <div id="licModalBody"></div>
     </div>
   </div>
 
-  <!-- Modal Konfirmasi Approval -->
-  <div class="modal-overlay" id="approveConfirmModal" style="display: none;">
-    <div class="modal-content" style="max-width: 420px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Setujui Konten Kreator?</h3>
-        <button type="button" class="btn-outline btn-sm" onclick="closeApproveModal()">✕</button>
+  <div class="modal-overlay" id="licModal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="licTitle">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px;">
+        <h2 class="card-title" id="licTitle" style="margin: 0;">Tambah hak pakai</h2>
+        <button type="button" class="btn-outline btn-sm" id="licClose" aria-label="Tutup">Tutup</button>
       </div>
-      <p style="font-size: 14px; color: var(--copy); line-height: 1.5; margin: 0 0 20px;">
-        Dana escrow untuk slot ini akan otomatis dicairkan ke saldo wallet kreator. Tindakan ini tidak dapat dibatalkan.
-      </p>
-      <div style="display: flex; justify-content: flex-end; gap: 10px;">
-        <button type="button" class="btn-outline btn-sm" onclick="closeApproveModal()">Batal</button>
-        <button type="button" class="btn-primary btn-sm" id="btnConfirmApprove">Ya, Setujui &amp; Cairkan</button>
-      </div>
+      <div id="licBody"></div>
     </div>
   </div>
 
@@ -77,799 +56,386 @@
     const KolabDB = window.KolabDB;
     const KolabUI = window.KolabUI;
     await KolabDB.ready();
-
     const session = KolabDB.requireRole(['umkm']);
+
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const rp = (n) => KolabDB.formatRupiah(n || 0);
+    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
+    const initials = (n) => String(n || '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+    const main = document.getElementById('main');
+
+    // Ubah tautan TikTok, Instagram, atau YouTube menjadi pemutar di dalam halaman
+    function embedUrl(url) {
+      try {
+        const u = new URL(url);
+        const host = u.hostname.replace(/^www\./, '');
+        if (host.includes('youtube.com') || host === 'youtu.be') {
+          const id = host === 'youtu.be' ? u.pathname.slice(1) : (u.searchParams.get('v') || (u.pathname.match(/\/shorts\/([\w-]+)/) || [])[1]);
+          return id ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}` : null;
+        }
+        if (host.includes('tiktok.com')) {
+          const id = (u.pathname.match(/\/video\/(\d+)/) || [])[1];
+          return id ? `https://www.tiktok.com/embed/v2/${id}` : null;
+        }
+        if (host.includes('instagram.com')) {
+          const m = u.pathname.match(/\/(p|reel|reels)\/([\w-]+)/);
+          return m ? `https://www.instagram.com/${m[1] === 'reels' ? 'reel' : m[1]}/${m[2]}/embed` : null;
+        }
+      } catch { /* bukan URL */ }
+      return null;
+    }
+
+    function confirmDialog({ title, body, ok }) {
+      return new Promise((resolve) => {
+        const m = document.getElementById('confirmModal');
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmBody').textContent = body;
+        const okBtn = document.getElementById('confirmOk'); okBtn.textContent = ok;
+        const close = (v) => { m.style.display = 'none'; okBtn.onclick = null; document.getElementById('confirmCancel').onclick = null; resolve(v); };
+        okBtn.onclick = () => close(true);
+        document.getElementById('confirmCancel').onclick = () => close(false);
+        m.style.display = 'flex';
+        okBtn.focus();
+      });
+    }
+
+    function personHtml(cr) {
+      const soc = KolabDB.getSocialSummary(cr.id) || {};
+      const rev = KolabDB.getReviewsForUser(cr.id) || {};
+      const followers = Number(soc.totalFollowers || 0);
+      return `
+        <div class="person">
+          <span class="av">${cr.avatarUrl ? `<img src="${esc(cr.avatarUrl)}" alt="" referrerpolicy="no-referrer">` : esc(initials(cr.name))}</span>
+          <div style="min-width: 0;">
+            <a class="name" href="creator-profile.html?id=${encodeURIComponent(cr.id)}" style="text-decoration: underline; text-underline-offset: 3px;">${esc(cr.name)}</a>
+            <div class="meta">
+              <span>${esc(cr.niche ? cr.niche.charAt(0).toUpperCase() + cr.niche.slice(1) : 'Umum')}</span>
+              <span>${followers ? followers.toLocaleString('id-ID') + ' pengikut' : 'Belum menyambungkan akun'}</span>
+              <span>${rev.average != null ? 'Rating ' + rev.average + ' (' + rev.count + ')' : 'Kreator baru'}</span>
+            </div>
+          </div>
+        </div>`;
+    }
 
     if (session) {
       KolabUI.renderNavbar('dashboard-umkm');
+      const campaignId = new URLSearchParams(window.location.search).get('id');
+      let tab = 'pelamar';
+      let revisionOpen = null;
 
-      const mainContent = document.getElementById('mainContent');
-      const urlParams = new URLSearchParams(window.location.search);
-      const campaignId = urlParams.get('id');
+      await KolabDB.runAutoActions(session.id);
 
-      if (!campaignId) {
-        renderNotFound('Parameter ID kampanye tidak ada.');
-      } else {
-        const campaign = KolabDB.getCampaignById(campaignId);
-
-        if (!campaign) {
-          renderNotFound('Data kampanye tidak ditemukan.');
-        } else if (campaign.umkmId !== session.id) {
-          renderUnauthorized();
-        } else {
-          renderCampaignDetail(campaign.id);
-        }
+      function notFound(msg) {
+        main.innerHTML = `<div class="empty-state" style="max-width: 520px; margin: 60px auto;"><strong>${esc(msg)}</strong><div style="margin-top: 16px;"><a href="dashboard-umkm.html" class="btn-primary btn-sm">Kembali ke dashboard</a></div></div>`;
       }
 
-      function renderNotFound(message) {
-        mainContent.innerHTML = `
-          <div class="card" style="max-width: 500px; margin: 60px auto; text-align: center; padding: 40px 24px;">
-            <div style="font-size: 40px; margin-bottom: 12px;">🔍</div>
-            <h2 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Kampanye Tidak Ditemukan</h2>
-            <p style="color: var(--copy); font-size: 14px; margin: 0 0 24px;">${message || 'Data kampanye tidak ada atau telah dihapus.'}</p>
-            <a href="dashboard-umkm.html" class="btn-primary" style="display: inline-flex;">Kembali ke Dashboard</a>
-          </div>
-        `;
-      }
+      function render() {
+        const c = campaignId ? KolabDB.getCampaignById(campaignId) : null;
+        if (!c) return notFound('Kampanye tidak ditemukan');
+        if (c.umkmId !== session.id) return notFound('Kamu tidak punya akses ke kampanye ini');
 
-      function renderUnauthorized() {
-        mainContent.innerHTML = `
-          <div class="card" style="max-width: 500px; margin: 60px auto; text-align: center; padding: 40px 24px;">
-            <div style="font-size: 40px; margin-bottom: 12px;">🚫</div>
-            <h2 style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Akses Dibatasi</h2>
-            <p style="color: var(--copy); font-size: 14px; margin: 0 0 24px;">Kamu tidak punya akses ke kampanye ini.</p>
-            <a href="dashboard-umkm.html" class="btn-primary" style="display: inline-flex;">Kembali ke Dashboard</a>
-          </div>
-        `;
-      }
+        const apps = KolabDB.getApplicationsByCampaign(c.id);
+        const pending = apps.filter((a) => a.status === 'pending');
+        const invited = apps.filter((a) => a.status === 'invited');
+        const accepted = apps.filter((a) => a.status === 'accepted' || a.status === 'completed');
+        const subs = accepted.map((a) => KolabDB.getSubmissionByApplication(a.id)).filter(Boolean);
+        const waiting = subs.filter((s) => s.status === 'submitted').length;
+        const approved = subs.filter((s) => s.status === 'approved').length;
+        const rights = KolabDB.usageRightsOf(c);
+        const isOpen = c.status === 'open';
+        const statusLabel = c.status === 'completed' ? 'Selesai' : c.status === 'cancelled' ? 'Dibatalkan' : (c.slotsLeft === 0 ? 'Penuh' : 'Terbuka');
+        const platforms = Array.isArray(c.platform) ? c.platform.join(', ') : c.platform;
 
-      let activeTab = 'tab-applications';
-      let editPerformanceSubId = null;
-
-      function renderCampaignDetail(cId) {
-        const c = KolabDB.getCampaignById(cId);
-        if (!c) {
-          renderNotFound('Kampanye sudah tidak tersedia.');
-          return;
-        }
-
-        const platforms = Array.isArray(c.platform) ? c.platform.join(', ') : (c.platform || '-');
-        let statusBadge = '<span class="badge badge-open">Terbuka</span>';
-        if (c.status === 'completed') statusBadge = '<span class="badge badge-completed">Selesai</span>';
-        else if (c.status === 'in_progress') statusBadge = '<span class="badge badge-neutral">Berjalan</span>';
-
-        const roi = KolabDB.getCampaignROI(c.id) || {
-          totalSpent: 0, totalViews: 0, totalEngagement: 0, totalClicks: 0, costPerEngagement: null
-        };
-        const cpeText = roi.costPerEngagement !== null ? KolabDB.formatRupiah(roi.costPerEngagement) : '-';
-
-        mainContent.innerHTML = `
-          <div style="margin-bottom: 20px;">
-            <a href="dashboard-umkm.html" style="font-size: 13px; color: var(--copy); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
-              ← Kembali ke Dashboard
-            </a>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-              <div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                  <h1 style="font-size: 26px; font-weight: 700; margin: 0;">${c.title || '(Tanpa judul)'}</h1>
-                  ${statusBadge}
-                  ${c.featured ? '<span class="badge" style="background: #fef8e7; color: #946800; font-size: 11px;">⭐ UNGGULAN</span>' : ''}
-                </div>
-                <div style="font-size: 14px; color: var(--copy); display: flex; gap: 16px; flex-wrap: wrap;">
-                  <span>Platform: <strong>${platforms}</strong></span>
-                  <span>·</span>
-                  <span>Jenis: <strong>${c.contentType || 'UGC Review'}</strong></span>
-                  <span>·</span>
-                  <span class="tabular-nums">Slot: <strong>${c.slotsFilled || 0}/${c.slots} terisi</strong></span>
-                  <span>·</span>
-                  <span class="tabular-nums">Budget: <strong>${KolabDB.formatRupiah(c.budgetPerSlot)} / slot</strong></span>
-                  ${c.targetNiche ? `<span>·</span><span>Target Niche: <strong>${c.targetNiche.toUpperCase()}</strong></span>` : ''}
-                </div>
-              </div>
+        main.innerHTML = `
+          <a href="dashboard-umkm.html" style="font-size: 14px; color: var(--meta); display: inline-flex; gap: 6px; margin-bottom: 14px;">← Kembali ke dashboard</a>
+          <div class="page-head">
+            <div style="min-width: 0;">
+              <span class="eyebrow">Kampanye · ${statusLabel}</span>
+              <h1 style="margin: 8px 0 0;">${esc(c.title)}</h1>
+              <p>${esc(platforms)} · ${esc(c.contentType || 'Video review')} · Batas kirim ${fmtDate(c.deadline)}</p>
             </div>
+            ${isOpen ? `<button type="button" class="btn-outline btn-sm" id="btnCancelCamp">Batalkan kampanye</button>` : ''}
           </div>
 
-          <!-- Ringkasan Brief -->
-          <div class="card" style="margin-bottom: 24px; padding: 20px;">
-            <h3 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Brief Kreator:</h3>
-            <p style="margin: 0; font-size: 14px; color: var(--copy); line-height: 1.6; white-space: pre-line;">${c.brief || '(Tidak ada petunjuk khusus)'}</p>
+          <div class="grid-4" style="margin-bottom: 24px;">
+            <div class="stat-card"><div class="stat-label">Kreator diterima</div><div class="stat-value tabular-nums">${accepted.length}<span style="font-size: 20px; color: var(--meta);"> / ${c.slots}</span></div></div>
+            <div class="stat-card"><div class="stat-label">Pelamar menunggu</div><div class="stat-value tabular-nums">${pending.length}</div></div>
+            <div class="stat-card"><div class="stat-label">Video menunggu review</div><div class="stat-value tabular-nums">${waiting}</div></div>
+            <div class="stat-card"><div class="stat-label">Honor per kreator</div><div class="stat-value tabular-nums" style="font-size: 28px;">${rp(c.budgetPerSlot)}</div></div>
           </div>
 
-          <!-- Section Ulasan Kampanye jika Selesai -->
-          <div id="reviewSectionContainer"></div>
-
-          <!-- ROI Kampanye Card -->
-          <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header">
-              <div>
-                <h3 class="card-title">Performa & ROI Kampanye</h3>
-                <div style="font-size: 12px; color: var(--copy); margin-top: 2px;">Akumulasi hasil penayangan dari seluruh konten kreator yang telah disetujui</div>
-              </div>
-              <span class="badge badge-neutral" style="font-size: 11px;">Data Live</span>
-            </div>
-
-            <div class="grid-4" style="gap: 14px;">
-              <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-                <div class="stat-label">Total Biaya</div>
-                <div class="stat-value tabular-nums" style="font-size: 20px; color: var(--accent);">${KolabDB.formatRupiah(roi.totalSpent)}</div>
-                <div class="stat-sub">Slot terbayar</div>
-              </div>
-              <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-                <div class="stat-label">Total Views</div>
-                <div class="stat-value tabular-nums" style="font-size: 20px;">${roi.totalViews.toLocaleString('id-ID')}</div>
-                <div class="stat-sub">Tayangan video</div>
-              </div>
-              <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-                <div class="stat-label">Total Engagement</div>
-                <div class="stat-value tabular-nums" style="font-size: 20px;">${roi.totalEngagement.toLocaleString('id-ID')}</div>
-                <div class="stat-sub">Likes & komentar</div>
-              </div>
-              <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-                <div class="stat-label">Biaya / Engagement</div>
-                <div class="stat-value tabular-nums" style="font-size: 20px; color: var(--text-success);">${cpeText}</div>
-                <div class="stat-sub">Efisiensi biaya</div>
-              </div>
-            </div>
+          <div class="tabs-nav" role="tablist" aria-label="Bagian kampanye">
+            ${[['pelamar', `Pelamar (${pending.length})`], ['video', `Video (${subs.length})`], ['rekomendasi', 'Undang kreator'], ['arahan', 'Arahan & hak pakai']]
+              .map(([k, l]) => `<button type="button" role="tab" class="tab-btn ${tab === k ? 'active' : ''}" aria-selected="${tab === k}" data-tab="${k}">${l}</button>`).join('')}
           </div>
-
-          <!-- Tabs Navigasi -->
-          <div class="tabs-nav">
-            <button type="button" class="tab-btn ${activeTab === 'tab-applications' ? 'active' : ''}" onclick="switchTab('tab-applications', '${c.id}')">
-              Kreator Bergabung (${KolabDB.getAcceptedCount(c.id)} / ${c.slots})
-            </button>
-            <button type="button" class="tab-btn ${activeTab === 'tab-submissions' ? 'active' : ''}" onclick="switchTab('tab-submissions', '${c.id}')">
-              Konten Masuk & Lisensi
-            </button>
-            <button type="button" class="tab-btn ${activeTab === 'tab-recommendations' ? 'active' : ''}" onclick="switchTab('tab-recommendations', '${c.id}')">
-              Rekomendasi Kreator Cocok
-            </button>
-          </div>
-
-          <!-- Tab Content Container -->
-          <div id="tabContentContainer">
-            <!-- Diisi lewat JS -->
-          </div>
+          <div id="tabBody" role="tabpanel"></div>
+          <div id="reviewBox" style="margin-top: 28px;"></div>
         `;
 
-        renderTabContent(c.id);
-        renderReviewSection(c);
-      }
-
-      window.switchTab = function(tabName, cId) {
-        activeTab = tabName;
-        renderCampaignDetail(cId);
-      };
-
-      function renderTabContent(cId) {
-        const container = document.getElementById('tabContentContainer');
-        if (!container) return;
-
-        if (activeTab === 'tab-applications') {
-          renderApplicationsTab(cId, container);
-        } else if (activeTab === 'tab-submissions') {
-          renderSubmissionsTab(cId, container);
-        } else if (activeTab === 'tab-recommendations') {
-          renderRecommendationsTab(cId, container);
-        }
-      }
-
-      /* ==============================================================
-         TAB 1: Kreator Bergabung (Auto-accepted di Kolab v2)
-         ============================================================== */
-      function renderApplicationsTab(cId, container) {
-        const apps = KolabDB.getApplicationsByCampaign(cId);
-
-        if (!apps || apps.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              Belum ada kreator yang bergabung di kampanye ini. Undang kreator lewat tab Rekomendasi atau tunggu kreator mendaftar!
-            </div>
-          `;
-          return;
-        }
-
-        let html = '';
-        apps.forEach(function(app) {
-          const creator = KolabDB.getUserById(app.creatorId) || {
-            id: app.creatorId,
-            name: 'Kreator #' + app.creatorId,
-            niche: 'kreator'
-          };
-
-          const social = KolabDB.getSocialSummary(creator.id);
-          const rev = KolabDB.getReviewsForUser(creator.id);
-          const ratingText = rev.average !== null ? `⭐ ${rev.average} (${rev.count} ulasan)` : '⭐ Baru';
-          const sub = KolabDB.getSubmissionByApplication(app.id);
-
-          let subStatusLabel = '<span class="badge badge-neutral">Menunggu Unggahan Konten</span>';
-          if (sub) {
-            if (sub.status === 'submitted') subStatusLabel = '<span class="badge badge-submitted">Konten Diunggah (Perlu Review)</span>';
-            else if (sub.status === 'revision' || sub.status === 'revision_requested') subStatusLabel = '<span class="badge badge-revision">Dalam Revisi</span>';
-            else if (sub.status === 'approved') subStatusLabel = '<span class="badge badge-approved">Konten Disetujui ✓</span>';
-          }
-
-          html += `
-            <div class="list-item-row">
-              <div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                  <a href="creator-profile.html?id=${encodeURIComponent(creator.id)}" style="font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: underline;" title="Lihat profil publik">
-                    ${creator.name} ↗
-                  </a>
-                  <span class="badge badge-neutral" style="font-size: 11px;">Tier: ${social.tier}</span>
-                  <span class="badge badge-completed">Telah Bergabung (Diterima)</span>
-                </div>
-                <div style="font-size: 13px; color: var(--copy); display: flex; gap: 12px; flex-wrap: wrap;">
-                  <span>Niche: <strong>${creator.niche ? creator.niche.toUpperCase() : 'UMUM'}</strong></span>
-                  <span>·</span>
-                  <span class="tabular-nums">Followers: ${(social.totalFollowers || 0).toLocaleString('id-ID')}</span>
-                  <span>·</span>
-                  <span>${ratingText}</span>
-                </div>
-              </div>
-              <div>
-                ${subStatusLabel}
-              </div>
-            </div>
-          `;
+        main.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; render(); }));
+        document.getElementById('btnCancelCamp')?.addEventListener('click', async () => {
+          const ok = await confirmDialog({ title: 'Batalkan kampanye?', body: 'Pelamar tidak bisa bergabung lagi. Dana untuk slot yang belum disetujui kembali ke saldomu. Video yang sudah disetujui tetap dibayar.', ok: 'Ya, batalkan' });
+          if (!ok) return;
+          const r = KolabDB.cancelCampaign(c.id, session.id);
+          await KolabDB.flush();
+          KolabUI.showToast(r.ok ? 'Kampanye dibatalkan. Dana dikembalikan ke saldo.' : (r.message || 'Gagal membatalkan.'));
+          render();
         });
 
-        container.innerHTML = html;
-      }
+        const body = document.getElementById('tabBody');
 
-      /* ==============================================================
-         TAB 2: Konten Masuk & Lisensi Tambahan
-         ============================================================== */
-      function renderSubmissionsTab(cId, container) {
-        const apps = KolabDB.getApplicationsByCampaign(cId);
-        const acceptedApps = apps.filter(function(a) { return a.status === 'accepted'; });
-
-        if (!acceptedApps || acceptedApps.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              Belum ada kreator yang bergabung untuk kampanye ini.
-            </div>
+        // ---------- PELAMAR ----------
+        if (tab === 'pelamar') {
+          const pendingHtml = pending.map((a) => {
+            const cr = KolabDB.getUserById(a.creatorId) || { id: a.creatorId, name: 'Kreator' };
+            return `
+              <div class="item">
+                <div class="item-top">
+                  ${personHtml(cr)}
+                  <div class="actions">
+                    <button type="button" class="btn-outline btn-sm" data-reject="${a.id}">Tolak</button>
+                    <button type="button" class="btn-primary btn-sm" data-accept="${a.id}" ${c.slotsLeft === 0 ? 'disabled' : ''}>Terima</button>
+                  </div>
+                </div>
+              </div>`;
+          }).join('');
+          const listOf = (arr, label, cls) => arr.map((a) => {
+            const cr = KolabDB.getUserById(a.creatorId) || { id: a.creatorId, name: 'Kreator' };
+            return `<div class="item"><div class="item-top">${personHtml(cr)}<span class="badge ${cls}">${label}</span></div></div>`;
+          }).join('');
+          body.innerHTML = `
+            ${c.slotsLeft === 0 && pending.length ? `<div class="notice-bar" style="margin-bottom: 14px;">Semua slot sudah terisi. Tolak pelamar lain, atau buat kampanye baru untuk kreator tambahan.</div>` : ''}
+            ${pending.length ? pendingHtml : `<div class="empty-state"><strong>Belum ada pelamar baru</strong>${isOpen ? 'Kreator yang melamar akan muncul di sini. Kamu juga bisa mengundang kreator lewat tab Undang kreator.' : 'Kampanye ini sudah tidak menerima pelamar.'}</div>`}
+            ${accepted.length ? `<h3 class="serif" style="font-size: 24px; margin: 28px 0 12px;">Sudah diterima</h3>${listOf(accepted, 'Diterima', 'badge-open')}` : ''}
+            ${invited.length ? `<h3 class="serif" style="font-size: 24px; margin: 28px 0 12px;">Menunggu jawaban undangan</h3>${listOf(invited, 'Diundang', 'badge-notice')}` : ''}
           `;
-          return;
+          body.querySelectorAll('[data-accept]').forEach((b) => b.addEventListener('click', async () => {
+            const r = KolabDB.decideApplication(b.dataset.accept, true);
+            await KolabDB.flush();
+            KolabUI.showToast(r.ok ? 'Kreator diterima. Mereka bisa mulai membuat video.' : r.message);
+            render();
+          }));
+          body.querySelectorAll('[data-reject]').forEach((b) => b.addEventListener('click', async () => {
+            const ok = await confirmDialog({ title: 'Tolak pelamar ini?', body: 'Kreator akan melihat lamarannya tidak diterima.', ok: 'Tolak' });
+            if (!ok) return;
+            const r = KolabDB.decideApplication(b.dataset.reject, false);
+            await KolabDB.flush();
+            KolabUI.showToast(r.ok ? 'Lamaran ditolak.' : r.message);
+            render();
+          }));
         }
 
-        let html = '';
-        acceptedApps.forEach(function(app) {
-          const creator = KolabDB.getUserById(app.creatorId) || { id: app.creatorId, name: 'Kreator' };
-          const sub = KolabDB.getSubmissionByApplication(app.id);
-
-          if (!sub) {
-            html += `
-              <div class="list-item-row" style="background: var(--paper);">
-                <div>
-                  <strong style="font-size: 15px;">${creator.name}</strong>
-                  <div style="font-size: 13px; color: var(--copy); margin-top: 4px;">
-                    Belum ada konten diunggah oleh kreator ini. Menunggu proses produksi.
-                  </div>
-                </div>
-                <div>
-                  <span class="badge badge-neutral">Menunggu Unggahan</span>
-                </div>
-              </div>
-            `;
+        // ---------- VIDEO ----------
+        if (tab === 'video') {
+          if (!accepted.length) {
+            body.innerHTML = `<div class="empty-state"><strong>Belum ada kreator yang diterima</strong>Terima pelamar dulu, lalu video mereka akan masuk ke sini.</div>`;
           } else {
-            let statusBadge = '<span class="badge badge-submitted">Menunggu Review</span>';
-            let actions = '';
-
-            if (sub.status === 'submitted') {
-              statusBadge = '<span class="badge badge-submitted">Perlu Review Anda</span>';
-              actions = `
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                  <button type="button" class="btn-outline btn-sm" onclick="handleRequestRevision('${sub.id}', '${cId}')">
-                    Minta Revisi
-                  </button>
-                  <button type="button" class="btn-primary btn-sm" onclick="handleApproveSubmission('${sub.id}', '${cId}')">
-                    Setujui & Cairkan Dana
-                  </button>
-                </div>
-              `;
-            } else if (sub.status === 'revision' || sub.status === 'revision_requested') {
-              statusBadge = '<span class="badge badge-revision">Revisi Diminta</span>';
-              actions = `<span style="font-size: 13px; color: var(--text-danger);">Menunggu kreator merevisi konten</span>`;
-            } else if (sub.status === 'approved') {
-              statusBadge = '<span class="badge badge-approved">Disetujui & Cair</span>';
-              actions = `
-                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                  <span style="font-size: 13px; color: var(--text-success); font-weight: 500;">✓ Escrow Dicairkan</span>
-                  <button type="button" class="btn-outline btn-sm" onclick="openLicenseBuyModal('${sub.id}')">
-                    🛒 Beli Lisensi Tambahan
-                  </button>
-                </div>
-              `;
-            }
-
-            const fileUrlDisplay = sub.fileUrl
-              ? `<a href="${sub.fileUrl}" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: underline; word-break: break-all;">${sub.fileUrl} ↗</a>`
-              : '<em>(Tautan belum dilampirkan)</em>';
-
-            // Performance Section
-            let performanceSection = '';
-            if (sub.status === 'approved') {
-              const hasPerf = sub.performance && (sub.performance.views > 0 || sub.performance.likes > 0);
-              const isEditing = editPerformanceSubId === sub.id;
-
-              if (hasPerf && !isEditing) {
-                performanceSection = `
-                  <div style="background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; margin-top: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                      <strong style="font-size: 13px; color: var(--ink);">📈 Hasil Performa Konten:</strong>
-                      <button type="button" class="btn-outline btn-sm" style="font-size: 12px; padding: 3px 10px;" onclick="enableEditPerformance('${sub.id}', '${cId}')">Ubah Data</button>
-                    </div>
-                    <div style="display: flex; gap: 16px; font-size: 13px; flex-wrap: wrap;">
-                      <span>Views: <strong class="tabular-nums">${sub.performance.views.toLocaleString('id-ID')}</strong></span>
-                      <span>·</span>
-                      <span>Likes: <strong class="tabular-nums">${sub.performance.likes.toLocaleString('id-ID')}</strong></span>
-                      <span>·</span>
-                      <span>Komentar: <strong class="tabular-nums">${sub.performance.comments.toLocaleString('id-ID')}</strong></span>
-                      <span>·</span>
-                      <span>Klik Link: <strong class="tabular-nums">${sub.performance.clicks.toLocaleString('id-ID')}</strong></span>
-                    </div>
-                  </div>
-                `;
-              } else {
-                const curV = sub.performance ? sub.performance.views : '';
-                const curL = sub.performance ? sub.performance.likes : '';
-                const curC = sub.performance ? sub.performance.comments : '';
-                const curClk = sub.performance ? sub.performance.clicks : '';
-
-                performanceSection = `
-                  <div style="background: #fff; border: 1px dashed var(--line); border-radius: var(--radius-sm); padding: 14px; margin-top: 10px;">
-                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Input Hasil Metrik Konten:</div>
-                    <div class="grid-4" style="gap: 10px; margin-bottom: 10px;">
-                      <div>
-                        <label style="font-size: 11px; color: var(--copy); display: block;">Views</label>
-                        <input type="number" id="perfViews_${sub.id}" class="input" style="padding: 6px 10px; font-size: 13px;" placeholder="0" min="0" value="${curV}">
-                      </div>
-                      <div>
-                        <label style="font-size: 11px; color: var(--copy); display: block;">Likes</label>
-                        <input type="number" id="perfLikes_${sub.id}" class="input" style="padding: 6px 10px; font-size: 13px;" placeholder="0" min="0" value="${curL}">
-                      </div>
-                      <div>
-                        <label style="font-size: 11px; color: var(--copy); display: block;">Komentar</label>
-                        <input type="number" id="perfComments_${sub.id}" class="input" style="padding: 6px 10px; font-size: 13px;" placeholder="0" min="0" value="${curC}">
-                      </div>
-                      <div>
-                        <label style="font-size: 11px; color: var(--copy); display: block;">Klik</label>
-                        <input type="number" id="perfClicks_${sub.id}" class="input" style="padding: 6px 10px; font-size: 13px;" placeholder="0" min="0" value="${curClk}">
-                      </div>
-                    </div>
-                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                      ${isEditing ? `<button type="button" class="btn-outline btn-sm" onclick="cancelEditPerformance('${cId}')">Batal</button>` : ''}
-                      <button type="button" class="btn-primary btn-sm" onclick="handleSavePerformance('${sub.id}', '${cId}')">Simpan Hasil</button>
-                    </div>
-                  </div>
-                `;
+            body.innerHTML = accepted.map((a) => {
+              const cr = KolabDB.getUserById(a.creatorId) || { id: a.creatorId, name: 'Kreator' };
+              const sub = KolabDB.getSubmissionByApplication(a.id);
+              if (!sub) {
+                return `<div class="item"><div class="item-top">${personHtml(cr)}<span class="badge badge-neutral">Sedang membuat video</span></div><div style="font-size: 14px; color: var(--meta);">Batas kirim ${fmtDate(c.deadline)}. Kalau tidak dikirim sampai tanggal itu, honornya kembali ke saldomu.</div></div>`;
               }
-            }
-
-            html += `
-              <div class="list-item-row" style="flex-direction: column; align-items: stretch; gap: 14px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                  <div>
-                    <a href="creator-profile.html?id=${encodeURIComponent(creator.id)}" style="font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: underline;">
-                      ${creator.name} ↗
-                    </a>
-                    <span style="margin-left: 8px;">${statusBadge}</span>
+              const count = Number(sub.revisionCount || 0);
+              const left = KolabDB.MAX_REVISIONS - count;
+              const hrs = KolabDB.autoApproveHoursLeft(sub);
+              const embed = embedUrl(sub.fileUrl);
+              const badge = sub.status === 'approved' ? '<span class="badge badge-open">Disetujui, honor dibayar</span>'
+                : sub.status === 'revision' ? '<span class="badge badge-notice">Sedang direvisi kreator</span>'
+                : '<span class="badge badge-accent">Perlu kamu review</span>';
+              const thread = `
+                <div class="chat-thread" aria-label="Catatan">
+                  ${sub.note ? `<div class="chat-bubble in">${esc(sub.note)}<span class="time">${esc(cr.name)}</span></div>` : ''}
+                  ${sub.revisionNote ? `<div class="chat-bubble out">${esc(sub.revisionNote)}<span class="time">Catatan revisi ke-${count}</span></div>` : ''}
+                  ${!sub.note && !sub.revisionNote ? `<div style="font-size: 13px; color: var(--meta);">Belum ada catatan.</div>` : ''}
+                </div>`;
+              const reviewActions = sub.status === 'submitted' ? `
+                <div style="font-size: 14px; color: var(--copy);">Kalau tidak kamu respons, video otomatis disetujui dalam <strong>${Math.ceil(hrs ?? 0)} jam</strong>.</div>
+                ${revisionOpen === sub.id ? `
+                  <form data-revform="${sub.id}" novalidate>
+                    <label class="form-label" for="rev_${sub.id}">Apa yang perlu diperbaiki?</label>
+                    <textarea id="rev_${sub.id}" class="input" rows="3" maxlength="1000" placeholder="Contoh: Tolong sebut promo Jumat di 3 detik pertama, dan tampilkan menu dari dekat."></textarea>
+                    <div class="form-hint">Catatan mengacu ke arahan video awal. Sisa revisi: ${left} dari ${KolabDB.MAX_REVISIONS}.</div>
+                    <div class="actions" style="margin-top: 10px;">
+                      <button type="button" class="btn-outline btn-sm" data-revcancel>Batal</button>
+                      <button type="submit" class="btn-dark btn-sm">Kirim catatan revisi</button>
+                    </div>
+                  </form>` : `
+                  <div class="actions">
+                    <button type="button" class="btn-outline btn-sm" data-revise="${sub.id}" ${left <= 0 ? 'disabled' : ''}>${left <= 0 ? 'Revisi habis' : 'Minta revisi'}</button>
+                    <button type="button" class="btn-primary btn-sm" data-approve="${sub.id}">Setujui dan bayar</button>
+                  </div>`}` : '';
+              const approvedExtra = sub.status === 'approved' ? `
+                <div class="kv"><span class="k">Hak pakai</span><span class="v">${esc(rights.label)}</span></div>
+                ${rights.key !== 'buyout' ? `<button type="button" class="btn-outline btn-sm" data-lic="${sub.id}" style="align-self: flex-start;">Tambah hak pakai</button>` : ''}` : '';
+              return `
+                <div class="item">
+                  <div class="item-top">${personHtml(cr)}${badge}</div>
+                  <div class="video-wrap">
+                    ${embed ? `<iframe class="video-frame" src="${esc(embed)}" title="Video dari ${esc(cr.name)}" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>` : ''}
+                    <div class="side">
+                      <a href="${esc(sub.fileUrl)}" target="_blank" rel="noopener" class="text-accent" style="font-weight: 600; word-break: break-all;">Buka video di tab baru ↗</a>
+                      <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--meta); margin-bottom: 6px;"><span>Revisi terpakai</span><span>${count} dari ${KolabDB.MAX_REVISIONS}</span></div>
+                        <div class="progress" aria-hidden="true">${Array.from({ length: KolabDB.MAX_REVISIONS }, (_, i) => `<span class="${i < count ? 'on' : ''}"></span>`).join('')}</div>
+                      </div>
+                      ${thread}
+                      ${reviewActions}
+                      ${approvedExtra}
+                    </div>
                   </div>
-                  <div style="font-size: 12px; color: var(--copy);">
-                    Revisi: <strong class="tabular-nums">${sub.revisionCount || 0}</strong> kali
-                  </div>
-                </div>
+                </div>`;
+            }).join('');
 
-                <div style="background: var(--paper); padding: 12px 14px; border-radius: 8px; font-size: 14px;">
-                  <div style="font-size: 12px; color: var(--copy); margin-bottom: 2px;">Link Konten Unggahan:</div>
-                  <div>${fileUrlDisplay}</div>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; align-items: center;">
-                  ${actions}
-                </div>
-
-                ${performanceSection}
-              </div>
-            `;
+            body.querySelectorAll('[data-revise]').forEach((b) => b.addEventListener('click', () => { revisionOpen = b.dataset.revise; render(); document.getElementById('rev_' + revisionOpen)?.focus(); }));
+            body.querySelectorAll('[data-revcancel]').forEach((b) => b.addEventListener('click', () => { revisionOpen = null; render(); }));
+            body.querySelectorAll('[data-revform]').forEach((f) => f.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const id = f.dataset.revform;
+              const r = KolabDB.requestRevision(id, document.getElementById('rev_' + id).value);
+              if (!r.ok) { KolabUI.showToast(r.message); return; }
+              await KolabDB.flush();
+              revisionOpen = null;
+              KolabUI.showToast(`Catatan revisi terkirim. Sisa revisi ${r.remaining}.`);
+              render();
+            }));
+            body.querySelectorAll('[data-approve]').forEach((b) => b.addEventListener('click', async () => {
+              const ok = await confirmDialog({ title: 'Setujui video ini?', body: `Honor ${rp(c.budgetPerSlot)} akan dibayarkan ke kreator dan tidak bisa ditarik kembali.`, ok: 'Setujui dan bayar' });
+              if (!ok) return;
+              const r = KolabDB.approveSubmission(b.dataset.approve);
+              await KolabDB.flush();
+              KolabUI.showToast(r.ok ? 'Video disetujui. Honor sudah dibayarkan ke kreator.' : (r.message || 'Gagal menyetujui.'));
+              render();
+            }));
+            body.querySelectorAll('[data-lic]').forEach((b) => b.addEventListener('click', () => openLic(b.dataset.lic)));
           }
-        });
+        }
 
-        container.innerHTML = html;
+        // ---------- UNDANG KREATOR ----------
+        if (tab === 'rekomendasi') {
+          const recs = KolabDB.recommendCreatorsForCampaign(c.id) || [];
+          const info = KolabDB.getRecommendationInfo(c.id) || { locked: 0 };
+          body.innerHTML = `
+            <p style="margin: 0 0 16px; color: var(--copy);">Kreator berikut cocok dengan bidang dan jenis video kampanyemu. Undangan harus diterima kreator dulu sebelum mereka bergabung.</p>
+            ${recs.length ? recs.map((rec) => {
+              const cr = rec.creator;
+              const existing = apps.find((a) => a.creatorId === cr.id);
+              const state = existing ? ({ pending: 'Sudah melamar', invited: 'Sudah diundang', accepted: 'Sudah diterima', completed: 'Sudah diterima', rejected: 'Ditolak', declined: 'Menolak undangan', expired: 'Batal' }[existing.status] || 'Terdaftar') : '';
+              return `
+                <div class="item">
+                  <div class="item-top">
+                    ${personHtml(cr)}
+                    <div class="actions">
+                      <span class="badge badge-soft">Cocok ${Math.round((rec.score || 0) * 100)}%</span>
+                      ${existing ? `<span class="badge badge-neutral">${state}</span>` : `<button type="button" class="btn-primary btn-sm" data-invite="${cr.id}" ${!isOpen || c.slotsLeft === 0 ? 'disabled' : ''}>Undang</button>`}
+                    </div>
+                  </div>
+                </div>`;
+            }).join('') : `<div class="empty-state"><strong>Belum ada rekomendasi</strong>Kreator yang cocok akan muncul di sini.</div>`}
+            ${info.locked > 0 ? `<div class="notice-bar" style="margin-top: 14px;">${info.locked} kreator cocok lainnya bisa kamu lihat dengan paket Pro atau Business. <a href="pricing.html" style="font-weight: 700; text-decoration: underline; margin-left: 6px;">Lihat paket</a></div>` : ''}
+          `;
+          body.querySelectorAll('[data-invite]').forEach((b) => b.addEventListener('click', async () => {
+            const r = KolabDB.inviteCreator(c.id, b.dataset.invite);
+            await KolabDB.flush();
+            KolabUI.showToast(r.ok ? 'Undangan terkirim. Tunggu kreator menerima.' : r.message);
+            render();
+          }));
+        }
+
+        // ---------- ARAHAN ----------
+        if (tab === 'arahan') {
+          body.innerHTML = `
+            <div class="grid-main-side">
+              <div class="card">
+                <h2 class="card-title" style="margin: 0 0 12px;">Arahan video</h2>
+                <p style="white-space: pre-line; margin: 0; font-size: 15px; color: var(--copy);">${esc(c.brief)}</p>
+              </div>
+              <div class="card">
+                <div class="kv"><span class="k">Platform</span><span class="v">${esc(platforms)}</span></div>
+                <div class="kv"><span class="k">Jenis video</span><span class="v">${esc(c.contentType || 'Video review')}</span></div>
+                <div class="kv"><span class="k">Batas kirim</span><span class="v">${fmtDate(c.deadline)}</span></div>
+                <div class="kv"><span class="k">Hak pakai</span><span class="v">${esc(rights.label)}</span></div>
+                <p style="margin: 12px 0 0; font-size: 13px; color: var(--meta);">${esc(rights.detail)}</p>
+              </div>
+            </div>`;
+        }
+
+        // ---------- ULASAN ----------
+        const reviewable = accepted.map((a) => KolabDB.getUserById(a.creatorId)).filter((cr) => cr && KolabDB.canReview(c.id, session.id, cr.id));
+        document.getElementById('reviewBox').innerHTML = reviewable.length ? `
+          <section class="card" aria-labelledby="revTitle">
+            <h2 class="card-title" id="revTitle" style="margin: 0 0 6px;">Beri ulasan untuk kreator</h2>
+            <p style="margin: 0 0 16px; color: var(--copy); font-size: 14px;">Ulasanmu membantu UMKM lain memilih kreator.</p>
+            ${reviewable.map((cr) => `
+              <form class="item" data-review="${cr.id}" novalidate>
+                ${personHtml(cr)}
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="form-label">Rating</legend>
+                  <div class="stars" data-stars="${cr.id}">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-v="${n}" aria-label="${n} bintang">★</button>`).join('')}</div>
+                </fieldset>
+                <textarea class="input" rows="2" maxlength="500" placeholder="Bagaimana kerja sama dengan kreator ini?" aria-label="Ulasan untuk ${esc(cr.name)}"></textarea>
+                <button type="submit" class="btn-dark btn-sm" style="align-self: flex-start;">Kirim ulasan</button>
+              </form>`).join('')}
+          </section>` : '';
+        document.querySelectorAll('[data-stars]').forEach((wrap) => {
+          wrap.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => {
+            wrap.dataset.value = btn.dataset.v;
+            wrap.querySelectorAll('button').forEach((x) => { x.classList.toggle('on', Number(x.dataset.v) <= Number(btn.dataset.v)); x.setAttribute('aria-pressed', String(Number(x.dataset.v) <= Number(btn.dataset.v))); });
+          }));
+        });
+        document.querySelectorAll('[data-review]').forEach((f) => f.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const rating = Number(f.querySelector('[data-stars]').dataset.value || 0);
+          if (!rating) { KolabUI.showToast('Pilih rating dulu, 1 sampai 5 bintang.'); return; }
+          const r = KolabDB.addReview(c.id, session.id, f.dataset.review, rating, f.querySelector('textarea').value.trim());
+          await KolabDB.flush();
+          KolabUI.showToast(r.ok ? 'Terima kasih, ulasan terkirim.' : (r.message || 'Gagal mengirim ulasan.'));
+          render();
+        }));
       }
 
-      /* ==============================================================
-         TAB 3: Rekomendasi Kreator Cocok
-         ============================================================== */
-      function renderRecommendationsTab(cId, container) {
-        const recommendations = KolabDB.recommendCreatorsForCampaign(cId);
-        const info = KolabDB.getRecommendationInfo(cId);
-        const existingApps = KolabDB.getApplicationsByCampaign(cId);
-
-        if (!recommendations || recommendations.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              Belum ada kreator aktif yang tersedia untuk direkomendasikan.
-            </div>
-          `;
-          return;
-        }
-
-        let lockedBanner = '';
-        if (info && info.locked > 0) {
-          lockedBanner = `
-            <div class="card" style="background: #fef8e7; border-color: rgba(148, 104, 0, 0.2); padding: 16px 20px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-              <div>
-                <strong style="color: var(--text-warning); font-size: 14px;">🔒 ${info.locked} Kreator Rekomendasi Lainnya Terkunci</strong>
-                <div style="font-size: 12px; color: var(--ink); margin-top: 2px;">Paket Anda menampilkan hingga ${info.limit} rekomendasi teratas. Upgrade paket untuk membuka semua kandidat potensial.</div>
-              </div>
-              <a href="pricing.html" class="btn-primary btn-sm">Upgrade Paket</a>
-            </div>
-          `;
-        }
-
-        let html = `
-          <div style="margin-bottom: 14px; font-size: 13px; color: var(--copy);">
-            Kreator berikut dinilai secara otomatis berdasarkan target niche (${cId}), rating ulasan, dan engagement rate media sosial.
-          </div>
-          ${lockedBanner}
-        `;
-
-        recommendations.forEach(function(rec) {
-          const cr = rec.creator;
-          const scorePercent = Math.round(rec.score * 100) + '%';
-          const ratingText = rec.reviews.average !== null ? `⭐ ${rec.reviews.average} (${rec.reviews.count} ulasan)` : '⭐ Baru';
-          
-          const alreadyAppliedOrInvited = existingApps.some(function(a) { return a.creatorId === cr.id; });
-
-          let btnAction = '';
-          if (alreadyAppliedOrInvited) {
-            btnAction = `
-              <button type="button" class="btn-outline btn-sm" disabled style="opacity: 0.6; cursor: not-allowed;">
-                ✓ Sudah Bergabung
-              </button>
-            `;
-          } else {
-            btnAction = `
-              <button type="button" class="btn-primary btn-sm" onclick="handleInviteCreator('${cId}', '${cr.id}')">
-                + Undang Bergabung
-              </button>
-            `;
-          }
-
-          html += `
-            <div class="list-item-row">
-              <div>
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                  <a href="creator-profile.html?id=${encodeURIComponent(cr.id)}" style="font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: underline;" title="Lihat profil publik">
-                    ${cr.name} ↗
-                  </a>
-                  <span class="badge" style="background: var(--accent); color: #fff; font-size: 11px;">Tier: ${rec.social.tier}</span>
-                  <span class="badge badge-success" style="font-size: 11px;">Kecocokan: ${scorePercent}</span>
-                </div>
-                <div style="font-size: 13px; color: var(--copy); display: flex; gap: 12px; flex-wrap: wrap;">
-                  <span>Niche: <strong>${cr.niche ? cr.niche.toUpperCase() : 'UMUM'}</strong></span>
-                  <span>·</span>
-                  <span class="tabular-nums">Followers: ${(rec.social.totalFollowers || 0).toLocaleString('id-ID')}</span>
-                  <span>·</span>
-                  <span>Engagement: <strong>${rec.social.avgEngagement}%</strong></span>
-                  <span>·</span>
-                  <span>Rating: ${ratingText}</span>
-                </div>
-              </div>
-              <div>
-                ${btnAction}
-              </div>
-            </div>
-          `;
-        });
-
-        container.innerHTML = html;
-      }
-
-      /* ==============================================================
-         SECTION: Beri Ulasan
-         ============================================================== */
-      function renderReviewSection(c) {
-        const container = document.getElementById('reviewSectionContainer');
-        if (!container) return;
-
-        if (c.status !== 'completed') {
-          container.innerHTML = '';
-          return;
-        }
-
-        const apps = KolabDB.getApplicationsByCampaign(c.id).filter(function(a) { return a.status === 'accepted'; });
-        if (apps.length === 0) {
-          container.innerHTML = '';
-          return;
-        }
-
-        let reviewCardsHtml = '';
-        apps.forEach(function(app) {
-          const creator = KolabDB.getUserById(app.creatorId) || { id: app.creatorId, name: 'Kreator' };
-          const creatorReviews = KolabDB.getReviewsForUser(creator.id).reviews || [];
-          const myReview = creatorReviews.find(function(r) { return r.reviewerId === session.id && r.campaignId === c.id; });
-
-          if (myReview) {
-            const stars = '★'.repeat(myReview.rating) + '☆'.repeat(5 - myReview.rating);
-            reviewCardsHtml += `
-              <div style="background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="font-size: 14px;">${creator.name}</strong>
-                  <span style="color: #f59e0b; font-size: 16px;">${stars} (${myReview.rating}/5)</span>
-                </div>
-                <div style="font-size: 13px; color: var(--copy); font-style: italic;">"${myReview.comment || 'Ulasan tanpa komentar'}"</div>
-                <div style="font-size: 11px; color: var(--text-success); margin-top: 6px;">✓ Ulasan Anda telah tersimpan</div>
-              </div>
-            `;
-          } else {
-            reviewCardsHtml += `
-              <div style="background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px;">
-                <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Ulas Kerja Sama dengan ${creator.name}</div>
-                
-                <div class="form-group" style="margin-bottom: 10px;">
-                  <label class="form-label" style="font-size: 12px;">Rating Bintang (1 - 5):</label>
-                  <div class="star-rating-select" id="starContainer_${creator.id}">
-                    <span onclick="setRating('${creator.id}', 1)">★</span>
-                    <span onclick="setRating('${creator.id}', 2)">★</span>
-                    <span onclick="setRating('${creator.id}', 3)">★</span>
-                    <span onclick="setRating('${creator.id}', 4)">★</span>
-                    <span onclick="setRating('${creator.id}', 5)">★</span>
-                  </div>
-                  <input type="hidden" id="ratingVal_${creator.id}" value="5">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 10px;">
-                  <textarea id="commentVal_${creator.id}" class="input" rows="2" placeholder="Bagaimana kualitas konten dan komunikasi kreator?"></textarea>
-                </div>
-
-                <div id="reviewError_${creator.id}" class="error-text" style="display: none; margin-bottom: 8px;"></div>
-
-                <button type="button" class="btn-primary btn-sm" onclick="handleSubmitReview('${c.id}', '${creator.id}')">
-                  Kirim Ulasan
-                </button>
-              </div>
-            `;
-          }
-        });
-
-        container.innerHTML = `
-          <div class="card" style="margin-bottom: 24px; background: var(--bg-success); border-color: rgba(36,104,48,0.2);">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-              <span style="font-size: 20px;">⭐</span>
-              <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-success);">Ulasan Kerja Sama Kreator</h3>
-            </div>
-            <p style="margin: 0 0 14px; font-size: 13px; color: var(--ink);">
-              Kampanye telah selesai! Berikan ulasan untuk kreator yang berpartisipasi guna membangun reputasi komunitas Kolab.
-            </p>
-            ${reviewCardsHtml}
-          </div>
-        `;
-
-        apps.forEach(function(app) {
-          setRating(app.creatorId, 5);
-        });
-      }
-
-      window.setRating = function(creatorId, starCount) {
-        const input = document.getElementById(`ratingVal_${creatorId}`);
-        const container = document.getElementById(`starContainer_${creatorId}`);
-        if (!input || !container) return;
-        input.value = starCount;
-        const stars = container.querySelectorAll('span');
-        stars.forEach(function(s, idx) {
-          if (idx < starCount) s.style.color = '#f59e0b';
-          else s.style.color = '#d1d5db';
-        });
-      };
-
-      window.handleSubmitReview = async function(cId, creatorId) {
-        const rating = Number(document.getElementById(`ratingVal_${creatorId}`).value);
-        const comment = (document.getElementById(`commentVal_${creatorId}`).value || '').trim();
-        const err = document.getElementById(`reviewError_${creatorId}`);
-
-        if (err) err.style.display = 'none';
-
-        const res = KolabDB.addReview(cId, session.id, creatorId, rating, comment);
-        if (res.ok) {
-          await KolabDB.flush();
-          KolabUI.showToast('Ulasan berhasil dikirim!');
-          renderCampaignDetail(cId);
-        } else {
-          if (err) {
-            err.textContent = res.message || 'Gagal mengirim ulasan';
-            err.style.display = 'block';
-          } else {
-            KolabUI.showToast(res.message || 'Gagal mengirim ulasan');
-          }
-        }
-      };
-
-      /* ==============================================================
-         ACTION HANDLERS
-         ============================================================== */
-      window.handleInviteCreator = async function(cId, creatorId) {
-        const applyRes = KolabDB.applyToCampaign(cId, creatorId);
-        if (applyRes.ok) {
-          await KolabDB.flush();
-          KolabUI.showToast('Kreator berhasil diundang dan langsung bergabung!');
-          renderCampaignDetail(cId);
-        } else {
-          KolabUI.showToast(applyRes.message || 'Gagal mengundang kreator');
-        }
-      };
-
-      window.handleRequestRevision = async function(subId, cId) {
-        const res = KolabDB.requestRevision(subId);
-        if (res.ok) {
-          await KolabDB.flush();
-          KolabUI.showToast('Permintaan revisi telah dikirim ke kreator');
-          renderCampaignDetail(cId);
-        } else {
-          KolabUI.showToast(res.message || 'Gagal meminta revisi');
-        }
-      };
-
-      let pendingApprove = null;
-
-      window.handleApproveSubmission = function(subId, cId) {
-        pendingApprove = { subId, cId };
-        document.getElementById('approveConfirmModal').style.display = 'flex';
-      };
-
-      window.closeApproveModal = function() {
-        document.getElementById('approveConfirmModal').style.display = 'none';
-        pendingApprove = null;
-      };
-
-      document.getElementById('btnConfirmApprove').addEventListener('click', async function() {
-        if (!pendingApprove) return;
-        const { subId, cId } = pendingApprove;
-        const btn = document.getElementById('btnConfirmApprove');
-        btn.disabled = true;
-
-        const res = KolabDB.approveSubmission(subId);
-        if (res.ok) {
-          await KolabDB.flush();
-          closeApproveModal();
-          KolabUI.showToast('Konten berhasil disetujui! Dana escrow telah dicairkan ke kreator.');
-          renderCampaignDetail(cId);
-        } else {
-          closeApproveModal();
-          KolabUI.showToast(res.message || 'Gagal menyetujui konten');
-        }
-        btn.disabled = false;
-      });
-
-      window.enableEditPerformance = function(subId, cId) {
-        editPerformanceSubId = subId;
-        renderCampaignDetail(cId);
-      };
-
-      window.cancelEditPerformance = function(cId) {
-        editPerformanceSubId = null;
-        renderCampaignDetail(cId);
-      };
-
-      window.handleSavePerformance = async function(subId, cId) {
-        const v = document.getElementById(`perfViews_${subId}`).value;
-        const l = document.getElementById(`perfLikes_${subId}`).value;
-        const c = document.getElementById(`perfComments_${subId}`).value;
-        const clk = document.getElementById(`perfClicks_${subId}`).value;
-
-        const res = KolabDB.setContentPerformance(subId, { views: v, likes: l, comments: c, clicks: clk });
-        if (res.ok) {
-          await KolabDB.flush();
-          editPerformanceSubId = null;
-          KolabUI.showToast('Metrik performa konten berhasil diperbarui!');
-          renderCampaignDetail(cId);
-        } else {
-          KolabUI.showToast(res.message || 'Gagal menyimpan hasil konten');
-        }
-      };
-
-      // Modal Lisensi Tambahan
-      let activeSubIdForLic = null;
-
-      window.openLicenseBuyModal = function(subId) {
-        activeSubIdForLic = subId;
+      // Tambah hak pakai (beli lisensi iklan atau hak milik penuh)
+      let licSub = null;
+      function openLic(subId) {
+        licSub = subId;
         const opts = KolabDB.getLicenseOptions(session.id, subId);
-        if (!opts.ok) {
-          KolabUI.showToast(opts.message || 'Lisensi tidak tersedia');
-          return;
-        }
-
+        if (!opts.ok) { KolabUI.showToast(opts.message || 'Tidak tersedia.'); return; }
         const wallet = KolabDB.getWallet(session.id);
-        const body = document.getElementById('licModalBody');
-
-        let optionsHtml = '';
-        opts.options.forEach(function(opt) {
-          const discountBadge = opts.discount > 0 ? `<span class="badge badge-completed" style="font-size: 10px; margin-left: 6px;">Diskon ${Math.round(opts.discount * 100)}%</span>` : '';
-
-          optionsHtml += `
-            <div style="border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px; background: ${opt.owned ? '#fafaf9' : '#fff'};">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <div>
-                  <strong style="font-size: 14px;">${opt.label}</strong>
-                  ${discountBadge}
-                </div>
-                <div class="tabular-nums" style="font-size: 15px; font-weight: 700; color: var(--ink);">
-                  ${opts.discount > 0 ? `<s style="font-size: 11px; color: var(--copy);">${KolabDB.formatRupiah(opt.basePrice)}</s> ` : ''}
-                  ${KolabDB.formatRupiah(opt.price)}
-                </div>
-              </div>
-              <div style="font-size: 12px; color: var(--copy); margin-bottom: 10px;">
-                ${opt.type === 'ads' ? 'Bebas digunakan untuk iklan berbayar (Meta/TikTok Ads) selama 180 hari.' : 'Hak eksklusif seumur hidup atas video ini.'}
-              </div>
-              <div>
-                ${opt.owned ? '<span class="badge badge-completed">✓ Sudah Dimiliki</span>' : !opt.available ? `<span class="badge badge-neutral">${opt.reason || 'Tidak Tersedia'}</span>` : `
-                  <button type="button" class="btn-primary btn-sm" style="width: 100%; justify-content: center;" onclick="executeBuyLic('${opt.type}', ${opt.price})">
-                    Beli Lisensi Ini (${KolabDB.formatRupiah(opt.price)})
-                  </button>
-                `}
-              </div>
-            </div>
-          `;
-        });
-
-        body.innerHTML = `
-          <div style="background: var(--paper); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 14px; display: flex; justify-content: space-between; font-size: 13px;">
-            <span>Saldo Dompet:</span>
-            <strong class="tabular-nums">${KolabDB.formatRupiah(wallet.balance)}</strong>
-          </div>
-          <div>${optionsHtml}</div>
-        `;
-
+        document.getElementById('licBody').innerHTML = `
+          <div class="kv" style="margin-bottom: 8px;"><span class="k">Saldo kamu</span><span class="v tabular-nums">${rp(wallet.balance)}</span></div>
+          ${opts.options.map((o) => `
+            <div class="item" style="margin-top: 10px;">
+              <div class="item-top"><strong>${o.type === 'ads' ? 'Izin iklan 6 bulan' : 'Hak milik penuh'}</strong><span class="tabular-nums" style="font-weight: 700;">${rp(o.price)}</span></div>
+              <div style="font-size: 14px; color: var(--copy);">${o.type === 'ads' ? 'Boleh dipakai untuk iklan berbayar TikTok dan Meta selama 6 bulan.' : 'Video jadi milikmu sepenuhnya dan ditarik dari penjualan.'}${opts.discount > 0 ? ` Sudah termasuk diskon paket ${Math.round(opts.discount * 100)}%.` : ''}</div>
+              ${o.owned ? '<span class="badge badge-open" style="align-self: flex-start;">Sudah kamu miliki</span>' : !o.available ? `<span class="badge badge-neutral" style="align-self: flex-start;">${esc(o.reason || 'Tidak tersedia')}</span>` : `<button type="button" class="btn-primary btn-sm" data-buy="${o.type}" data-price="${o.price}" style="align-self: flex-start;">Beli ${rp(o.price)}</button>`}
+            </div>`).join('')}`;
         document.getElementById('licModal').style.display = 'flex';
-      };
-
-      window.closeLicModal = function() {
-        document.getElementById('licModal').style.display = 'none';
-        activeSubIdForLic = null;
-      };
-
-      window.executeBuyLic = async function(type, price) {
-        const targetSubId = activeSubIdForLic;
+        document.querySelectorAll('[data-buy]').forEach((b) => b.addEventListener('click', () => buyLic(b.dataset.buy, Number(b.dataset.price))));
+      }
+      const closeLic = () => { document.getElementById('licModal').style.display = 'none'; licSub = null; };
+      document.getElementById('licClose').addEventListener('click', closeLic);
+      async function buyLic(type, price) {
+        const target = licSub;
         const wallet = KolabDB.getWallet(session.id);
-
-        if (wallet.balance < price) {
-          const payAmt = Math.max(10000, Math.round(price - wallet.balance));
-          closeLicModal();
-          KolabDB.openPaymentGateway({
-            userId: session.id,
-            amount: payAmt,
-            purpose: 'license',
-            title: `Bayar Lisensi ${type === 'buyout' ? 'Buyout Penuh' : 'Iklan 6 Bulan'}`,
-            subtitle: `Pembayaran via QRIS atau Virtual Account untuk melengkapi saldo (${KolabDB.formatRupiah(payAmt)}).`,
-            metadata: { submissionId: targetSubId, licenseType: type },
-            onSettled: async function(order) {
-              const methodLabel = String(order.method || 'QRIS').toUpperCase().replace('_', ' ');
-              KolabDB.topUp(session.id, payAmt, methodLabel);
-              const res = KolabDB.purchaseLicense(session.id, targetSubId, type);
-              if (res.ok) {
-                await KolabDB.flush();
-                KolabUI.showToast('Pembayaran berhasil & lisensi konten aktif!');
-                renderCampaignDetail(campaignId);
-              } else {
-                await KolabDB.flush();
-                KolabUI.showToast(res.message || 'Gagal menyelesaikan pembelian lisensi');
-              }
-            },
-          });
-          return;
-        }
-
-        const res = KolabDB.purchaseLicense(session.id, targetSubId, type);
-        if (res.ok) {
+        const finish = async () => {
+          const r = KolabDB.purchaseLicense(session.id, target, type);
           await KolabDB.flush();
-          closeLicModal();
-          KolabUI.showToast('Lisensi berhasil dibeli!');
-          renderCampaignDetail(campaignId);
-        } else {
-          KolabUI.showToast(res.message || 'Gagal membeli lisensi');
-        }
-      };
+          KolabUI.showToast(r.ok ? 'Hak pakai bertambah.' : (r.message || 'Gagal membeli.'));
+          render();
+        };
+        closeLic();
+        if (wallet.balance >= price) return finish();
+        const payAmt = Math.max(10000, Math.round(price - wallet.balance));
+        KolabDB.openPaymentGateway({
+          userId: session.id, amount: payAmt, purpose: 'license',
+          title: type === 'buyout' ? 'Beli hak milik penuh' : 'Beli izin iklan 6 bulan',
+          subtitle: `Kekurangan saldo ${rp(payAmt)}, bayar lewat QRIS atau transfer bank.`,
+          metadata: { submissionId: target, licenseType: type },
+          onSettled: async (order) => { KolabDB.topUp(session.id, payAmt, String(order.method || 'QRIS').toUpperCase().replace('_', ' ')); await finish(); },
+        });
+      }
+
+      render();
     }
   </script>
 </body>

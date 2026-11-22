@@ -71,7 +71,7 @@
   <div class="auth-wrapper">
     <div style="margin-bottom: 24px; text-align: center;">
       <a href="index.html" class="nav-brand" style="font-size: 26px; justify-content: center;">
-        Kolab<span class="dot">.</span>
+        Kolab<span class="brand-dot" aria-hidden="true"></span>
       </a>
       <p style="margin: 6px 0 0; font-size: 14px; color: var(--copy);">Buat akun real Anda langsung dengan Google</p>
     </div>
@@ -92,28 +92,28 @@
 
       <!-- Step 1: Pilihan Peran -->
       <div style="margin-bottom: 24px;">
-        <label class="form-label" style="margin-bottom: 10px; font-size: 14px;">Langkah 1: Pilih Jenis Akun</label>
+        <label class="form-label" style="margin-bottom: 10px; font-size: 14px;">Langkah 1: Kamu siapa?</label>
         <div class="grid-2" style="gap: 16px;">
-          <div class="role-choice-card" id="choiceUmkm">
-            <div class="role-icon">🏪</div>
-            <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">Saya UMKM / Brand</div>
-            <div style="font-size: 12px; color: var(--copy); line-height: 1.4;">Buat kampanye UGC &amp; kelola pembayaran escrow aman</div>
+          <div class="role-choice-card" id="choiceUmkm" role="button" tabindex="0" aria-pressed="false">
+            <div class="role-icon" aria-hidden="true">U</div>
+            <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">Aku pemilik usaha</div>
+            <div style="font-size: 12px; color: var(--copy); line-height: 1.4;">Dapat video promosi dari kreator lokal, bayar kalau videonya sesuai</div>
           </div>
-          <div class="role-choice-card" id="choiceCreator">
-            <div class="role-icon">🎬</div>
-            <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">Saya Micro-Creator</div>
-            <div style="font-size: 12px; color: var(--copy); line-height: 1.4;">Kaitkan sosial media, ikut kampanye, &amp; cairkan penghasilan</div>
+          <div class="role-choice-card" id="choiceCreator" role="button" tabindex="0" aria-pressed="false">
+            <div class="role-icon" aria-hidden="true">K</div>
+            <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">Aku kreator</div>
+            <div style="font-size: 12px; color: var(--copy); line-height: 1.4;">Dapat job berbayar dari UMKM, honor pasti cair</div>
           </div>
         </div>
-        <div id="roleError" class="error-text" style="display: none;">Pilih salah satu peran terlebih dahulu</div>
+        <div id="roleError" class="error-text" style="display: none;">Pilih salah satu dulu, ya</div>
       </div>
 
       <!-- Step 2: Form UMKM -->
       <div id="formUmkmSection" style="display: none; border-top: 1px solid var(--line); padding-top: 20px;">
-        <label class="form-label" style="margin-bottom: 14px; font-size: 14px;">Langkah 2: Lengkapi Profil Bisnis</label>
+        <label class="form-label" style="margin-bottom: 14px; font-size: 14px;">Langkah 2: Ceritakan usahamu</label>
 
         <div class="form-group">
-          <label class="form-label" for="umkmName">Nama Usaha / Brand</label>
+          <label class="form-label" for="umkmName">Nama usaha</label>
           <input type="text" id="umkmName" class="input" placeholder="Contoh: Kopi Senja Nusantara">
           <div id="umkmNameError" class="error-text" style="display: none;">Nama usaha wajib diisi</div>
         </div>
@@ -208,12 +208,21 @@
       document.getElementById('roleError').style.display = 'none';
       document.getElementById('choiceUmkm').classList.toggle('selected', role === 'umkm');
       document.getElementById('choiceCreator').classList.toggle('selected', role === 'creator');
+      document.getElementById('choiceUmkm').setAttribute('aria-pressed', String(role === 'umkm'));
+      document.getElementById('choiceCreator').setAttribute('aria-pressed', String(role === 'creator'));
       document.getElementById('formUmkmSection').style.display = role === 'umkm' ? 'block' : 'none';
       document.getElementById('formCreatorSection').style.display = role === 'creator' ? 'block' : 'none';
     }
 
     document.getElementById('choiceUmkm').addEventListener('click', () => selectRole('umkm'));
     document.getElementById('choiceCreator').addEventListener('click', () => selectRole('creator'));
+    ['choiceUmkm', 'choiceCreator'].forEach((id) => document.getElementById(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectRole(id === 'choiceUmkm' ? 'umkm' : 'creator'); }
+    }));
+
+    // Pilih peran otomatis dari tautan landing page (register.html?role=umkm atau ?role=creator)
+    const presetRole = new URLSearchParams(window.location.search).get('role');
+    if (presetRole === 'umkm' || presetRole === 'creator') selectRole(presetRole);
 
     // Pilih peran otomatis dari tautan landing page (register.html?role=umkm atau ?role=creator)
     const presetRole = new URLSearchParams(window.location.search).get('role');

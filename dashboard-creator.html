@@ -3,173 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Creator - Kolab</title>
+  <title>Dashboard kreator – Kolab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
   <style>
-    .campaign-creator-card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      padding: 18px;
-      margin-bottom: 14px;
-      background: #fff;
-    }
+    .job { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 14px; background: var(--surface); }
+    .job + .job { margin-top: 14px; }
+    .job-top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+    .job-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14px; color: var(--meta); margin-top: 4px; }
+    .balance-big { font-family: var(--font-serif); font-size: 52px; line-height: 1; letter-spacing: -0.02em; }
+    .submit-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .submit-row .input { flex: 1 1 260px; }
   </style>
 </head>
 <body>
   <div id="navbar"></div>
-
   <main class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+    <div class="page-head">
       <div>
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-          <h1 style="font-size: 26px; font-weight: 700; margin: 0;" id="welcomeCreatorName">Dashboard Creator</h1>
-          <span id="creatorPlanBadge"></span>
-        </div>
-        <p style="margin: 0; color: var(--copy); font-size: 14px;">Pantau kampanye UGC, produksi konten, dan passive income dari lisensi video Anda.</p>
+        <span class="eyebrow">Dashboard kreator</span>
+        <h1 id="welcomeTitle" style="margin: 8px 0 0;">Halo!</h1>
+        <p>Lamar job dari UMKM, kirim video, dan honor masuk ke dompetmu setelah disetujui.</p>
       </div>
       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <a href="campaign-browse.html" class="btn-primary">Jelajahi Kampanye Baru</a>
-        <a href="creator-library.html" class="btn-outline">Pasar Lisensi Saya ↗</a>
-        <a href="pricing.html" class="btn-outline">Upgrade Paket ⭐</a>
+        <a href="campaign-browse.html" class="btn-primary">Cari job</a>
+        <a href="wallet-creator.html" class="btn-outline">Tarik dana</a>
       </div>
     </div>
 
-    <!-- Layout 2/3 + 1/3 -->
+    <section id="invites" style="display: none; margin-bottom: 20px;" aria-labelledby="invTitle"></section>
+
     <div class="grid-main-side">
-      <!-- Left: Kampanye Saya -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-        <!-- Saldo Ringkas Banner -->
-        <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; background: #fff;">
-          <div>
-            <div class="stat-label">Saldo Penghasilan Tersedia</div>
-            <div class="stat-value tabular-nums" style="color: var(--accent); font-size: 30px;" id="creatorBalanceDisplay">Rp0</div>
-            <div class="stat-sub">Bisa ditarik ke bank / e-wallet kapan saja (min. Rp50.000).</div>
-          </div>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="wallet-creator.html" class="btn-primary btn-sm">Tarik Dana</a>
-            <a href="creator-library.html" class="btn-outline btn-sm">Monetisasi Lisensi</a>
-          </div>
-        </div>
-
-        <!-- Kampanye Saya List -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Kampanye yang Saya Ikuti</h2>
-            <a href="campaign-browse.html" class="btn-outline btn-sm">+ Cari Kampanye</a>
-          </div>
-
-          <div id="creatorCampaignsContainer">
-            <!-- List or empty state -->
-          </div>
-        </div>
-
-        <!-- Card Monetisasi Konten & Lisensi Singkat -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">Penjualan Lisensi Konten</h2>
-              <div style="font-size: 12px; color: var(--copy); margin-top: 2px;">Dapatkan passive income tambahan dari video kampanye yang telah disetujui</div>
-            </div>
-            <a href="creator-library.html" class="btn-outline btn-sm">Kelola di Pasar Konten</a>
-          </div>
-
-          <div id="creatorLicenseSummaryContainer">
-            <!-- Rendered via JS -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column: Paket, Profil, Media Sosial & Ulasan -->
       <div style="display: flex; flex-direction: column; gap: 20px;">
-        
-        <!-- CARD PAKET LANGGANAN KREATOR -->
-        <div class="card" id="creatorPlanCard">
-          <!-- Dinamis via JS -->
-        </div>
+        <section class="card" id="onboardingCard" style="display: none;" aria-labelledby="onbTitle">
+          <div class="card-header">
+            <h2 class="card-title" id="onbTitle">Supaya cepat dapat job</h2>
+            <span class="badge badge-soft" id="onbProgress"></span>
+          </div>
+          <ul class="checklist" id="onbList"></ul>
+        </section>
 
-        <!-- CARD MEDIA SOSIAL & TINGKAT INFLUENCER -->
-        <div class="card" id="socialTierCard">
-          <div class="card-header" style="margin-bottom: 14px; padding-bottom: 10px;">
-            <h2 class="card-title" style="font-size: 16px;">Media Sosial & Tier</h2>
+        <section class="card" aria-labelledby="jobsTitle">
+          <div class="card-header">
+            <h2 class="card-title" id="jobsTitle">Job yang sedang jalan</h2>
+            <a href="campaign-browse.html" class="btn-outline btn-sm">Cari job lain</a>
           </div>
-          <div id="socialTierContent">
-            <!-- Dinamis via JS -->
-          </div>
-        </div>
+          <div id="activeJobs"></div>
+        </section>
 
-        <!-- CARD ULASAN DARI UMKM -->
-        <div class="card" id="myReviewsCard">
-          <div class="card-header" style="margin-bottom: 14px; padding-bottom: 10px;">
-            <h2 class="card-title" style="font-size: 16px;">Ulasan dari UMKM</h2>
-            <span class="badge badge-neutral" style="font-size: 10px;" id="reviewCountBadge">0 ulasan</span>
+        <section class="card" aria-labelledby="appsTitle">
+          <div class="card-header">
+            <h2 class="card-title" id="appsTitle">Lamaranmu</h2>
           </div>
-          <div id="myReviewsContent">
-            <!-- Dinamis via JS -->
-          </div>
-        </div>
-
-        <!-- Profil & Reputasi Dasar -->
-        <div class="card">
-          <h2 class="card-title" style="margin-bottom: 16px; font-size: 16px;">Profil & Kredibilitas</h2>
-          
-          <div style="text-align: center; padding: 12px 0 16px; border-bottom: 1px solid var(--line); margin-bottom: 16px;">
-            <div style="font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 4px;" class="tabular-nums" id="reputationValue">
-              -
-            </div>
-            <div style="font-size: 13px; color: var(--copy);">Rata-rata Rating Ulasan</div>
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
-            <div style="display: flex; justify-content: space-between;">
-              <span style="color: var(--copy);">Niche Konten:</span>
-              <strong id="creatorNicheText" style="text-transform: capitalize;">-</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span style="color: var(--copy);">Status Akun:</span>
-              <span class="badge badge-active">Terverifikasi</span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span style="color: var(--copy);">Halaman Publik:</span>
-              <a href="creator-profile.html?id=" id="publicProfileLink" style="color: var(--accent); font-weight: 500; font-size: 13px;">Lihat Profil Publik ↗</a>
-            </div>
-          </div>
-        </div>
-
+          <div id="applications"></div>
+        </section>
       </div>
+
+      <aside style="display: flex; flex-direction: column; gap: 20px;">
+        <section class="card card-dark" aria-labelledby="walletTitle">
+          <h2 class="card-title" id="walletTitle" style="margin: 0 0 16px;">Dompet</h2>
+          <div style="font-size: 14px; color: var(--night-text);">Bisa ditarik</div>
+          <div class="balance-big tabular-nums" id="walletBalance">Rp0</div>
+          <div style="font-size: 13px; color: var(--night-text); margin-top: 8px;" id="payoutHint"></div>
+          <a href="wallet-creator.html" class="btn-primary" style="width: 100%; margin-top: 18px;">Tarik ke bank atau e-wallet</a>
+        </section>
+        <section class="card" id="planCard" aria-label="Paket kamu"></section>
+        <section class="card" id="profileCard" aria-label="Profil kamu"></section>
+      </aside>
     </div>
   </main>
-
-  <!-- Modal Unggah Konten -->
-  <div class="modal-overlay" id="uploadModal" style="display: none;">
-    <div class="modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Kirim Konten Hasil Karya</h3>
-        <button type="button" class="btn-outline btn-sm" onclick="closeUploadModal()">✕</button>
-      </div>
-
-      <div style="font-size: 14px; color: var(--copy); margin-bottom: 16px;" id="modalCampaignInfo">
-        <!-- Info kampanye -->
-      </div>
-
-      <form id="uploadForm" onsubmit="return false;">
-        <input type="hidden" id="uploadAppId" value="">
-        <div class="form-group">
-          <label class="form-label" for="contentUrlInput">Tautan Konten (Google Drive, TikTok, atau Instagram)</label>
-          <input type="url" id="contentUrlInput" class="input" placeholder="https://instagram.com/p/... atau https://drive.google.com/..." required>
-          <div class="form-hint">Pastikan link dapat diakses publik atau di-setting 'anyone with the link can view'.</div>
-          <div id="urlError" class="error-text" style="display: none;"></div>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
-          <button type="button" class="btn-outline" onclick="closeUploadModal()">Batal</button>
-          <button type="submit" class="btn-primary" id="btnSubmitContent">Kirim Konten</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <script type="module" src="/src/kolab-cloud.ts"></script>
   <script type="module" src="/src/kolab-ui.ts"></script>
@@ -177,340 +80,159 @@
     const KolabDB = window.KolabDB;
     const KolabUI = window.KolabUI;
     await KolabDB.ready();
-
     const session = KolabDB.requireRole(['creator']);
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const rp = (n) => KolabDB.formatRupiah(n || 0);
+    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 
     if (session) {
       KolabUI.renderNavbar('dashboard-creator');
+      const firstName = String(session.name || '').split(' ')[0];
+      document.getElementById('welcomeTitle').textContent = firstName ? `Halo, ${firstName}` : 'Halo!';
+      const plan = KolabDB.getUserPlan(session.id)?.plan || {};
+      const fee = typeof plan.platformFeeRate === 'number' ? plan.platformFeeRate : 0.15;
+      const net = (c) => Math.round((c?.budgetPerSlot || 0) * (1 - fee));
 
-      const welcomeName = document.getElementById('welcomeCreatorName');
-      if (welcomeName) welcomeName.textContent = `Dashboard, ${session.name || 'Kreator'}`;
-
-      const publicLink = document.getElementById('publicProfileLink');
-      if (publicLink) publicLink.href = `creator-profile.html?id=${encodeURIComponent(session.id)}`;
-
-      function formatFollowersNumber(n) {
-        n = Number(n) || 0;
-        if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
-        if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'K';
-        return n.toLocaleString('id-ID');
-      }
-
-      function renderWallet() {
+      function render() {
         const wallet = KolabDB.getWallet(session.id);
-        document.getElementById('creatorBalanceDisplay').textContent = KolabDB.formatRupiah(wallet.balance);
-      }
+        document.getElementById('walletBalance').textContent = rp(wallet.balance);
+        document.getElementById('payoutHint').textContent = `Minimal penarikan ${rp(KolabDB.MIN_PAYOUT || 50000)}. Honor sudah dipotong biaya layanan saat video disetujui.`;
 
-      function renderPlanCard() {
-        const up = KolabDB.getUserPlan(session.id);
-        if (!up) return;
+        const apps = KolabDB.getApplicationsByCreator(session.id).map((a) => ({ a, c: KolabDB.getCampaignById(a.campaignId) })).filter((x) => x.c);
+        const invites = apps.filter((x) => x.a.status === 'invited' && x.c.status === 'open');
+        const active = apps.filter((x) => x.a.status === 'accepted' || x.a.status === 'completed');
+        const others = apps.filter((x) => ['pending', 'rejected', 'declined', 'expired'].includes(x.a.status));
 
-        const badgeEl = document.getElementById('creatorPlanBadge');
-        const cardEl = document.getElementById('creatorPlanCard');
-
-        const badgeClass = up.planId === 'free' ? 'badge-neutral' : 'badge-completed';
-        badgeEl.innerHTML = `<span class="badge ${badgeClass}" style="font-size: 11px;">PAKET ${up.plan.name.toUpperCase()}</span>`;
-
-        const feePercent = Math.round(up.plan.feeRate * 100);
-        const boostText = up.plan.boost > 0 ? `+${Math.round(up.plan.boost * 100)}% prioritas rekomendasi` : 'Tanpa boost';
-        const listingLimit = up.plan.maxLibraryListings >= 999 ? 'Tanpa Batas' : `${up.plan.maxLibraryListings} video`;
-
-        cardEl.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 class="card-title" style="font-size: 16px;">Paket Kreator</h2>
-            <span class="badge ${badgeClass}">${up.plan.name.toUpperCase()}</span>
-          </div>
-          <div style="font-size: 13px; color: var(--copy); margin-bottom: 12px; line-height: 1.5;">
-            Fee Platform: <strong style="color: var(--text-success);">${feePercent}%</strong> (standar 15%)<br>
-            Batas Pasar Lisensi: <strong>${listingLimit}</strong><br>
-            Prioritas: <strong>${boostText}</strong>
-          </div>
-          <a href="pricing.html" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">
-            ${up.planId === 'free' ? 'Upgrade Paket (Hemat Fee)' : 'Kelola Langganan'}
-          </a>
-        `;
-      }
-
-      function renderReputationAndReviews() {
-        const revData = KolabDB.getReviewsForUser(session.id);
-        const user = KolabDB.getUserById(session.id);
-
-        const repVal = revData.average !== null ? `⭐ ${revData.average}` : '⭐ Baru';
-        document.getElementById('reputationValue').textContent = repVal;
-        document.getElementById('creatorNicheText').textContent = (user && user.niche) ? user.niche.toUpperCase() : 'UMUM';
-
-        const reviewsContent = document.getElementById('myReviewsContent');
-        const countBadge = document.getElementById('reviewCountBadge');
-        countBadge.textContent = `${revData.count} ulasan`;
-
-        if (!revData.reviews || revData.reviews.length === 0) {
-          reviewsContent.innerHTML = `
-            <div style="color: var(--copy); font-size: 13px; text-align: center; padding: 12px 0;">
-              Belum ada ulasan dari UMKM. Selesaikan kampanye pertama Anda!
-            </div>
-          `;
-          return;
-        }
-
-        let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
-        revData.reviews.slice(0, 3).forEach(function(r) {
-          const reviewer = KolabDB.getUserById(r.reviewerId) || { name: 'UMKM' };
-          const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-          html += `
-            <div style="background: var(--paper); padding: 10px 12px; border-radius: var(--radius-sm); font-size: 12px;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <strong>${reviewer.name}</strong>
-                <span style="color: #f59e0b;">${stars}</span>
-              </div>
-              <div style="color: var(--copy); font-style: italic;">"${r.comment || 'Ulasan tanpa pesan'}"</div>
-            </div>
-          `;
-        });
-        html += '</div>';
-        reviewsContent.innerHTML = html;
-      }
-
-      function renderSocialTierCard() {
-        const container = document.getElementById('socialTierContent');
-        if (!container) return;
-
-        const social = KolabDB.getSocialSummary(session.id);
-
-        if (!social.platforms || social.platforms.length === 0) {
-          container.innerHTML = `
-            <div style="color: var(--copy); font-size: 13px; margin-bottom: 14px;">
-              Belum ada akun media sosial terhubung. Hubungkan YouTube, Instagram, atau TikTok untuk verifikasi tier &amp; analitik live.
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <button type="button" class="btn-outline btn-sm" style="width: 100%; justify-content: center;" onclick="handleConnectYouTube()">
-                ▶️ Hubungkan YouTube (Google)
-              </button>
-              <a href="creator-analytics.html" class="btn-primary btn-sm" style="width: 100%; justify-content: center;">
-                📊 Buka Hubungan &amp; Analitik Sosial Media
-              </a>
-            </div>
-          `;
-          return;
-        }
-
-        let platformsListHtml = '';
-        social.platforms.forEach(function(p) {
-          const acc = social.accounts[p];
-          const icon = p === 'instagram' ? '📸 IG' : p === 'youtube' ? '▶️ YT' : '🎵 TT';
-          platformsListHtml += `
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 0;">
-              <span>${icon} <span style="color: var(--copy); font-size: 12px;">(${acc.handle})</span></span>
-              <strong class="tabular-nums">${formatFollowersNumber(acc.followers)}</strong>
-            </div>
-          `;
-        });
-
-        container.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div>
-              <div style="font-size: 11px; color: var(--copy);">Tingkat Influencer</div>
-              <div style="font-size: 20px; font-weight: 700; color: var(--accent);">${social.tier} Creator</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-size: 11px; color: var(--copy);">Total Pengikut</div>
-              <div style="font-size: 18px; font-weight: 700;" class="tabular-nums">${formatFollowersNumber(social.totalFollowers)}</div>
-            </div>
-          </div>
-          <div style="border-top: 1px solid var(--line); padding-top: 8px; margin-bottom: 12px;">
-            ${platformsListHtml}
-          </div>
-          <a href="creator-analytics.html" class="btn-outline btn-sm" style="width: 100%; justify-content: center;">
-            📊 Kelola &amp; Analitik Sosial Media
-          </a>
-        `;
-      }
-
-      function renderLicenseSummary() {
-        const container = document.getElementById('creatorLicenseSummaryContainer');
-        const contentData = KolabDB.getCreatorContent(session.id);
-        const sales = KolabDB.getLicensesBySeller(session.id);
-
-        let totalEarned = 0;
-        sales.forEach(function(s) { totalEarned += (s.net || 0); });
-
-        container.innerHTML = `
-          <div class="grid-2" style="margin-bottom: 16px;">
-            <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-              <div class="stat-label">Konten di Pasar Lisensi</div>
-              <div class="stat-value tabular-nums" style="font-size: 22px;">${contentData.listedCount} / ${contentData.limit >= 999 ? '∞' : contentData.limit}</div>
-              <div class="stat-sub">Video aktif dijual</div>
-            </div>
-            <div style="background: var(--paper); padding: 14px; border-radius: var(--radius-sm);">
-              <div class="stat-label">Pendapatan Lisensi</div>
-              <div class="stat-value tabular-nums" style="font-size: 22px; color: var(--text-success);">${KolabDB.formatRupiah(totalEarned)}</div>
-              <div class="stat-sub">${sales.length} kali terjual</div>
-            </div>
-          </div>
-          <div style="display: flex; justify-content: flex-end;">
-            <a href="creator-library.html" class="btn-primary btn-sm">Atur Harga &amp; Jual Konten ↗</a>
-          </div>
-        `;
-      }
-
-      function renderCampaigns() {
-        const apps = KolabDB.getApplicationsByCreator(session.id);
-        const container = document.getElementById('creatorCampaignsContainer');
-
-        if (!apps || apps.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              Belum ada kampanye yang Anda ikuti. Cari kampanye menarik dari UMKM lokal dan dapatkan bayaran!
-              <div style="margin-top: 12px;">
-                <a href="campaign-browse.html" class="btn-primary btn-sm">Jelajahi Kampanye Terbuka</a>
-              </div>
-            </div>
-          `;
-          return;
-        }
-
-        let html = '';
-        apps.forEach(function(app) {
-          const campaign = KolabDB.getCampaignById(app.campaignId);
-          if (!campaign) return;
-
-          const umkm = KolabDB.getUserById(campaign.umkmId) || { name: 'UMKM Brand' };
-          const sub = KolabDB.getSubmissionByApplication(app.id);
-
-          let statusBadge = '<span class="badge badge-accepted">Bergabung (Diterima)</span>';
-          let actionArea = '';
-
-          if (!sub) {
-            actionArea = `
-              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px;">
-                <span style="font-size: 13px; color: var(--copy);">Status: Belum upload konten</span>
-                <button type="button" class="btn-primary btn-sm" onclick="openUploadModal('${app.id}', '${encodeURIComponent(campaign.title)}')">
-                  Unggah Link Konten
-                </button>
-              </div>
-            `;
-          } else {
-            if (sub.status === 'submitted') {
-              statusBadge = '<span class="badge badge-submitted">Menunggu Review UMKM</span>';
-              actionArea = `
-                <div style="border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; font-size: 13px; color: var(--copy); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                  <span>Konten terkirim: <a href="${sub.fileUrl}" target="_blank" style="color: var(--accent); text-decoration: underline;">Lihat ↗</a></span>
-                  <button type="button" class="btn-outline btn-sm" onclick="openUploadModal('${app.id}', '${encodeURIComponent(campaign.title)}')">Ganti Link</button>
-                </div>
-              `;
-            } else if (sub.status === 'revision' || sub.status === 'revision_requested') {
-              statusBadge = '<span class="badge badge-revision">UMKM Minta Revisi</span>';
-              actionArea = `
-                <div style="border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                  <span style="font-size: 13px; color: var(--text-danger); font-weight: 500;">Perlu revisi sesuai catatan brief</span>
-                  <button type="button" class="btn-primary btn-sm" onclick="openUploadModal('${app.id}', '${encodeURIComponent(campaign.title)}')">
-                    Kirim Konten Revisi
-                  </button>
-                </div>
-              `;
-            } else if (sub.status === 'approved') {
-              statusBadge = '<span class="badge badge-approved">Disetujui &amp; Saldo Cair ✓</span>';
-              actionArea = `
-                <div style="border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                  <span style="color: var(--text-success); font-weight: 500;">✓ Honor kampanye telah masuk ke wallet</span>
-                  <a href="creator-library.html" class="btn-outline btn-sm">Monetisasi di Pasar Lisensi ↗</a>
-                </div>
-              `;
-            }
-          }
-
-          html += `
-            <div class="campaign-creator-card">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
-                <div>
-                  <strong style="font-size: 16px; color: var(--ink);">${campaign.title}</strong>
-                  <div style="font-size: 13px; color: var(--copy); margin-top: 2px;">
-                    Oleh: <strong>${umkm.name}</strong> · Jenis: ${campaign.contentType || 'UGC'}
+        // Undangan
+        const inv = document.getElementById('invites');
+        if (invites.length) {
+          inv.style.display = 'block';
+          inv.innerHTML = `
+            <div class="card card-accent">
+              <h2 class="card-title" id="invTitle" style="margin: 0 0 14px;">Kamu diundang ${invites.length === 1 ? 'ke 1 kampanye' : `ke ${invites.length} kampanye`}</h2>
+              ${invites.map(({ a, c }) => {
+                const u = KolabDB.getUserById(c.umkmId) || {};
+                return `
+                <div class="job">
+                  <div class="job-top">
+                    <div style="min-width: 0;">
+                      <div style="font-weight: 600; font-size: 16px;">${esc(c.title)}</div>
+                      <div class="job-meta"><span>${esc(u.businessName || u.name || 'UMKM')}</span><span>Honor masuk ${rp(net(c))}</span><span>Batas ${fmtDate(c.deadline)}</span><span>${esc(KolabDB.usageRightsOf(c).label)}</span></div>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                      <button type="button" class="btn-outline btn-sm" data-decline="${a.id}">Tolak</button>
+                      <button type="button" class="btn-primary btn-sm" data-join="${a.id}">Terima undangan</button>
+                    </div>
                   </div>
-                </div>
-                ${statusBadge}
-              </div>
-
-              <div style="font-size: 13px; color: var(--copy); margin-bottom: 8px; line-height: 1.5;">
-                ${campaign.brief ? campaign.brief.slice(0, 140) + '...' : ''}
-              </div>
-
-              <div style="font-size: 12px; color: var(--copy); display: flex; gap: 12px; flex-wrap: wrap;">
-                <span>Honor: <strong class="tabular-nums" style="color: var(--ink);">${KolabDB.formatRupiah(campaign.budgetPerSlot)}</strong></span>
-                <span>·</span>
-                <span>Batas Waktu: ${campaign.deadline ? new Date(campaign.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span>
-              </div>
-
-              ${actionArea}
-            </div>
-          `;
-        });
-
-        container.innerHTML = html;
-      }
-
-      function renderAll() {
-        renderWallet();
-        renderPlanCard();
-        renderSocialTierCard();
-        renderReputationAndReviews();
-        renderLicenseSummary();
-        renderCampaigns();
-      }
-
-      renderAll();
-
-      window.openUploadModal = function(appId, titleEncoded) {
-        document.getElementById('uploadAppId').value = appId;
-        document.getElementById('modalCampaignInfo').textContent = `Kampanye: ${decodeURIComponent(titleEncoded)}`;
-        document.getElementById('contentUrlInput').value = '';
-        document.getElementById('urlError').style.display = 'none';
-        document.getElementById('uploadModal').style.display = 'flex';
-      };
-
-      window.closeUploadModal = function() {
-        document.getElementById('uploadModal').style.display = 'none';
-      };
-
-      document.getElementById('btnSubmitContent').addEventListener('click', async function() {
-        const appId = document.getElementById('uploadAppId').value;
-        const url = (document.getElementById('contentUrlInput').value || '').trim();
-        const err = document.getElementById('urlError');
-        const btn = document.getElementById('btnSubmitContent');
-
-        if (!url || !url.startsWith('http')) {
-          err.textContent = 'Harap masukkan URL yang valid (diawali https:// atau http://)';
-          err.style.display = 'block';
-          return;
-        }
-
-        btn.disabled = true;
-        const res = KolabDB.submitContent(appId, url);
-        if (res.ok) {
-          await KolabDB.flush();
-          closeUploadModal();
-          KolabUI.showToast('Konten berhasil dikirim ke UMKM!');
-          renderAll();
-        } else {
-          err.textContent = res.message || 'Gagal mengirim konten';
-          err.style.display = 'block';
-        }
-        btn.disabled = false;
-      });
-
-      window.handleConnectYouTube = async function() {
-        try {
-          const res = await KolabDB.connectYouTubeWithGoogle(session.id);
-          if (res.ok) {
+                  <p style="margin: 0; font-size: 14px; color: var(--copy); white-space: pre-line;">${esc(c.brief)}</p>
+                </div>`;
+              }).join('')}
+            </div>`;
+          inv.querySelectorAll('[data-join]').forEach((b) => b.addEventListener('click', async () => {
+            const r = KolabDB.respondInvitation(b.dataset.join, true);
             await KolabDB.flush();
-            KolabUI.showToast('Channel YouTube berhasil terhubung!');
-            renderAll();
-          } else {
-            KolabUI.showToast(res.message || 'Gagal menghubungkan YouTube. Buka halaman Analitik Sosial Media untuk sinkronisasi manual.');
-          }
-        } catch (err) {
-          KolabUI.showToast(err?.message || 'Gagal menghubungkan YouTube');
+            KolabUI.showToast(r.ok ? 'Undangan diterima. Selamat membuat video!' : r.message);
+            render();
+          }));
+          inv.querySelectorAll('[data-decline]').forEach((b) => b.addEventListener('click', async () => {
+            const r = KolabDB.respondInvitation(b.dataset.decline, false);
+            await KolabDB.flush();
+            KolabUI.showToast(r.ok ? 'Undangan ditolak.' : r.message);
+            render();
+          }));
+        } else {
+          inv.style.display = 'none';
         }
-      };
+
+        // Job berjalan
+        const jobsBox = document.getElementById('activeJobs');
+        jobsBox.innerHTML = active.length ? active.map(({ a, c }) => {
+          const sub = KolabDB.getSubmissionByApplication(a.id);
+          const u = KolabDB.getUserById(c.umkmId) || {};
+          const count = Number(sub?.revisionCount || 0);
+          let status = ['Buat dan kirim videomu', 'badge-accent'];
+          if (sub?.status === 'submitted') status = ['Menunggu review UMKM', 'badge-notice'];
+          if (sub?.status === 'revision') status = ['Perlu revisi', 'badge-accent'];
+          if (sub?.status === 'approved') status = ['Disetujui, honor masuk', 'badge-open'];
+          const hrs = sub ? KolabDB.autoApproveHoursLeft(sub) : null;
+          const canSend = !sub || sub.status === 'revision';
+          return `
+            <div class="job">
+              <div class="job-top">
+                <div style="min-width: 0;">
+                  <div style="font-weight: 600; font-size: 16px;">${esc(c.title)}</div>
+                  <div class="job-meta"><span>${esc(u.businessName || u.name || 'UMKM')}</span><span>Honor masuk ${rp(net(c))}</span><span>Batas ${fmtDate(c.deadline)}</span>${sub ? `<span>Revisi ${count} dari ${KolabDB.MAX_REVISIONS}</span>` : ''}</div>
+                </div>
+                <span class="badge ${status[1]}">${status[0]}</span>
+              </div>
+              <details ${!sub ? 'open' : ''}>
+                <summary style="cursor: pointer; font-weight: 600; font-size: 14px; min-height: 28px;">Arahan video</summary>
+                <p style="margin: 8px 0 0; font-size: 14px; color: var(--copy); white-space: pre-line;">${esc(c.brief)}</p>
+              </details>
+              ${sub?.status === 'revision' ? `<div class="chat-thread"><div class="chat-bubble in">${esc(sub.revisionNote || 'UMKM meminta revisi.')}<span class="time">Catatan revisi ke-${count} dari UMKM</span></div></div>` : ''}
+              ${sub?.status === 'submitted' ? `<div style="font-size: 14px; color: var(--copy);">Kalau UMKM tidak merespons, videomu otomatis disetujui dalam <strong>${Math.ceil(hrs ?? 0)} jam</strong>.</div>` : ''}
+              ${canSend ? `
+                <form class="submit-row" data-submit="${a.id}" novalidate>
+                  <label class="sr-only" for="url_${a.id}">Link video</label>
+                  <input type="url" id="url_${a.id}" class="input" placeholder="Tempel link video TikTok, Instagram, atau YouTube" value="${sub ? esc(sub.fileUrl) : ''}">
+                  <label class="sr-only" for="note_${a.id}">Catatan untuk UMKM</label>
+                  <input type="text" id="note_${a.id}" class="input" maxlength="300" placeholder="Catatan singkat untuk UMKM (opsional)">
+                  <button type="submit" class="btn-primary">${sub ? 'Kirim revisi' : 'Kirim video'}</button>
+                </form>` : ''}
+              ${sub?.status === 'approved' ? `<a href="creator-library.html" class="text-accent" style="font-weight: 600; font-size: 14px;">Atur video ini di Video saya</a>` : ''}
+            </div>`;
+        }).join('') : `<div class="empty-state"><strong>Belum ada job berjalan</strong>Lamar job yang cocok. Setelah UMKM memilihmu, job akan muncul di sini.<div style="margin-top: 14px;"><a href="campaign-browse.html" class="btn-primary btn-sm">Cari job</a></div></div>`;
+
+        jobsBox.querySelectorAll('[data-submit]').forEach((f) => f.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const id = f.dataset.submit;
+          const url = document.getElementById('url_' + id).value.trim();
+          if (!/^https?:\/\//i.test(url)) { KolabUI.showToast('Tempel link video yang lengkap, diawali https://'); return; }
+          const r = KolabDB.submitContent(id, session.id, { fileUrl: url, note: document.getElementById('note_' + id).value.trim() });
+          await KolabDB.flush();
+          KolabUI.showToast(r.ok ? 'Video terkirim. UMKM punya waktu 3×24 jam untuk review.' : r.message);
+          render();
+        }));
+
+        // Lamaran lain
+        const LABEL = { pending: ['Menunggu keputusan UMKM', 'badge-notice'], rejected: ['Tidak dipilih', 'badge-neutral'], declined: ['Kamu menolak undangan', 'badge-neutral'], expired: ['Batal, lewat batas waktu', 'badge-neutral'] };
+        document.getElementById('applications').innerHTML = others.length ? others.map(({ a, c }) => `
+          <div class="kv"><span class="k" style="color: var(--ink); font-weight: 500;">${esc(c.title)}</span><span class="badge ${LABEL[a.status][1]}">${LABEL[a.status][0]}</span></div>`).join('')
+          : `<div style="font-size: 14px; color: var(--meta);">Lamaran yang masih menunggu keputusan akan muncul di sini.</div>`;
+
+        // Paket
+        document.getElementById('planCard').innerHTML = `
+          <h2 class="card-title" style="margin: 0 0 12px; font-size: 22px;">Paket ${esc(plan.name || 'Gratis')}</h2>
+          <div class="kv"><span class="k">Biaya layanan</span><span class="v">${Math.round(fee * 100)}%</span></div>
+          <div class="kv"><span class="k">Jual video di Video siap pakai</span><span class="v">${plan.maxLibraryListings >= 999 ? 'Tanpa batas' : (plan.maxLibraryListings ?? 2) + ' video'}</span></div>
+          <a href="pricing.html" class="btn-outline btn-sm" style="width: 100%; margin-top: 14px;">${fee > 0.07 ? 'Hemat biaya layanan' : 'Kelola paket'}</a>`;
+
+        // Profil
+        const me = KolabDB.getUserById(session.id) || {};
+        const soc = KolabDB.getSocialSummary(session.id) || {};
+        const rev = KolabDB.getReviewsForUser(session.id) || {};
+        document.getElementById('profileCard').innerHTML = `
+          <h2 class="card-title" style="margin: 0 0 12px; font-size: 22px;">Profilmu</h2>
+          <div class="kv"><span class="k">Bidang</span><span class="v">${esc(me.niche ? me.niche.charAt(0).toUpperCase() + me.niche.slice(1) : 'Belum diisi')}</span></div>
+          <div class="kv"><span class="k">Akun sosmed tersambung</span><span class="v">${soc.connectedCount || 0} dari 3</span></div>
+          <div class="kv"><span class="k">Rating dari UMKM</span><span class="v">${rev.average != null ? rev.average + ' (' + rev.count + ' ulasan)' : 'Belum ada'}</span></div>
+          <div class="kv"><span class="k">Status</span><span class="v">${soc.connectedCount > 0 ? 'Akun terverifikasi' : 'Belum terverifikasi'}</span></div>
+          <a href="creator-profile.html?id=${encodeURIComponent(session.id)}" class="btn-outline btn-sm" style="width: 100%; margin-top: 14px;">Lihat profil publik</a>`;
+
+        // Langkah pertama
+        const steps = [
+          { label: 'Sambungkan akun TikTok, Instagram, atau YouTube', done: (soc.connectedCount || 0) > 0, href: 'creator-analytics.html' },
+          { label: 'Lamar job pertama', done: apps.length > 0, href: 'campaign-browse.html' },
+          { label: 'Kirim video pertama', done: active.some(({ a }) => KolabDB.getSubmissionByApplication(a.id)), href: '#activeJobs' },
+        ];
+        const doneCount = steps.filter((s) => s.done).length;
+        const onb = document.getElementById('onboardingCard');
+        onb.style.display = doneCount < steps.length ? 'block' : 'none';
+        document.getElementById('onbProgress').textContent = `${doneCount} dari ${steps.length}`;
+        document.getElementById('onbList').innerHTML = steps.map((s, i) => `
+          <li class="${s.done ? 'done' : ''}"><span class="tick" aria-hidden="true">${s.done ? '✓' : i + 1}</span><span style="flex: 1;"><span class="label">${s.label}</span>${s.done ? '' : ` <a href="${s.href}" class="text-accent" style="font-weight: 600; margin-left: 6px;">Mulai</a>`}</span></li>`).join('');
+      }
+      render();
     }
   </script>
 </body>

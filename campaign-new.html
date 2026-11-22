@@ -3,154 +3,178 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buat Kampanye Baru - Kolab</title>
+  <title>Buat kampanye – Kolab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .step-panel[hidden] { display: none; }
+    .step-actions { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .ai-box { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; background: var(--paper); }
+    .summary-sticky { position: sticky; top: 88px; }
+    @media (max-width: 767px) { .summary-sticky { position: static; } }
+  </style>
 </head>
 <body>
   <div id="navbar"></div>
 
-  <main class="container" style="max-width: 780px;">
-    <div style="margin-bottom: 24px;">
-      <a href="dashboard-umkm.html" style="font-size: 13px; color: var(--copy); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
-        ← Kembali ke Dashboard
-      </a>
-      <h1 style="font-size: 26px; font-weight: 700; margin: 0 0 6px;">Buat Kampanye Baru</h1>
-      <p style="margin: 0; color: var(--copy); font-size: 14px;">
-        Buka slot kolaborasi untuk micro-creator lokal dan amankan dana di sistem escrow.
-      </p>
-    </div>
-
-    <!-- Saldo Info Banner -->
-    <div class="card" style="padding: 16px 20px; background: #fff; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+  <main class="container">
+    <a href="dashboard-umkm.html" style="font-size: 14px; color: var(--meta); display: inline-flex; gap: 6px; margin-bottom: 14px;">← Kembali ke dashboard</a>
+    <div class="page-head" style="margin-bottom: 24px;">
       <div>
-        <span style="font-size: 13px; color: var(--copy);">Saldo Tersedia Saat Ini:</span>
-        <strong style="font-size: 16px; margin-left: 6px;" class="tabular-nums" id="currentBalanceDisplay">Rp0</strong>
-      </div>
-      <div>
-        <a href="dashboard-umkm.html" class="btn-outline btn-sm">+ Top Up Saldo</a>
+        <span class="eyebrow">Kampanye baru</span>
+        <h1 style="margin: 8px 0 0;">Ceritakan usahamu, kreator yang membuat videonya</h1>
+        <p>Tiga langkah singkat. Uangnya baru dibayarkan ke kreator setelah kamu menyetujui video.</p>
       </div>
     </div>
 
-    <div class="card">
-      <form id="newCampaignForm" onsubmit="return false;">
-        <!-- Title -->
-        <div class="form-group">
-          <label class="form-label" for="title">Judul Kampanye <span style="color: var(--accent);">*</span></label>
-          <input type="text" id="title" class="input" placeholder="Contoh: Review Menu Kopi Susu Gula Aren & Suasana Kedai">
-          <div id="titleError" class="error-text" style="display: none;">Judul kampanye wajib diisi</div>
-        </div>
+    <ol class="stepper" aria-label="Langkah membuat kampanye" style="list-style: none; padding: 0;">
+      <li class="step active" id="stepTab1"><span class="num">LANGKAH 1</span>Apa yang dipromosikan</li>
+      <li class="step" id="stepTab2"><span class="num">LANGKAH 2</span>Kreator seperti apa</li>
+      <li class="step" id="stepTab3"><span class="num">LANGKAH 3</span>Honor dan batas waktu</li>
+    </ol>
 
-        <!-- Brief -->
-        <div class="form-group">
-          <label class="form-label" for="brief">Brief & Arahan Konten</label>
-          <textarea id="brief" rows="4" class="input" placeholder="Jelaskan poin utama yang perlu disorot kreator (misal: rasa kopi, tempat cozy, promo khusus)..."></textarea>
-          <div class="form-hint">Berikan arahan yang jelas agar kreator dapat membuat konten yang sesuai ekspektasi.</div>
-        </div>
-
-        <!-- Platform (checkbox multi) -->
-        <div class="form-group">
-          <label class="form-label">Platform Target</label>
-          <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px;">
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
-              <input type="checkbox" name="platform" value="TikTok" checked> TikTok
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
-              <input type="checkbox" name="platform" value="Instagram Reels" checked> Instagram Reels
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
-              <input type="checkbox" name="platform" value="YouTube Shorts"> YouTube Shorts
-            </label>
-          </div>
-        </div>
-
-        <!-- Content Type -->
-        <div class="form-group">
-          <label class="form-label" for="contentType">Tipe Konten</label>
-          <select id="contentType" class="input">
-            <option value="Video Review">Video Review (30-60 detik)</option>
-            <option value="Unboxing & Try-On">Unboxing & Try-On</option>
-            <option value="Tutorial / Edukasi">Tutorial & Cara Pakai</option>
-            <option value="Story & Daily Life">Vlog Kunjungan / Daily Life</option>
-          </select>
-        </div>
-
-        <!-- Target Niche -->
-        <div class="form-group">
-          <label class="form-label" for="targetNiche">Target Niche Kreator</label>
-          <select id="targetNiche" class="input">
-            <option value="food">Kuliner / Food & Beverage</option>
-            <option value="lifestyle">Lifestyle & Daily Vlog</option>
-            <option value="beauty">Beauty & Skincare</option>
-            <option value="fashion">Fashion & Pakaian</option>
-            <option value="lainnya">Lainnya / Umum</option>
-          </select>
-          <div class="form-hint">Membantu sistem Kolab mencocokkan rekomendasi micro-creator yang paling relevan.</div>
-        </div>
-
-        <!-- Grid Slots & Budget -->
-        <div class="grid-2">
+    <div class="grid-main-side">
+      <form id="campaignForm" class="card" novalidate>
+        <!-- LANGKAH 1 -->
+        <section class="step-panel" id="panel1" aria-labelledby="h1Step">
+          <h2 class="card-title" id="h1Step" style="margin: 0 0 20px;">Apa yang mau dipromosikan?</h2>
           <div class="form-group">
-            <label class="form-label" for="slots">Jumlah Slot Kreator <span style="color: var(--accent);">*</span></label>
-            <input type="number" id="slots" class="input" min="1" value="2" oninput="updateLivePreview()">
-            <div id="slotsError" class="error-text" style="display: none;">Jumlah slot harus minimal 1</div>
+            <label class="form-label" for="title">Judul kampanye</label>
+            <input type="text" id="title" class="input" maxlength="180" placeholder="Contoh: Review bakso urat dan suasana warung" aria-describedby="titleError">
+            <div id="titleError" class="error-text" style="display: none;" role="alert">Isi judul kampanye, minimal 3 huruf.</div>
           </div>
 
+          <div class="ai-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 4px;">
+              <strong style="font-size: 16px;">Bingung menulis arahan? Biar dibantu AI</strong>
+              <span class="badge badge-soft">AI Brief Builder</span>
+            </div>
+            <p style="margin: 0 0 16px; font-size: 14px; color: var(--copy);">Jawab beberapa pertanyaan, lalu arahan video disusun otomatis. Kamu tetap bisa mengeditnya.</p>
+            <div class="grid-2" style="gap: 14px;">
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" for="aiProduct">Produk atau usahamu</label>
+                <input type="text" id="aiProduct" class="input" maxlength="200" placeholder="Bakso urat Mas Ari, Bandung">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" for="aiAudience">Siapa pembelinya?</label>
+                <input type="text" id="aiAudience" class="input" maxlength="200" placeholder="Mahasiswa dan pekerja kantoran">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" for="aiStrength">Apa keunggulannya?</label>
+                <input type="text" id="aiStrength" class="input" maxlength="300" placeholder="Kuah kaldu sapi, porsi besar, harga 15 ribu">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" for="aiPromo">Promo yang wajib disebut (opsional)</label>
+                <input type="text" id="aiPromo" class="input" maxlength="200" placeholder="Gratis es teh setiap Jumat">
+              </div>
+            </div>
+            <button type="button" id="btnAiBrief" class="btn-dark btn-sm" style="margin-top: 16px;">Susun arahan video</button>
+            <span id="aiStatus" role="status" style="margin-left: 10px; font-size: 13px; color: var(--meta);"></span>
+          </div>
+
+          <div class="form-group" style="margin-top: 20px;">
+            <label class="form-label" for="brief">Arahan video untuk kreator</label>
+            <textarea id="brief" rows="7" class="input" maxlength="2000" placeholder="Tulis hal yang wajib ditampilkan, gaya video, dan ajakan di akhir." aria-describedby="briefHint briefError"></textarea>
+            <div class="form-hint" id="briefHint">Revisi nanti mengacu ke arahan ini, jadi tulis sejelas mungkin.</div>
+            <div id="briefError" class="error-text" style="display: none;" role="alert">Tulis arahan video minimal 20 huruf, atau susun dengan AI.</div>
+          </div>
+          <div class="step-actions">
+            <a href="dashboard-umkm.html" class="btn-outline">Batal</a>
+            <button type="button" class="btn-primary" data-next="2">Lanjut</button>
+          </div>
+        </section>
+
+        <!-- LANGKAH 2 -->
+        <section class="step-panel" id="panel2" hidden aria-labelledby="h2Step">
+          <h2 class="card-title" id="h2Step" style="margin: 0 0 20px;">Kreator seperti apa yang kamu cari?</h2>
+          <fieldset class="form-group" style="border: none; padding: 0; margin: 0 0 20px;">
+            <legend class="form-label">Platform</legend>
+            <div class="choice-grid">
+              <label class="choice"><input type="checkbox" name="platform" value="TikTok" checked><span class="title">TikTok</span><span class="desc">Video vertikal pendek</span></label>
+              <label class="choice"><input type="checkbox" name="platform" value="Instagram Reels"><span class="title">Instagram Reels</span><span class="desc">Video vertikal di Instagram</span></label>
+              <label class="choice"><input type="checkbox" name="platform" value="YouTube Shorts"><span class="title">YouTube Shorts</span><span class="desc">Video pendek di YouTube</span></label>
+            </div>
+            <div id="platformError" class="error-text" style="display: none;" role="alert">Pilih minimal satu platform.</div>
+          </fieldset>
+          <fieldset class="form-group" style="border: none; padding: 0; margin: 0 0 20px;">
+            <legend class="form-label">Jenis video</legend>
+            <div class="choice-grid">
+              <label class="choice"><input type="radio" name="contentType" value="Video review" checked><span class="title">Review</span><span class="desc">Kreator mencoba dan memberi pendapat, 30–60 detik</span></label>
+              <label class="choice"><input type="radio" name="contentType" value="Unboxing atau coba pakai"><span class="title">Unboxing atau coba pakai</span><span class="desc">Cocok untuk fashion dan kecantikan</span></label>
+              <label class="choice"><input type="radio" name="contentType" value="Tutorial"><span class="title">Tutorial</span><span class="desc">Cara pakai atau cara pesan</span></label>
+              <label class="choice"><input type="radio" name="contentType" value="Vlog kunjungan"><span class="title">Vlog kunjungan</span><span class="desc">Kreator datang ke tempatmu</span></label>
+            </div>
+          </fieldset>
           <div class="form-group">
-            <label class="form-label" for="budgetPerSlot">Budget per Slot (Rp) <span style="color: var(--accent);">*</span></label>
-            <input type="number" id="budgetPerSlot" class="input" min="10000" step="50000" value="250000" oninput="updateLivePreview()">
-            <div id="budgetError" class="error-text" style="display: none;">Budget per slot harus lebih dari 0</div>
+            <label class="form-label" for="targetNiche">Bidang kreator</label>
+            <select id="targetNiche" class="input">
+              <option value="food">Kuliner dan minuman</option>
+              <option value="fashion">Fashion</option>
+              <option value="beauty">Kecantikan dan perawatan</option>
+              <option value="lifestyle">Gaya hidup</option>
+              <option value="lainnya">Lainnya</option>
+            </select>
+            <div class="form-hint">Dipakai untuk merekomendasikan kreator yang cocok. Kamu tetap memilih sendiri siapa yang diterima.</div>
           </div>
-        </div>
-
-        <!-- Payment Model -->
-        <div class="form-group">
-          <label class="form-label">Model Pembayaran</label>
-          <div style="display: flex; gap: 12px 24px; flex-wrap: wrap; margin-top: 8px;">
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
-              <input type="radio" name="paymentModel" value="fixed" checked> Fixed Budget (Rekomendasi)
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
-              <input type="radio" name="paymentModel" value="performance"> Berbasis Performa
-            </label>
+          <div class="step-actions">
+            <button type="button" class="btn-outline" data-prev="1">Kembali</button>
+            <button type="button" class="btn-primary" data-next="3">Lanjut</button>
           </div>
-        </div>
+        </section>
 
-        <!-- Deadline -->
-        <div class="form-group">
-          <label class="form-label" for="deadline">Batas Waktu Pengiriman Konten (Deadline)</label>
-          <input type="date" id="deadline" class="input">
-        </div>
-
-        <!-- Live Preview Total Escrow -->
-        <div style="background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 18px 20px; margin: 24px 0;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-            <span style="font-size: 15px; font-weight: 600; color: var(--ink);">Total dana ditahan:</span>
-            <span id="liveTotalEscrow" class="stat-value tabular-nums" style="font-size: 22px; color: var(--accent);">Rp500.000</span>
+        <!-- LANGKAH 3 -->
+        <section class="step-panel" id="panel3" hidden aria-labelledby="h3Step">
+          <h2 class="card-title" id="h3Step" style="margin: 0 0 20px;">Honor dan batas waktu</h2>
+          <div class="grid-2" style="gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="slots">Jumlah kreator yang dibutuhkan</label>
+              <input type="number" id="slots" class="input" inputmode="numeric" min="1" max="100" value="2" aria-describedby="slotsError">
+              <div id="slotsError" class="error-text" style="display: none;" role="alert">Minimal 1 kreator, maksimal 100.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="budgetPerSlot">Honor per kreator (Rp)</label>
+              <input type="number" id="budgetPerSlot" class="input" inputmode="numeric" min="10000" step="10000" value="250000" aria-describedby="budgetHint budgetError">
+              <div class="form-hint" id="budgetHint">Kreator menerima honor ini dikurangi biaya layanan Kolab (7–15%, tergantung paket kreator). Kamu tidak dikenai biaya tambahan.</div>
+              <div id="budgetError" class="error-text" style="display: none;" role="alert">Honor minimal Rp10.000 per kreator.</div>
+            </div>
           </div>
-          <div style="font-size: 12px; color: var(--copy); margin-top: 6px;">
-            Dana ini akan otomatis dipindahkan dari Saldo Tersedia ke Saldo Ditahan (Escrow) setelah kampanye dibuat.
+          <div class="form-group">
+            <label class="form-label" for="deadline">Batas waktu kirim video</label>
+            <input type="date" id="deadline" class="input" style="max-width: 280px;" aria-describedby="deadlineHint deadlineError">
+            <div class="form-hint" id="deadlineHint">Kreator yang belum mengirim video sampai tanggal ini dianggap batal, dan honornya kembali ke saldomu.</div>
+            <div id="deadlineError" class="error-text" style="display: none;" role="alert">Pilih tanggal minimal 3 hari dari sekarang.</div>
           </div>
-        </div>
-
-        <!-- Error Message Container (TEPAT DI ATAS TOMBOL SUBMIT) -->
-        <div id="submitGeneralError" class="error-text" style="display: none; margin-bottom: 16px; padding: 12px 14px; background: var(--bg-danger); border-radius: 8px;"></div>
-
-        <!-- Success Toast Div -->
-        <div id="submitSuccessNotice" style="display: none; margin-bottom: 16px; padding: 12px 14px; background: var(--bg-success); color: var(--text-success); border-radius: 8px; font-size: 14px; font-weight: 500;">
-          ✓ Kampanye berhasil dibuat! Mengalihkan ke dashboard...
-        </div>
-
-        <!-- Submit Buttons -->
-        <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
-          <a href="dashboard-umkm.html" class="btn-outline">Batal</a>
-          <button type="button" id="btnSubmitCampaign" class="btn-primary" onclick="handleSubmitCampaign()">
-            Terbitkan Kampanye & Tahan Escrow
-          </button>
-        </div>
+          <div id="submitError" class="notice-bar" style="display: none; margin-top: 8px; background: var(--bg-danger); color: var(--text-danger);" role="alert"></div>
+          <div class="step-actions">
+            <button type="button" class="btn-outline" data-prev="2">Kembali</button>
+            <button type="submit" class="btn-primary" id="btnSubmit">Terbitkan kampanye</button>
+          </div>
+        </section>
       </form>
+
+      <aside>
+        <div class="summary-sticky" style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="receipt" aria-live="polite">
+            <div style="text-align: center; letter-spacing: .18em;">RINGKASAN BIAYA</div>
+            <div style="text-align: center; color: #7A6E68;" id="sumTitle">Kampanye baru</div>
+            <div class="rule"></div>
+            <div class="row"><span>Honor kreator</span><span id="sumHonor">2 × 250.000</span></div>
+            <div class="row"><span>Biaya untukmu</span><span>0</span></div>
+            <div class="rule"></div>
+            <div class="row" style="font-size: 13px; font-weight: 500;"><span>TOTAL</span><span id="sumTotal">Rp500.000</span></div>
+            <div class="stamp">DITAHAN AMAN</div>
+            <div style="margin-top: 8px; text-align: center; color: #7A6E68; font-size: 11px;">Cair per kreator setelah kamu menyetujui videonya</div>
+          </div>
+          <div class="card" style="padding: 20px;">
+            <div class="kv"><span class="k">Saldo kamu</span><span class="v tabular-nums" id="sumBalance">Rp0</span></div>
+            <div class="kv"><span class="k">Hak pakai video</span><span class="v" id="sumRights">-</span></div>
+            <div class="kv"><span class="k">Revisi</span><span class="v">Sampai 5 kali</span></div>
+            <div class="kv"><span class="k">Kreator</span><span class="v">Kamu yang memilih</span></div>
+            <p style="margin: 12px 0 0; font-size: 13px; color: var(--meta);" id="rightsDetail"></p>
+          </div>
+        </div>
+      </aside>
     </div>
   </main>
 
@@ -160,143 +184,160 @@
     const KolabDB = window.KolabDB;
     const KolabUI = window.KolabUI;
     await KolabDB.ready();
-
     const session = KolabDB.requireRole(['umkm']);
+    const rp = (n) => KolabDB.formatRupiah(n || 0);
 
     if (session) {
       KolabUI.renderNavbar('campaign-new');
+      const $ = (id) => document.getElementById(id);
 
-      function refreshBalance() {
-        const wallet = KolabDB.getWallet(session.id);
-        document.getElementById('currentBalanceDisplay').textContent = KolabDB.formatRupiah(wallet.balance);
-      }
+      const rights = KolabDB.usageRightsForPlan(session.id);
+      $('sumRights').textContent = rights.label;
+      $('rightsDetail').textContent = rights.detail + ' Hak pakai mengikuti paketmu saat kampanye dibuat.';
+
+      const refreshBalance = () => { $('sumBalance').textContent = rp(KolabDB.getWallet(session.id).balance); };
       refreshBalance();
 
-      const d = new Date();
-      d.setDate(d.getDate() + 30);
-      document.getElementById('deadline').value = d.toISOString().split('T')[0];
+      const d = new Date(); d.setDate(d.getDate() + 14);
+      $('deadline').value = d.toISOString().slice(0, 10);
+      const minD = new Date(); minD.setDate(minD.getDate() + 3);
+      $('deadline').min = minD.toISOString().slice(0, 10);
 
-      function updateLivePreview() {
-        const slots = Number(document.getElementById('slots').value) || 0;
-        const budget = Number(document.getElementById('budgetPerSlot').value) || 0;
-        const total = Math.max(0, slots * budget);
-        document.getElementById('liveTotalEscrow').textContent = KolabDB.formatRupiah(total);
+      function updateSummary() {
+        const slots = Math.max(0, Math.round(Number($('slots').value) || 0));
+        const budget = Math.max(0, Math.round(Number($('budgetPerSlot').value) || 0));
+        $('sumHonor').textContent = `${slots} × ${budget.toLocaleString('id-ID')}`;
+        $('sumTotal').textContent = rp(slots * budget);
+        $('sumTitle').textContent = $('title').value.trim() || 'Kampanye baru';
       }
+      ['slots', 'budgetPerSlot', 'title'].forEach((id) => $(id).addEventListener('input', updateSummary));
+      updateSummary();
 
-      window.updateLivePreview = updateLivePreview;
-      updateLivePreview();
-
-      window.handleSubmitCampaign = async function() {
-        const titleEl = document.getElementById('title');
-        const briefEl = document.getElementById('brief');
-        const slotsEl = document.getElementById('slots');
-        const budgetEl = document.getElementById('budgetPerSlot');
-        const contentTypeEl = document.getElementById('contentType');
-        const deadlineEl = document.getElementById('deadline');
-        const generalError = document.getElementById('submitGeneralError');
-        const successNotice = document.getElementById('submitSuccessNotice');
-
-        document.getElementById('titleError').style.display = 'none';
-        document.getElementById('slotsError').style.display = 'none';
-        document.getElementById('budgetError').style.display = 'none';
-        generalError.style.display = 'none';
-        generalError.textContent = '';
-        successNotice.style.display = 'none';
-
-        const titleVal = titleEl.value.trim();
-        const slotsVal = Number(slotsEl.value);
-        const budgetVal = Number(budgetEl.value);
-
-        let hasError = false;
-
-        if (!titleVal || titleVal.length < 3) {
-          document.getElementById('titleError').textContent = 'Judul kampanye wajib diisi (minimal 3 karakter)';
-          document.getElementById('titleError').style.display = 'block';
-          hasError = true;
+      // Navigasi langkah
+      let current = 1;
+      function show(step) {
+        current = step;
+        [1, 2, 3].forEach((n) => {
+          $('panel' + n).hidden = n !== step;
+          const tab = $('stepTab' + n);
+          tab.classList.toggle('active', n === step);
+          tab.classList.toggle('done', n < step);
+          if (n === step) tab.setAttribute('aria-current', 'step'); else tab.removeAttribute('aria-current');
+        });
+        $('panel' + step).querySelector('h2').setAttribute('tabindex', '-1');
+        $('panel' + step).querySelector('h2').focus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      const err = (id, on) => { $(id).style.display = on ? 'block' : 'none'; };
+      function validate(step) {
+        let ok = true;
+        if (step === 1) {
+          const t = $('title').value.trim().length >= 3; err('titleError', !t); ok = ok && t;
+          const b = $('brief').value.trim().length >= 20; err('briefError', !b); ok = ok && b;
         }
-        if (!slotsVal || slotsVal <= 0) {
-          document.getElementById('slotsError').style.display = 'block';
-          hasError = true;
+        if (step === 2) {
+          const p = document.querySelectorAll('input[name="platform"]:checked').length > 0; err('platformError', !p); ok = ok && p;
         }
-        if (!budgetVal || budgetVal < 10000) {
-          document.getElementById('budgetError').textContent = 'Budget per slot minimal Rp10.000';
-          document.getElementById('budgetError').style.display = 'block';
-          hasError = true;
+        if (step === 3) {
+          const s = Number($('slots').value); const sOk = s >= 1 && s <= 100; err('slotsError', !sOk); ok = ok && sOk;
+          const b = Number($('budgetPerSlot').value) >= 10000; err('budgetError', !b); ok = ok && b;
+          const dOk = $('deadline').value && $('deadline').value >= $('deadline').min; err('deadlineError', !dOk); ok = ok && dOk;
         }
+        if (!ok) { const first = $('panel' + step).querySelector('.error-text[style*="block"]'); first?.previousElementSibling?.focus?.(); }
+        return ok;
+      }
+      document.querySelectorAll('[data-next]').forEach((b) => b.addEventListener('click', () => { if (validate(current)) show(Number(b.dataset.next)); }));
+      document.querySelectorAll('[data-prev]').forEach((b) => b.addEventListener('click', () => show(Number(b.dataset.prev))));
 
-        if (hasError) return;
+      // AI Brief Builder (dengan template cadangan kalau AI belum aktif)
+      function templateBrief(a) {
+        const lines = [
+          `- Buka 3 detik pertama dengan menunjukkan ${a.product || 'produk'} dari dekat.`,
+          a.strength ? `- Wajib sebut keunggulannya: ${a.strength}.` : '- Ceritakan apa yang kamu suka dari produk ini dengan jujur.',
+          a.audience ? `- Bicara seperti merekomendasikan ke teman, cocok untuk ${a.audience}.` : '- Bicara santai seperti merekomendasikan ke teman.',
+          a.promo ? `- Sebut promonya dengan jelas: ${a.promo}.` : '',
+          '- Tutup dengan ajakan mencoba dan info lokasi atau cara pesan.',
+          '- Jangan menyebut merek lain atau membandingkan dengan pesaing.',
+        ];
+        return lines.filter(Boolean).join('\n');
+      }
+      $('btnAiBrief').addEventListener('click', async () => {
+        const a = { product: $('aiProduct').value.trim(), strength: $('aiStrength').value.trim(), audience: $('aiAudience').value.trim(), promo: $('aiPromo').value.trim() };
+        if (!a.product) { $('aiStatus').textContent = 'Isi dulu produk atau usahamu.'; $('aiProduct').focus(); return; }
+        const btn = $('btnAiBrief'); btn.disabled = true; $('aiStatus').textContent = 'Menyusun arahan...';
+        const contentType = document.querySelector('input[name="contentType"]:checked')?.value || '';
+        const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map((c) => c.value).join(', ');
+        let brief = '';
+        try {
+          const resp = await fetch('/api/brief', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...a, contentType, platforms }) });
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok && data.ok && data.brief) brief = data.brief;
+        } catch { /* pakai template */ }
+        if (!brief) brief = templateBrief(a);
+        $('brief').value = brief;
+        if (!$('title').value.trim()) { $('title').value = `Review ${a.product}`.slice(0, 180); updateSummary(); }
+        $('aiStatus').textContent = 'Arahan sudah diisi di bawah. Silakan cek dan ubah kalau perlu.';
+        btn.disabled = false;
+        err('briefError', false);
+      });
 
-        const platformCheckboxes = document.querySelectorAll('input[name="platform"]:checked');
-        const platforms = [];
-        platformCheckboxes.forEach(function(cb) { platforms.push(cb.value); });
-
-        const paymentRadio = document.querySelector('input[name="paymentModel"]:checked');
-        const paymentModel = paymentRadio ? paymentRadio.value : 'fixed';
-        const targetNicheEl = document.getElementById('targetNiche');
-
+      // Terbitkan
+      $('campaignForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!validate(1)) { show(1); return; }
+        if (!validate(2)) { show(2); return; }
+        if (!validate(3)) return;
+        const submitError = $('submitError'); submitError.style.display = 'none';
         const formData = {
-          title: titleVal,
-          brief: briefEl.value.trim(),
-          platform: platforms.length > 0 ? platforms : ['TikTok'],
-          contentType: contentTypeEl.value,
-          targetNiche: targetNicheEl ? targetNicheEl.value : 'food',
-          slots: slotsVal,
-          budgetPerSlot: budgetVal,
-          paymentModel: paymentModel,
-          deadline: deadlineEl.value
+          title: $('title').value.trim(),
+          brief: $('brief').value.trim(),
+          platform: Array.from(document.querySelectorAll('input[name="platform"]:checked')).map((c) => c.value),
+          contentType: document.querySelector('input[name="contentType"]:checked')?.value || 'Video review',
+          targetNiche: $('targetNiche').value,
+          slots: Math.round(Number($('slots').value)),
+          budgetPerSlot: Math.round(Number($('budgetPerSlot').value)),
+          deadline: $('deadline').value,
         };
-
+        const done = async () => {
+          await KolabDB.flush();
+          $('btnSubmit').disabled = true;
+          KolabUI.showToast('Kampanye terbit. Kreator sekarang bisa melamar.');
+          setTimeout(() => { window.location.href = 'dashboard-umkm.html'; }, 900);
+        };
         const res = KolabDB.createCampaign(session.id, formData);
+        if (res.ok) { await done(); return; }
 
-        if (!res.ok) {
-          if (res.needTopup && res.requiredAmount > 0) {
-            const payAmt = Math.max(10000, Math.round(res.requiredAmount));
-            generalError.innerHTML = `${res.message} <button type="button" id="btnPayCampaignDeficit" class="btn-primary btn-sm" style="margin-left: 10px;">Top Up & Terbitkan via QRIS / VA (${KolabDB.formatRupiah(payAmt)})</button>`;
-            generalError.style.display = 'block';
-            document.getElementById('btnPayCampaignDeficit')?.addEventListener('click', () => {
-              KolabDB.openPaymentGateway({
-                userId: session.id,
-                amount: payAmt,
-                purpose: 'campaign',
-                title: 'Top Up Escrow Kampanye',
-                subtitle: `Untuk menerbitkan kampanye: ${titleVal}`,
-                onSettled: async function(order) {
-                  const methodLabel = String(order.method || 'QRIS').toUpperCase().replace('_', ' ');
-                  KolabDB.topUp(session.id, payAmt, methodLabel);
-                  refreshBalance();
-                  const retry = KolabDB.createCampaign(session.id, formData);
-                  if (retry.ok) {
-                    await KolabDB.flush();
-                    generalError.style.display = 'none';
-                    successNotice.style.display = 'block';
-                    document.getElementById('btnSubmitCampaign').disabled = true;
-                    setTimeout(() => { window.location.href = 'dashboard-umkm.html'; }, 800);
-                  } else {
-                    await KolabDB.flush();
-                    generalError.textContent = retry.message || 'Saldo bertambah, silakan klik Terbitkan ulang.';
-                  }
-                }
-              });
+        if (res.needTopup && res.requiredAmount > 0) {
+          const payAmt = Math.max(10000, Math.round(res.requiredAmount));
+          submitError.innerHTML = '';
+          const msg = document.createElement('span');
+          msg.textContent = `Saldo kurang ${rp(res.requiredAmount)}. `;
+          const btn = document.createElement('button');
+          btn.type = 'button'; btn.className = 'btn-primary btn-sm'; btn.style.marginLeft = '8px';
+          btn.textContent = `Isi ${rp(payAmt)} dan terbitkan`;
+          btn.addEventListener('click', () => {
+            KolabDB.openPaymentGateway({
+              userId: session.id, amount: payAmt, purpose: 'campaign',
+              title: 'Isi saldo untuk kampanye', subtitle: formData.title,
+              onSettled: async (order) => {
+                KolabDB.topUp(session.id, payAmt, String(order.method || 'QRIS').toUpperCase().replace('_', ' '));
+                refreshBalance();
+                const retry = KolabDB.createCampaign(session.id, formData);
+                if (retry.ok) await done(); else { await KolabDB.flush(); submitError.textContent = retry.message || 'Saldo sudah bertambah. Klik Terbitkan kampanye lagi.'; }
+              },
             });
-            return;
-          }
-
-          generalError.innerHTML = res.message || 'Gagal membuat kampanye';
-          if (res.needUpgrade) {
-            generalError.innerHTML += ' <a href="pricing.html" style="font-weight: 700; text-decoration: underline; margin-left: 8px; color: inherit;">Upgrade Paket ↗</a>';
-          }
-          generalError.style.display = 'block';
+          });
+          submitError.append(msg, btn);
+          submitError.style.display = 'flex';
           return;
         }
-
-        document.getElementById('btnSubmitCampaign').disabled = true;
-        await KolabDB.flush();
-        successNotice.style.display = 'block';
-
-        setTimeout(function() {
-          window.location.href = 'dashboard-umkm.html';
-        }, 800);
-      };
+        submitError.textContent = res.message || 'Kampanye belum bisa dibuat.';
+        if (res.needUpgrade) {
+          const a = document.createElement('a'); a.href = 'pricing.html'; a.textContent = 'Lihat paket'; a.style.cssText = 'font-weight:700;text-decoration:underline;margin-left:8px;';
+          submitError.append(a);
+        }
+        submitError.style.display = 'flex';
+      });
     }
   </script>
 </body>

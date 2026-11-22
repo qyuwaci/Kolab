@@ -484,6 +484,9 @@ async function loadCloudState(fbUser: FirebaseUser | null): Promise<void> {
             d.perfViews !== undefined
               ? { views: d.perfViews || 0, likes: d.perfLikes || 0, comments: d.perfComments || 0, clicks: d.perfClicks || 0 }
               : null,
+          revisionCount: Number(d.revisionCount || 0),
+          revisionNote: d.revisionNote || '',
+          submittedAt: d.submittedAt ? tsToIso(d.submittedAt) : tsToIso(d.updatedAt),
           createdAt: tsToIso(d.createdAt),
           updatedAt: tsToIso(d.updatedAt),
         });
@@ -1091,6 +1094,7 @@ function createCampaign(umkmId: string, data: Record<string, any>) {
   const platforms = Array.isArray(data.platform) && data.platform.length > 0 ? data.platform : ['TikTok'];
   const deliverableText = String(data.deliverable || `${data.contentType || 'Video Review'} (${platforms.join(', ')})`).slice(0, 300);
   const nicheVal = String(data.niche || data.targetNiche || 'food').slice(0, 80);
+  const usageRights = usageRightsForPlan(umkmId);
 
   const camp = {
     id,
@@ -1102,6 +1106,7 @@ function createCampaign(umkmId: string, data: Record<string, any>) {
     deliverable: deliverableText,
     contentType: String(data.contentType || deliverableText),
     platform: platforms,
+    usageRights,
     budgetPerSlot: budget,
     slots,
     deadline: String(data.deadline || new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10)).slice(0, 64),
@@ -1119,6 +1124,9 @@ function createCampaign(umkmId: string, data: Record<string, any>) {
       niche: camp.niche,
       brief: camp.brief,
       deliverable: camp.deliverable,
+      platform: camp.platform.slice(0, 3).map((x: string) => String(x).slice(0, 40)),
+      contentType: String(camp.contentType).slice(0, 80),
+      usageRights: camp.usageRights,
       budgetPerSlot: camp.budgetPerSlot,
       slots: camp.slots,
       deadline: camp.deadline,
@@ -1164,7 +1172,8 @@ function cancelCampaign(campaignId: string, umkmId: string) {
   const approvedApps = state.applications.filter(
     (a) => a.campaignId === campaignId && state.submissions.some((s) => s.applicationId === a.id && s.status === 'approved')
   ).length;
-  const refundSlots = Math.max(0, c.slots - approvedApps);
+  const expiredApps = state.applications.filter((a) => a.campaignId === campaignId && a.status === 'expired').length;
+  const refundSlots = Math.max(0, c.slots - approvedApps - expiredApps);
   const refundAmt = refundSlots * c.budgetPerSlot;
   c.status = 'cancelled';
 
@@ -1213,30 +1222,83 @@ function acceptedCount(campaignId: string): number {
   return state.applications.filter((a) => a.campaignId === campaignId && (a.status === 'accepted' || a.status === 'completed')).length;
 }
 
-function applyToCampaign(campaignId: string, creatorId: string) {
-  const c = findBy(state.campaigns, 'id', campaignId);
-  if (!c || c.status !== 'open') return { ok: false, message: 'Kampanye tidak lagi tersedia.' };
-  const existing = state.applications.find((a) => a.campaignId === campaignId && a.creatorId === creatorId);
-  if (existing) return { ok: false, message: 'Anda sudah tergabung dalam kampanye ini.' };
-  if (acceptedCount(campaignId) >= c.slots) return { ok: false, message: 'Maaf, seluruh slot kreator sudah penuh.' };
-
-  const id = genId('app');
-  const now = new Date().toISOString();
-  const app = { id, campaignId, umkmId: c.umkmId, creatorId, status: 'accepted', createdAt: now, updatedAt: now };
-  state.applications.push(app);
-
+function writeApplication(app: any) {
   enqueueWrite(
-    setDoc(doc(db, 'applications', id), {
-      id,
-      campaignId,
-      umkmId: c.umkmId,
-      creatorId,
-      status: 'accepted',
+    setDoc(doc(db, 'applications', app.id), {
+      id: app.id,
+      campaignId: app.campaignId,
+      umkmId: app.umkmId,
+      creatorId: app.creatorId,
+      status: app.status,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    }).catch((err) => handleFirestoreError(err, OperationType.CREATE, `applications/${id}`))
+    }).catch((err) => handleFirestoreError(err, OperationType.CREATE, `applications/${app.id}`))
   );
+}
+
+function setApplicationStatus(app: any, status: string) {
+  app.status = status;
+  app.updatedAt = new Date().toISOString();
+  enqueueWrite(
+    updateDoc(doc(db, 'applications', app.id), { status, updatedAt: serverTimestamp() })
+      .catch((err) => handleFirestoreError(err, OperationType.UPDATE, `applications/${app.id}`))
+  );
+}
+
+// Kreator melamar ke kampanye. Lamaran menunggu keputusan UMKM (seleksi), tidak langsung diterima.
+function applyToCampaign(campaignId: string, creatorId: string) {
+  const c = findBy(state.campaigns, 'id', campaignId);
+  if (!c || c.status !== 'open') return { ok: false, message: 'Kampanye ini sudah tidak menerima kreator.' };
+  if (c.deadline && new Date(c.deadline).getTime() < Date.now()) return { ok: false, message: 'Batas waktu kampanye ini sudah lewat.' };
+  const existing = state.applications.find((a) => a.campaignId === campaignId && a.creatorId === creatorId);
+  if (existing) return { ok: false, message: 'Kamu sudah melamar atau diundang ke kampanye ini.' };
+  if (acceptedCount(campaignId) >= c.slots) return { ok: false, message: 'Maaf, semua slot kreator sudah terisi.' };
+
+  const now = new Date().toISOString();
+  const app = { id: genId('app'), campaignId, umkmId: c.umkmId, creatorId, status: 'pending', createdAt: now, updatedAt: now };
+  state.applications.push(app);
+  writeApplication(app);
   return { ok: true, application: app };
+}
+
+// UMKM mengundang kreator dari rekomendasi. Kreator harus menerima dulu.
+function inviteCreator(campaignId: string, creatorId: string) {
+  const c = findBy(state.campaigns, 'id', campaignId);
+  if (!c || c.status !== 'open') return { ok: false, message: 'Kampanye ini sudah tidak aktif.' };
+  if (currentSession && c.umkmId !== currentSession.id) return { ok: false, message: 'Hanya pemilik kampanye yang bisa mengundang.' };
+  const existing = state.applications.find((a) => a.campaignId === campaignId && a.creatorId === creatorId);
+  if (existing) return { ok: false, message: 'Kreator ini sudah melamar atau diundang.' };
+  if (acceptedCount(campaignId) >= c.slots) return { ok: false, message: 'Semua slot kreator sudah terisi.' };
+
+  const now = new Date().toISOString();
+  const app = { id: genId('app'), campaignId, umkmId: c.umkmId, creatorId, status: 'invited', createdAt: now, updatedAt: now };
+  state.applications.push(app);
+  writeApplication(app);
+  return { ok: true, application: app };
+}
+
+// UMKM menerima atau menolak pelamar.
+function decideApplication(applicationId: string, accept: boolean) {
+  const app = findBy(state.applications, 'id', applicationId);
+  if (!app) return { ok: false, message: 'Lamaran tidak ditemukan.' };
+  if (currentSession && app.umkmId !== currentSession.id) return { ok: false, message: 'Hanya pemilik kampanye yang bisa memutuskan.' };
+  if (app.status !== 'pending') return { ok: false, message: 'Lamaran ini sudah diputuskan.' };
+  const c = findBy(state.campaigns, 'id', app.campaignId);
+  if (accept && c && acceptedCount(c.id) >= c.slots) return { ok: false, message: 'Semua slot sudah terisi. Tambah slot atau tolak pelamar lain.' };
+  setApplicationStatus(app, accept ? 'accepted' : 'rejected');
+  return { ok: true };
+}
+
+// Kreator menerima atau menolak undangan.
+function respondInvitation(applicationId: string, accept: boolean) {
+  const app = findBy(state.applications, 'id', applicationId);
+  if (!app) return { ok: false, message: 'Undangan tidak ditemukan.' };
+  if (currentSession && app.creatorId !== currentSession.id) return { ok: false, message: 'Undangan ini bukan untukmu.' };
+  if (app.status !== 'invited') return { ok: false, message: 'Undangan ini sudah dijawab.' };
+  const c = findBy(state.campaigns, 'id', app.campaignId);
+  if (accept && c && acceptedCount(c.id) >= c.slots) return { ok: false, message: 'Maaf, semua slot sudah terisi.' };
+  setApplicationStatus(app, accept ? 'accepted' : 'declined');
+  return { ok: true };
 }
 
 function submitContent(
@@ -1259,7 +1321,8 @@ function submitContent(
     if (app && !creatorId) creatorId = app.creatorId;
   }
 
-  if (!app || app.creatorId !== creatorId) return { ok: false, message: 'Aplikasi tidak valid.' };
+  if (!app || app.creatorId !== creatorId) return { ok: false, message: 'Data kampanye tidak valid.' };
+  if (app.status !== 'accepted') return { ok: false, message: 'Kamu bisa mengirim video setelah diterima di kampanye ini.' };
   if (!data.fileUrl || data.fileUrl.length < 5) return { ok: false, message: 'Tautan konten tidak valid.' };
 
   const existingSub = state.submissions.find((s) => s.applicationId === applicationId);
@@ -1268,13 +1331,16 @@ function submitContent(
   if (existingSub) {
     existingSub.fileUrl = data.fileUrl.slice(0, 500);
     existingSub.note = String(data.note || '').slice(0, 1000);
+    if (existingSub.status === 'approved') return { ok: false, message: 'Video ini sudah disetujui.' };
     existingSub.status = 'submitted';
     existingSub.updatedAt = now;
+    existingSub.submittedAt = now;
     enqueueWrite(
       updateDoc(doc(db, 'submissions', existingSub.id), {
         fileUrl: existingSub.fileUrl,
         note: existingSub.note,
         status: 'submitted',
+        submittedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }).catch((err) => handleFirestoreError(err, OperationType.UPDATE, `submissions/${existingSub.id}`))
     );
@@ -1295,6 +1361,9 @@ function submitContent(
     exclusiveSold: false,
     licensePricing: null,
     performance: null,
+    revisionCount: 0,
+    revisionNote: '',
+    submittedAt: now,
     createdAt: now,
     updatedAt: now,
   };
@@ -1312,6 +1381,8 @@ function submitContent(
       status: 'submitted',
       listed: false,
       exclusiveSold: false,
+      revisionCount: 0,
+      submittedAt: serverTimestamp(),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }).catch((err) => handleFirestoreError(err, OperationType.CREATE, `submissions/${id}`))
@@ -1319,18 +1390,39 @@ function submitContent(
   return { ok: true, submission: sub };
 }
 
-function requestRevision(submissionId: string) {
+const MAX_REVISIONS = 5;
+const AUTO_APPROVE_HOURS = 72;
+
+// UMKM minta revisi. Wajib ada catatan, paling banyak 5 kali.
+function requestRevision(submissionId: string, note?: string) {
   const s = findBy(state.submissions, 'id', submissionId);
-  if (!s) return { ok: false, message: 'Konten tidak ditemukan.' };
+  if (!s) return { ok: false, message: 'Video tidak ditemukan.' };
+  if (s.status !== 'submitted') return { ok: false, message: 'Video ini sedang tidak menunggu review.' };
+  const text = String(note || '').trim();
+  if (text.length < 3) return { ok: false, message: 'Tulis catatan revisi supaya kreator tahu apa yang perlu diperbaiki.' };
+  const count = Number(s.revisionCount || 0);
+  if (count >= MAX_REVISIONS) return { ok: false, message: `Batas revisi (${MAX_REVISIONS} kali) sudah habis. Setujui video atau laporkan masalah.` };
   s.status = 'revision';
+  s.revisionCount = count + 1;
+  s.revisionNote = text.slice(0, 1000);
   s.updatedAt = new Date().toISOString();
   enqueueWrite(
     updateDoc(doc(db, 'submissions', submissionId), {
       status: 'revision',
+      revisionCount: s.revisionCount,
+      revisionNote: s.revisionNote,
       updatedAt: serverTimestamp(),
     }).catch((err) => handleFirestoreError(err, OperationType.UPDATE, `submissions/${submissionId}`))
   );
-  return { ok: true };
+  return { ok: true, remaining: MAX_REVISIONS - s.revisionCount };
+}
+
+// Sisa waktu sebelum video otomatis disetujui (jam). null kalau tidak sedang menunggu review.
+function autoApproveHoursLeft(sub: any): number | null {
+  if (!sub || sub.status !== 'submitted') return null;
+  const sent = new Date(sub.submittedAt || sub.updatedAt || sub.createdAt).getTime();
+  if (!sent) return null;
+  return Math.max(0, AUTO_APPROVE_HOURS - (Date.now() - sent) / 3600000);
 }
 
 function approveSubmission(submissionId: string) {
@@ -1414,6 +1506,82 @@ function approveSubmission(submissionId: string) {
   }
 
   return { ok: true, net, fee };
+}
+
+// Aturan otomatis yang dijalankan saat pemilik kampanye membuka Kolab:
+// 1. Video yang tidak direspons 3x24 jam otomatis disetujui.
+// 2. Setelah deadline: kreator diterima yang belum mengirim video dianggap batal, dananya kembali;
+//    lamaran yang belum diputuskan ditolak; slot kosong dikembalikan dan kampanye ditutup.
+// Catatan: ini berjalan di browser pemilik kampanye. Versi server menyusul bersama perbaikan wallet.
+async function runAutoActions(umkmId: string) {
+  const result = { autoApproved: 0, refundedSlots: 0, closedCampaigns: 0 };
+  if (!umkmId || (currentSession && currentSession.id !== umkmId)) return result;
+
+  state.submissions
+    .filter((sub) => sub.umkmId === umkmId && sub.status === 'submitted' && autoApproveHoursLeft(sub) === 0)
+    .forEach((sub) => {
+      const r = approveSubmission(sub.id);
+      if (r.ok) result.autoApproved += 1;
+    });
+
+  const now = Date.now();
+  state.campaigns
+    .filter((c) => c.umkmId === umkmId && c.status === 'open' && c.deadline && new Date(c.deadline + 'T23:59:59').getTime() < now)
+    .forEach((c) => {
+      const w = walletOf(umkmId);
+      const apps = state.applications.filter((a) => a.campaignId === c.id);
+      apps.forEach((a) => {
+        if (a.status === 'pending' || a.status === 'invited') setApplicationStatus(a, a.status === 'pending' ? 'rejected' : 'declined');
+        if (a.status === 'accepted' && !state.submissions.some((sub) => sub.applicationId === a.id)) {
+          setApplicationStatus(a, 'expired');
+          w.held = Math.max(0, w.held - c.budgetPerSlot);
+          w.balance += c.budgetPerSlot;
+          result.refundedSlots += 1;
+        }
+      });
+      const stillReviewing = state.submissions.some((sub) => sub.campaignId === c.id && (sub.status === 'submitted' || sub.status === 'revision'));
+      if (!stillReviewing) {
+        const used = apps.filter((a) => ['accepted', 'completed', 'expired'].includes(a.status)).length;
+        const unfilled = Math.max(0, c.slots - used);
+        if (unfilled > 0) {
+          w.held = Math.max(0, w.held - unfilled * c.budgetPerSlot);
+          w.balance += unfilled * c.budgetPerSlot;
+          result.refundedSlots += unfilled;
+        }
+        c.status = 'completed';
+        result.closedCampaigns += 1;
+        enqueueWrite(
+          updateDoc(doc(db, 'campaigns', c.id), { status: 'completed', updatedAt: serverTimestamp() })
+            .catch((err) => handleFirestoreError(err, OperationType.UPDATE, `campaigns/${c.id}`))
+        );
+      }
+      enqueueWrite(
+        updateDoc(doc(db, 'wallets', umkmId), { balance: w.balance, held: w.held, updatedAt: serverTimestamp() })
+          .catch((err) => handleFirestoreError(err, OperationType.UPDATE, `wallets/${umkmId}`))
+      );
+    });
+
+  if (result.autoApproved || result.refundedSlots || result.closedCampaigns) await flush();
+  return result;
+}
+
+// Hak pakai video ditentukan oleh paket UMKM saat kampanye dibuat.
+const USAGE_RIGHTS: Record<string, { label: string; detail: string }> = {
+  organic: { label: 'Bagikan ulang di akunmu', detail: 'Video diunggah di akun kreator dan boleh kamu bagikan ulang di akun usahamu. Tidak untuk iklan berbayar.' },
+  ads6m: { label: 'Izin iklan 6 bulan', detail: 'Boleh dipakai untuk iklan berbayar di TikTok dan Meta selama 6 bulan sejak disetujui.' },
+  buyout: { label: 'Hak milik penuh', detail: 'Video jadi milikmu sepenuhnya dan tidak dijual ke pihak lain.' },
+};
+
+function usageRightsForPlan(umkmId: string): string {
+  const id = planOf(umkmId).plan.id;
+  if (id === 'business') return 'buyout';
+  if (id === 'pro') return 'ads6m';
+  return 'organic';
+}
+
+function usageRightsOf(campaign: any) {
+  const key = campaign?.usageRights && USAGE_RIGHTS[campaign.usageRights] ? campaign.usageRights : 'organic';
+  return { key, ...USAGE_RIGHTS[key] };
 }
 
 function setContentPerformance(submissionId: string, perf: Record<string, any>) {
@@ -1612,6 +1780,13 @@ function setContentListed(creatorId: string, submissionId: string, listed: boole
   if (!s || s.creatorId !== creatorId || s.status !== 'approved') return { ok: false, message: 'Konten tidak ditemukan.' };
   if (s.exclusiveSold) return { ok: false, message: 'Konten sudah terjual eksklusif.' };
   if (listed) {
+    const camp = findBy(state.campaigns, 'id', s.campaignId);
+    const rights = usageRightsOf(camp).key;
+    if (rights === 'buyout') return { ok: false, message: 'Video ini milik penuh UMKM pemesan, jadi tidak bisa dijual lagi.' };
+    if (rights === 'ads6m') {
+      const sinceApproval = Date.now() - new Date(s.updatedAt || s.createdAt).getTime();
+      if (sinceApproval < 180 * 86400000) return { ok: false, message: 'Video ini sedang dipakai iklan oleh UMKM pemesan. Bisa dijual setelah 6 bulan sejak disetujui.' };
+    }
     const limit = planOf(creatorId).plan.maxLibraryListings;
     const count = state.submissions.filter((x) => x.creatorId === creatorId && x.listed).length;
     if (!s.listed && count >= limit) {
@@ -1896,9 +2071,18 @@ const KolabDB = {
   createCampaign,
   cancelCampaign,
   applyToCampaign,
+  inviteCreator,
+  decideApplication,
+  respondInvitation,
   submitContent,
   requestRevision,
   approveSubmission,
+  runAutoActions,
+  autoApproveHoursLeft,
+  usageRightsOf,
+  usageRightsForPlan: (umkmId: string) => usageRightsOf({ usageRights: usageRightsForPlan(umkmId) }),
+  MAX_REVISIONS,
+  AUTO_APPROVE_HOURS,
   setContentPerformance,
   getCampaignById: (id: string) => {
     const c = findBy(state.campaigns, 'id', id);
