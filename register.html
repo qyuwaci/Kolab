@@ -215,6 +215,10 @@
     document.getElementById('choiceUmkm').addEventListener('click', () => selectRole('umkm'));
     document.getElementById('choiceCreator').addEventListener('click', () => selectRole('creator'));
 
+    // Pilih peran otomatis dari tautan landing page (register.html?role=umkm atau ?role=creator)
+    const presetRole = new URLSearchParams(window.location.search).get('role');
+    if (presetRole === 'umkm' || presetRole === 'creator') selectRole(presetRole);
+
     document.getElementById('btnRegister').addEventListener('click', async () => {
       document.querySelectorAll('.error-text').forEach((el) => (el.style.display = 'none'));
       const genErr = document.getElementById('registerGeneralError');
