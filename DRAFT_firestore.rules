@@ -272,10 +272,12 @@ service cloud.firestore {
           isAdmin() ||
           (
             isOwner(userId)
-            && incoming().role == existing().role
+            // Pemilik akun boleh pindah antara pemilik usaha dan kreator, tidak pernah menjadi admin
+            && (incoming().role == existing().role
+              || (existing().role in ['umkm', 'creator'] && incoming().role in ['umkm', 'creator']))
             && incoming().status == existing().status
             && incoming().diff(existing()).affectedKeys().hasOnly([
-              'name', 'businessName', 'category', 'city', 'niche', 'bio',
+              'role', 'name', 'businessName', 'category', 'city', 'niche', 'bio',
               'avatarUrl', 'followers', 'tier', 'planId', 'planCycle',
               'planStatus', 'planExpiresAt', 'updatedAt'
             ])
