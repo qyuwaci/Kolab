@@ -186,9 +186,69 @@
     const KolabDB = window.KolabDB;
     await KolabDB.ready();
 
+    const ROLE_NAME = { umkm: 'pemilik usaha', creator: 'kreator' };
+    const dashboardOf = (role) => role === 'umkm' ? 'dashboard-umkm.html' : role === 'creator' ? 'dashboard-creator.html' : 'dashboard-admin.html';
+    const wantedRole = new URLSearchParams(window.location.search).get('role');
+
+    // Akun yang sudah terdaftar dengan peran lain: tawarkan pindah mode, jangan diam-diam dialihkan.
+    function showSwitchPanel(currentRole, targetRole, profile) {
+      const card = document.querySelector('.register-card');
+      card.innerHTML = `
+        <h2 style="margin: 0 0 8px; font-family: var(--font-serif); font-weight: 400; font-size: 32px; text-align: center;">Pakai Kolab sebagai ${ROLE_NAME[targetRole]}?</h2>
+        <p style="margin: 0 0 20px; font-size: 15px; color: var(--copy); text-align: center;">Akun Google ini sudah terdaftar sebagai ${ROLE_NAME[currentRole]}. Kamu bisa memakai akun yang sama untuk dua peran dan pindah kapan saja lewat menu profil. Kampanye, video, dan saldomu tetap tersimpan.</p>
+        ${targetRole === 'creator' ? `
+          <div class="form-group">
+            <label class="form-label" for="swNiche">Bidang kontenmu</label>
+            <select id="swNiche" class="input">
+              <option value="food">Kuliner dan minuman</option>
+              <option value="beauty">Kecantikan</option>
+              <option value="fashion">Fashion</option>
+              <option value="lifestyle" selected>Gaya hidup</option>
+              <option value="tech">Teknologi</option>
+            </select>
+          </div>` : `
+          <div class="form-group">
+            <label class="form-label" for="swBusiness">Nama usaha</label>
+            <input type="text" id="swBusiness" class="input" maxlength="140" placeholder="Contoh: Bakso Urat Mas Ari">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="swCity">Kota</label>
+            <input type="text" id="swCity" class="input" maxlength="80" placeholder="Contoh: Bandung">
+          </div>`}
+        <div id="swError" class="error-text" style="display: none;" role="alert"></div>
+        <button type="button" id="btnSwitch" class="btn-primary" style="width: 100%;">Aktifkan mode ${ROLE_NAME[targetRole]}</button>
+        <a href="${dashboardOf(currentRole)}" class="btn-outline" style="width: 100%; margin-top: 10px;">Tetap sebagai ${ROLE_NAME[currentRole]}</a>
+      `;
+      if (profile?.niche && document.getElementById('swNiche')) document.getElementById('swNiche').value = profile.niche;
+      if (profile?.businessName && document.getElementById('swBusiness')) document.getElementById('swBusiness').value = profile.businessName;
+      if (profile?.city && document.getElementById('swCity')) document.getElementById('swCity').value = profile.city;
+      document.getElementById('btnSwitch').addEventListener('click', async () => {
+        const btn = document.getElementById('btnSwitch');
+        const err = document.getElementById('swError');
+        err.style.display = 'none';
+        const p = targetRole === 'creator'
+          ? { niche: document.getElementById('swNiche').value }
+          : { businessName: document.getElementById('swBusiness').value.trim(), city: document.getElementById('swCity').value.trim() };
+        if (targetRole === 'umkm' && !p.businessName) { err.textContent = 'Isi nama usahamu dulu.'; err.style.display = 'block'; return; }
+        btn.disabled = true; btn.textContent = 'Memindahkan...';
+        try {
+          await KolabDB.switchRole(targetRole, p);
+          window.location.href = dashboardOf(targetRole);
+        } catch (e) {
+          err.textContent = 'Gagal pindah peran. Pastikan aturan database terbaru sudah dipasang, lalu coba lagi.';
+          err.style.display = 'block';
+          btn.disabled = false; btn.textContent = `Aktifkan mode ${ROLE_NAME[targetRole]}`;
+        }
+      });
+    }
+
     const existingSession = KolabDB.getSession();
     if (existingSession) {
-      window.location.href = existingSession.role === 'umkm' ? 'dashboard-umkm.html' : existingSession.role === 'creator' ? 'dashboard-creator.html' : 'dashboard-admin.html';
+      if ((wantedRole === 'umkm' || wantedRole === 'creator') && existingSession.role !== 'admin' && existingSession.role !== wantedRole) {
+        showSwitchPanel(existingSession.role, wantedRole);
+      } else {
+        window.location.href = dashboardOf(existingSession.role);
+      }
     }
 
     const fbUser = KolabDB.getCurrentGoogleUser();
@@ -221,12 +281,8 @@
     }));
 
     // Pilih peran otomatis dari tautan landing page (register.html?role=umkm atau ?role=creator)
-    const presetRole = new URLSearchParams(window.location.search).get('role');
-    if (presetRole === 'umkm' || presetRole === 'creator') selectRole(presetRole);
-
     // Pilih peran otomatis dari tautan landing page (register.html?role=umkm atau ?role=creator)
-    const presetRole = new URLSearchParams(window.location.search).get('role');
-    if (presetRole === 'umkm' || presetRole === 'creator') selectRole(presetRole);
+    if (wantedRole === 'umkm' || wantedRole === 'creator') selectRole(wantedRole);
 
     document.getElementById('btnRegister').addEventListener('click', async () => {
       document.querySelectorAll('.error-text').forEach((el) => (el.style.display = 'none'));
@@ -269,7 +325,12 @@
           : await KolabDB.signInWithGoogle({ role: selectedRole, profile });
 
         const targetRole = res.role || res.user?.role || selectedRole;
-        window.location.href = targetRole === 'umkm' ? 'dashboard-umkm.html' : 'dashboard-creator.html';
+        if (targetRole !== selectedRole && (targetRole === 'umkm' || targetRole === 'creator')) {
+          // Akun Google ini sudah punya peran lain
+          showSwitchPanel(targetRole, selectedRole, profile);
+          return;
+        }
+        window.location.href = dashboardOf(targetRole);
       } catch (err) {
         genErr.textContent = err?.message || 'Gagal mendaftar dengan Google. Coba lagi.';
         genErr.style.display = 'block';

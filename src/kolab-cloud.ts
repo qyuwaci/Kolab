@@ -695,6 +695,39 @@ async function completeGoogleOnboarding(role: 'umkm' | 'creator', profile: Recor
   return { ok: true, isNew: true, needsOnboarding: false, user: findBy(state.users, 'id', uid), role };
 }
 
+// Satu akun Google bisa dipakai sebagai pemilik usaha dan sebagai kreator.
+// Pindah peran hanya mengganti mode aktif; kampanye, video, dan saldo tetap tersimpan.
+async function switchRole(target: 'umkm' | 'creator', profile: Record<string, any> = {}) {
+  const fbUser = auth.currentUser;
+  if (!fbUser || !currentSession) throw new Error('Silakan masuk dengan Google terlebih dahulu.');
+  if (currentSession.role === 'admin') throw new Error('Akun admin tidak bisa pindah peran.');
+  if (target !== 'umkm' && target !== 'creator') throw new Error('Peran tidak dikenal.');
+  if (currentSession.role === target) return { ok: true, role: target };
+
+  const u = findBy(state.users, 'id', fbUser.uid) || {};
+  const patch: Record<string, any> = { role: target, updatedAt: serverTimestamp() };
+  if (profile.name) patch.name = String(profile.name).slice(0, 120);
+  if (target === 'creator') {
+    patch.niche = String(profile.niche || u.niche || 'lifestyle').slice(0, 80);
+    if (profile.bio) patch.bio = String(profile.bio).slice(0, 500);
+    if (u.followers == null) patch.followers = 0;
+    if (!u.tier) patch.tier = getInfluencerTier(Number(u.followers || 0));
+  } else {
+    patch.businessName = String(profile.businessName || u.businessName || u.name || 'Usaha saya').slice(0, 140);
+    patch.category = String(profile.category || u.category || 'Lainnya').slice(0, 80);
+    patch.city = String(profile.city || u.city || 'Indonesia').slice(0, 80);
+  }
+
+  try {
+    await updateDoc(doc(db, 'users', fbUser.uid), patch);
+  } catch (err) {
+    handleFirestoreError(err, OperationType.UPDATE, `users/${fbUser.uid}`);
+  }
+  sessionStorage.setItem(SESSION_ROLE_KEY, target);
+  await loadCloudState(fbUser);
+  return { ok: true, role: target };
+}
+
 async function signOut(): Promise<void> {
   sessionStorage.removeItem(SESSION_ROLE_KEY);
   currentSession = null;
@@ -2033,6 +2066,7 @@ const KolabDB = {
   flush,
   signInWithGoogle,
   completeGoogleOnboarding,
+  switchRole,
   signOut,
   getCurrentGoogleUser,
   connectYouTubeWithGoogle,

@@ -151,10 +151,12 @@ export function renderNavbar(activePage: string): void {
             ${planBadgeHtml}
           </div>
         </div>
-        ${session.role === 'umkm' ? `<a href="umkm-profile.html?id=${encodeURIComponent(session.id)}" class="dropdown-item">Profil Usaha</a>` : ''}
-        ${session.role === 'creator' ? `<a href="creator-profile.html?id=${encodeURIComponent(session.id)}" class="dropdown-item">Profil Kreator</a>` : ''}
+        ${session.role === 'umkm' ? `<a href="umkm-profile.html?id=${encodeURIComponent(session.id)}" class="dropdown-item">Profil usaha</a>` : ''}
+        ${session.role === 'creator' ? `<a href="creator-profile.html?id=${encodeURIComponent(session.id)}" class="dropdown-item">Profil kreator</a>` : ''}
         ${session.role === 'creator' ? `<a href="creator-analytics.html" class="dropdown-item">Akun sosmed</a>` : ''}
-        ${session.role !== 'admin' ? `<a href="pricing.html" class="dropdown-item">Kelola Langganan</a>` : ''}
+        ${session.role !== 'admin' ? `<a href="pricing.html" class="dropdown-item">Kelola langganan</a>` : ''}
+        ${session.role === 'umkm' ? `<a href="register.html?role=creator" class="dropdown-item">Pindah ke mode kreator</a>` : ''}
+        ${session.role === 'creator' ? `<a href="register.html?role=umkm" class="dropdown-item">Pindah ke mode pemilik usaha</a>` : ''}
         <button type="button" class="dropdown-item danger" id="btnLogout">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           Keluar
